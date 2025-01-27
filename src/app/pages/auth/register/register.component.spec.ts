@@ -18,7 +18,9 @@ describe('RegisterComponent', () => {
       session: {
         access_token: 'token',
         refresh_token: 'refresh',
-        expires_in: 3600
+        expires_in: 3600,
+        token_type: 'bearer',
+        user: { id: '1', email: 'test@example.com' }
       }
     },
     error: null
