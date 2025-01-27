@@ -12,8 +12,9 @@ export class ThemeService {
     // Load saved preference from localStorage
     const savedTheme = localStorage.getItem('darkMode');
     if (savedTheme) {
-      this.darkModeSubject.next(savedTheme === 'true');
-      this.updateTheme(savedTheme === 'true');
+      const isDark = savedTheme === 'true';
+      this.darkModeSubject.next(isDark);
+      this.updateTheme(isDark);
     }
   }
 
@@ -24,7 +25,7 @@ export class ThemeService {
   toggleTheme(): void {
     const newValue = !this.darkModeSubject.value;
     this.darkModeSubject.next(newValue);
-    localStorage.setItem('darkMode', newValue.toString());
+    localStorage.setItem('darkMode', String(newValue));
     this.updateTheme(newValue);
   }
 

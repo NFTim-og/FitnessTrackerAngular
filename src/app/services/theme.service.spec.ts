@@ -5,10 +5,9 @@ describe('ThemeService', () => {
   let service: ThemeService;
 
   beforeEach(() => {
+    localStorage.clear(); // Clear localStorage before each test
     TestBed.configureTestingModule({});
     service = TestBed.inject(ThemeService);
-    // Clear localStorage before each test
-    localStorage.clear();
   });
 
   it('should be created', () => {
@@ -37,9 +36,15 @@ describe('ThemeService', () => {
   });
 
   it('should notify subscribers when theme changes', (done) => {
+    let callCount = 0;
     service.darkMode$.subscribe(isDark => {
-      expect(isDark).toBeTrue();
-      done();
+      if (callCount === 0) {
+        expect(isDark).toBeFalse(); // Initial value
+      } else {
+        expect(isDark).toBeTrue(); // After toggle
+        done();
+      }
+      callCount++;
     });
     service.toggleTheme();
   });
