@@ -14,6 +14,7 @@ describe('ThemeToggleComponent', () => {
       providers: [ThemeService]
     }).compileComponents();
 
+    localStorage.clear(); // Clear localStorage before each test
     themeService = TestBed.inject(ThemeService);
   });
 

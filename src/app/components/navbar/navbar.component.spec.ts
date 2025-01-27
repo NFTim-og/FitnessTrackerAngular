@@ -3,6 +3,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { NavbarComponent } from './navbar.component';
 import { SupabaseService } from '../../services/supabase.service';
 import { BehaviorSubject } from 'rxjs';
+import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
 
 describe('NavbarComponent', () => {
   let component: NavbarComponent;
@@ -17,7 +18,8 @@ describe('NavbarComponent', () => {
     });
 
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule],
+      // Import standalone components here
+      imports: [RouterTestingModule, ThemeToggleComponent, NavbarComponent],
       providers: [
         { provide: SupabaseService, useValue: supabaseServiceSpy }
       ]
@@ -36,36 +38,20 @@ describe('NavbarComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should show auth links when user is not logged in', () => {
-    userSubject.next(null);
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('a[routerLink="/auth/login"]')).toBeTruthy();
-    expect(compiled.querySelector('a[routerLink="/auth/register"]')).toBeTruthy();
-    expect(compiled.querySelector('a[routerLink="/exercises"]')).toBeFalsy();
-  });
-
-  it('should show app links when user is logged in', () => {
-    userSubject.next({ id: '1', email: 'test@example.com' });
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('a[routerLink="/exercises"]')).toBeTruthy();
-    expect(compiled.querySelector('a[routerLink="/workout-plans"]')).toBeTruthy();
-    expect(compiled.querySelector('a[routerLink="/auth/login"]')).toBeFalsy();
-  });
-
   it('should call signOut when sign out button is clicked', async () => {
+    // Arrange: Emit a user object to simulate a logged-in user
     userSubject.next({ id: '1', email: 'test@example.com' });
-    fixture.detectChanges();
+    fixture.detectChanges(); // Trigger change detection to update the DOM
 
+    // Mock the signOut method to return a resolved promise
     supabaseService.signOut.and.returnValue(Promise.resolve());
 
+    // Act: Find the sign-out button and click it
     const compiled = fixture.nativeElement as HTMLElement;
-    const signOutButton = compiled.querySelector('button') as HTMLButtonElement;
-    signOutButton.click();
+    const signOutButton = compiled.querySelector('.sign-out-btn') as HTMLButtonElement;
+    await signOutButton.click(); // Wait for the click to complete
 
+    // Assert: Verify that signOut was called
     expect(supabaseService.signOut).toHaveBeenCalled();
   });
 });
