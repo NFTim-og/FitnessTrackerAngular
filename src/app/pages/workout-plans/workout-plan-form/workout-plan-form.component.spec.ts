@@ -35,7 +35,7 @@ describe('WorkoutPlanFormComponent', () => {
 
     const exerciseServiceSpy = jasmine.createSpyObj('ExerciseService', 
       ['loadExercises'],
-      { exercises$: of(mockExercises) }
+      { exercises$: of(mockExercises) } // Mock exercises$ observable
     );
 
     await TestBed.configureTestingModule({
@@ -58,24 +58,44 @@ describe('WorkoutPlanFormComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(WorkoutPlanFormComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    fixture.detectChanges(); // Trigger ngOnInit
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load exercises on init', () => {
+  it('should load exercises on init', async () => {
+    // Act: ngOnInit is called in beforeEach, but ensure async operations are complete
+    fixture.detectChanges(); // Trigger ngOnInit
+  
+    // Wait for all async operations to settle
+    await fixture.whenStable();
+  
+    // Assert
     expect(exerciseService.loadExercises).toHaveBeenCalled();
-    expect(component.exercises).toEqual(mockExercises);
+    expect(component.exercises.length).toBeGreaterThan(0); // Ensure exercises are loaded
+    expect(component.exercises).toEqual(mockExercises); // Verify exercises loaded correctly
   });
+  
 
   it('should add and remove exercises', () => {
+    // Arrange: Ensure exercises are loaded
+    component.exercises = mockExercises;
     const event = { target: { value: '1' } } as unknown as Event;
+
+    // Act: Add exercise
     component.addExercise(event);
+    fixture.detectChanges(); // Trigger change detection
+
+    // Assert: Verify exercise is added
     expect(component.selectedExercises).toContain(mockExercises[0]);
 
+    // Act: Remove exercise
     component.removeExercise(mockExercises[0]);
+    fixture.detectChanges(); // Trigger change detection
+
+    // Assert: Verify exercise is removed
     expect(component.selectedExercises).not.toContain(mockExercises[0]);
   });
 });
