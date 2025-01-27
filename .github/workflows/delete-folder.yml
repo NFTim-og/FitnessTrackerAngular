@@ -1,0 +1,29 @@
+name: Delete .angular Folder
+
+on:
+  workflow_dispatch: # Allows manual triggering
+  push:
+    branches:
+      - main # Optional: Trigger on push to the main branch
+
+jobs:
+  delete-folder:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }} # Use the PAT for write access
+
+      - name: Delete .angular folder
+        run: |
+          rm -rf .angular # Deletes the .angular folder
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Deleted .angular folder" || echo "No changes to commit"
+          git push origin HEAD:main # Push changes to the main branch
