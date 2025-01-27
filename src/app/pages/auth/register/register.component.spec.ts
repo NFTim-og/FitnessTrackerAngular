@@ -4,7 +4,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { Router } from '@angular/router';
 import { RegisterComponent } from './register.component';
 import { SupabaseService } from '../../../services/supabase.service';
-import { User } from '@supabase/supabase-js';
+import { User, Session } from '@supabase/supabase-js';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
@@ -12,16 +12,29 @@ describe('RegisterComponent', () => {
   let supabaseService: jasmine.SpyObj<SupabaseService>;
   let router: Router;
 
+  const mockUser: User = {
+    id: '1',
+    email: 'test@example.com',
+    app_metadata: {},
+    user_metadata: {},
+    aud: 'authenticated',
+    created_at: new Date().toISOString(),
+    role: 'authenticated',
+    updated_at: new Date().toISOString()
+  };
+
+  const mockSession: Session = {
+    access_token: 'token',
+    refresh_token: 'refresh',
+    expires_in: 3600,
+    token_type: 'bearer',
+    user: mockUser
+  };
+
   const mockAuthResponse = {
     data: {
-      user: { id: '1', email: 'test@example.com' } as User,
-      session: {
-        access_token: 'token',
-        refresh_token: 'refresh',
-        expires_in: 3600,
-        token_type: 'bearer',
-        user: { id: '1', email: 'test@example.com' }
-      }
+      user: mockUser,
+      session: mockSession
     },
     error: null
   };
