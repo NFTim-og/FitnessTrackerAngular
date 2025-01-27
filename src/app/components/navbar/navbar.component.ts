@@ -2,18 +2,20 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
+import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ThemeToggleComponent],
   template: `
     <nav class="bg-white shadow-md">
       <div class="container mx-auto px-4">
         <div class="flex justify-between items-center h-16">
           <a routerLink="/" class="text-xl font-bold">Fitness Tracker</a>
           
-          <div class="flex gap-4">
+          <div class="flex items-center gap-4">
+            <app-theme-toggle></app-theme-toggle>
             @if (user$ | async; as user) {
               <a routerLink="/exercises" class="nav-link">Exercises</a>
               <a routerLink="/workout-plans" class="nav-link">Workout Plans</a>
