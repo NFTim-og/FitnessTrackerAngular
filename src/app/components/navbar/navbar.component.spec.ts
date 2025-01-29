@@ -42,15 +42,19 @@ describe('NavbarComponent', () => {
     // Arrange: Emit a user object to simulate a logged-in user
     userSubject.next({ id: '1', email: 'test@example.com' });
     fixture.detectChanges(); // Trigger change detection to update the DOM
-
+  
     // Mock the signOut method to return a resolved promise
     supabaseService.signOut.and.returnValue(Promise.resolve());
-
+  
     // Act: Find the sign-out button and click it
     const compiled = fixture.nativeElement as HTMLElement;
-    const signOutButton = compiled.querySelector('.sign-out-btn') as HTMLButtonElement;
+    const signOutButton = compiled.querySelector('button.nav-link') as HTMLButtonElement;
+  
+    // Ensure the button is present
+    expect(signOutButton).toBeTruthy('Sign out button should be present in the DOM');
+  
     await signOutButton.click(); // Wait for the click to complete
-
+  
     // Assert: Verify that signOut was called
     expect(supabaseService.signOut).toHaveBeenCalled();
   });
