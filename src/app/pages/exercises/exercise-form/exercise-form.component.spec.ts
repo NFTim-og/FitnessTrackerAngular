@@ -19,7 +19,8 @@ describe('ExerciseFormComponent', () => {
     calories: 100,
     difficulty: 'medium' as const,
     created_by: 'user-1',
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    met_value: 4
   };
 
   beforeEach(async () => {
@@ -107,7 +108,8 @@ describe('ExerciseFormComponent', () => {
       name: 'Squats',
       duration: 15,
       calories: 150,
-      difficulty: 'hard' as const
+      difficulty: 'hard' as const,
+      met_value: 4
     };
 
     exerciseService.createExercise.and.returnValue(Promise.resolve({ ...newExercise, id: '2' }));
