@@ -1,3 +1,4 @@
+// src/app/services/workout-plan.service.ts
 import { Injectable } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { BehaviorSubject } from 'rxjs';
@@ -60,10 +61,13 @@ export class WorkoutPlanService {
 
   async createWorkoutPlan(workoutPlan: Omit<WorkoutPlan, 'id' | 'created_at' | 'created_by'>, exercises: { id: string; order: number }[]) {
     try {
+      const user = this.supabaseService.currentUser;
+      if (!user) throw new Error('User must be authenticated to create workout plans');
+
       // Start a transaction by creating the workout plan
       const { data: plan, error: planError } = await this.supabaseClient
         .from('workout_plans')
-        .insert([workoutPlan])
+        .insert([{ ...workoutPlan, created_by: user.id }])
         .select()
         .single();
 
