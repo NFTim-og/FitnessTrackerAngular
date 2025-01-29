@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ExerciseService } from '../../../services/exercise.service';
 import { UserProfileService } from '../../../services/user-profile.service';
 import { Exercise } from '../../../models/types';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-exercise-form',
@@ -12,7 +13,9 @@ import { Exercise } from '../../../models/types';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="max-w-lg mx-auto">
-      <h1 class="text-3xl font-bold mb-6">{{ isEditing ? 'Edit' : 'New' }} Exercise</h1>
+      <h1 class="text-3xl font-bold mb-6">
+        {{ isEditing ? 'Edit' : 'New' }} Exercise
+      </h1>
 
       <form [formGroup]="exerciseForm" (ngSubmit)="onSubmit()" class="card">
         <div class="form-group">
@@ -157,12 +160,13 @@ import { Exercise } from '../../../models/types';
     </div>
   `
 })
-export class ExerciseFormComponent implements OnInit {
+export class ExerciseFormComponent implements OnInit, OnDestroy {
   exerciseForm: FormGroup;
   isEditing = false;
   isSubmitting = false;
   showMetInfo = false;
   estimatedCalories = 0;
+  private profileSubscription: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -177,6 +181,11 @@ export class ExerciseFormComponent implements OnInit {
       met_value: [4.0, [Validators.required, Validators.min(0.1)]],
       difficulty: ['', [Validators.required]]
     });
+
+    // Subscribe to profile changes to update calories when weight changes
+    this.profileSubscription = this.userProfileService.profile$.subscribe(() => {
+      this.updateCalories();
+    });
   }
 
   ngOnInit() {
@@ -186,6 +195,12 @@ export class ExerciseFormComponent implements OnInit {
       this.loadExercise(exerciseId);
     }
     this.updateCalories();
+  }
+
+  ngOnDestroy() {
+    if (this.profileSubscription) {
+      this.profileSubscription.unsubscribe();
+    }
   }
 
   async loadExercise(id: string) {
