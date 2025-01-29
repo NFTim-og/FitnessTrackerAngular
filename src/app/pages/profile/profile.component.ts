@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { UserProfileService } from '../../services/user-profile.service';
 import { UserProfile, WeightHistory } from '../../models/types';
 
@@ -195,7 +196,7 @@ export class ProfileComponent implements OnInit {
 
     this.isSubmitting = true;
     try {
-      const profile = await this.userProfileService.profile$.value;
+      const profile = await firstValueFrom(this.userProfileService.profile$);
       const { weight, height } = this.profileForm.value;
 
       if (profile) {
