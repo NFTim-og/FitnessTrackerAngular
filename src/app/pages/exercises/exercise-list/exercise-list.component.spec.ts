@@ -18,7 +18,8 @@ describe('ExerciseListComponent', () => {
       calories: 100,
       difficulty: 'medium' as const,
       created_by: 'user-1',
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      met_value: 5
     },
     {
       id: '2',
@@ -27,7 +28,8 @@ describe('ExerciseListComponent', () => {
       calories: 150,
       difficulty: 'hard' as const,
       created_by: 'user-1',
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      met_value: 6
     }
   ];
 
