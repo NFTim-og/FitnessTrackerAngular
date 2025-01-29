@@ -18,7 +18,8 @@ describe('WorkoutPlanListComponent', () => {
       calories: 100,
       difficulty: 'medium' as const,
       created_by: 'user-1',
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      met_value: 5
     }
   ];
 
