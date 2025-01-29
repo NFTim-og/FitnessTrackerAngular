@@ -50,9 +50,12 @@ export class ExerciseService {
 
   async createExercise(exercise: Omit<Exercise, 'id' | 'created_at' | 'created_by'>) {
     try {
+      const user = this.supabaseService.currentUser;
+      if (!user) throw new Error('User must be authenticated to create exercises');
+
       const { data, error } = await this.supabaseClient
         .from('exercises')
-        .insert([exercise])
+        .insert([{ ...exercise, created_by: user.id }])
         .select()
         .single();
 
