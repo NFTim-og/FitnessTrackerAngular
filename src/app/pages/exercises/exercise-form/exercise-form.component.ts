@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ExerciseService } from '../../../services/exercise.service';
+import { UserProfileService } from '../../../services/user-profile.service';
 import { Exercise } from '../../../models/types';
 
 @Component({
@@ -36,6 +37,7 @@ import { Exercise } from '../../../models/types';
             formControlName="duration"
             class="form-control"
             [class.border-red-500]="showError('duration')"
+            (input)="updateCalories()"
           />
           @if (showError('duration')) {
             <p class="text-red-500 text-sm mt-1">
@@ -45,20 +47,48 @@ import { Exercise } from '../../../models/types';
         </div>
 
         <div class="form-group">
-          <label for="calories" class="form-label">Calories Burned</label>
+          <label for="met" class="form-label">
+            MET Value
+            <span
+              class="ml-2 text-sm text-blue-600 cursor-pointer"
+              (click)="showMetInfo = !showMetInfo"
+            >
+              ℹ️ What's this?
+            </span>
+          </label>
           <input
             type="number"
-            id="calories"
-            formControlName="calories"
+            id="met"
+            formControlName="met_value"
             class="form-control"
-            [class.border-red-500]="showError('calories')"
+            [class.border-red-500]="showError('met_value')"
+            step="0.1"
+            (input)="updateCalories()"
           />
-          @if (showError('calories')) {
+          @if (showError('met_value')) {
             <p class="text-red-500 text-sm mt-1">
-              Calories must be 0 or greater
+              MET value must be greater than 0
             </p>
           }
         </div>
+
+        @if (showMetInfo) {
+          <div class="bg-blue-50 p-4 rounded-lg mb-4">
+            <h3 class="font-semibold mb-2">About MET Values</h3>
+            <p class="mb-2">
+              MET (Metabolic Equivalent of Task) represents the energy cost of physical activities.
+              Common values:
+            </p>
+            <ul class="list-disc list-inside mb-2">
+              <li>Light activity (walking slowly): 2-3 METs</li>
+              <li>Moderate activity (brisk walking): 3-6 METs</li>
+              <li>Vigorous activity (running): 6+ METs</li>
+            </ul>
+            <p>
+              Your calories burned will be calculated based on your weight and the MET value.
+            </p>
+          </div>
+        }
 
         <div class="form-group">
           <label class="form-label">Difficulty</label>
@@ -96,6 +126,17 @@ import { Exercise } from '../../../models/types';
           }
         </div>
 
+        @if (estimatedCalories > 0) {
+          <div class="bg-green-50 p-4 rounded-lg mb-4">
+            <p class="font-semibold">
+              Estimated Calories: {{ estimatedCalories }} kcal
+            </p>
+            <p class="text-sm text-gray-600">
+              Based on your current weight and the exercise parameters
+            </p>
+          </div>
+        }
+
         <div class="flex gap-4 mt-6">
           <button
             type="submit"
@@ -114,32 +155,26 @@ import { Exercise } from '../../../models/types';
         </div>
       </form>
     </div>
-  `,
-  styles: [`
-    .btn-secondary {
-      background-color: #9ca3af;
-      color: white;
-    }
-    .btn-secondary:hover {
-      background-color: #6b7280;
-    }
-  `]
+  `
 })
 export class ExerciseFormComponent implements OnInit {
   exerciseForm: FormGroup;
   isEditing = false;
   isSubmitting = false;
+  showMetInfo = false;
+  estimatedCalories = 0;
 
   constructor(
     private fb: FormBuilder,
     private exerciseService: ExerciseService,
+    private userProfileService: UserProfileService,
     private router: Router,
     private route: ActivatedRoute
   ) {
     this.exerciseForm = this.fb.group({
       name: ['', [Validators.required]],
       duration: ['', [Validators.required, Validators.min(1)]],
-      calories: ['', [Validators.required, Validators.min(0)]],
+      met_value: [4.0, [Validators.required, Validators.min(0.1)]],
       difficulty: ['', [Validators.required]]
     });
   }
@@ -150,6 +185,7 @@ export class ExerciseFormComponent implements OnInit {
       this.isEditing = true;
       this.loadExercise(exerciseId);
     }
+    this.updateCalories();
   }
 
   async loadExercise(id: string) {
@@ -157,10 +193,10 @@ export class ExerciseFormComponent implements OnInit {
       const exercise = await this.exerciseService.getExercise(id);
       if (exercise) {
         this.exerciseForm.patchValue(exercise);
+        this.updateCalories();
       }
     } catch (error) {
       console.error('Error loading exercise:', error);
-      // TODO: Add error handling
     }
   }
 
@@ -169,24 +205,36 @@ export class ExerciseFormComponent implements OnInit {
     return control?.invalid && (control?.dirty || control?.touched);
   }
 
+  updateCalories() {
+    const duration = this.exerciseForm.get('duration')?.value;
+    const metValue = this.exerciseForm.get('met_value')?.value;
+    
+    if (duration && metValue) {
+      this.estimatedCalories = this.userProfileService.calculateCalories(metValue, duration);
+    } else {
+      this.estimatedCalories = 0;
+    }
+  }
+
   async onSubmit() {
     if (this.exerciseForm.invalid) return;
 
     this.isSubmitting = true;
     try {
+      const formData = {
+        ...this.exerciseForm.value,
+        calories: this.estimatedCalories
+      };
+
       if (this.isEditing) {
         const exerciseId = this.route.snapshot.params['id'];
-        await this.exerciseService.updateExercise(
-          exerciseId,
-          this.exerciseForm.value
-        );
+        await this.exerciseService.updateExercise(exerciseId, formData);
       } else {
-        await this.exerciseService.createExercise(this.exerciseForm.value);
+        await this.exerciseService.createExercise(formData);
       }
       this.router.navigate(['/exercises']);
     } catch (error) {
       console.error('Error saving exercise:', error);
-      // TODO: Add error handling
     } finally {
       this.isSubmitting = false;
     }
