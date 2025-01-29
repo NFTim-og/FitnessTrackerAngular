@@ -34,7 +34,7 @@ import { WorkoutPlan, Exercise } from '../../../models/types';
         @for (plan of workoutPlans; track plan.id) {
           <div class="card">
             <h3 class="text-xl font-semibold mb-2">{{ plan.name }}</h3>
-            <p class="text-gray-600 mb-4">{{ plan.description }}</p>
+            <pre class="text-gray-600 mb-4 whitespace-pre-wrap font-sans text-base">{{ plan.description }}</pre>
             
             @if (plan.exercises && plan.exercises.length > 0) {
               <div class="mb-4">
@@ -67,6 +67,7 @@ import { WorkoutPlan, Exercise } from '../../../models/types';
     </div>
   `
 })
+
 export class WorkoutPlanListComponent implements OnInit {
   workoutPlans: WorkoutPlan[] = [];
   searchQuery = '';
