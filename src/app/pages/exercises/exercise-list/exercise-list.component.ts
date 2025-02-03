@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ExerciseService } from '../../../services/exercise.service';
+import { UserProfileService } from '../../../services/user-profile.service';
 import { Exercise } from '../../../models/types';
 
 @Component({
@@ -45,8 +46,16 @@ import { Exercise } from '../../../models/types';
           <h3 class="text-xl font-semibold mb-2">{{ exercise.name }}</h3>
           <div class="mb-4">
             <p>Duration: {{ exercise.duration }} minutes</p>
-            <p>Calories: {{ exercise.calories }}</p>
+            <p>
+              Calories: {{ calculateCalories(exercise) }}
+              @if (!userProfile) {
+                <span class="text-sm text-gray-500">
+                  (Set your weight in profile for accurate calculation)
+                </span>
+              }
+            </p>
             <p class="capitalize">Difficulty: {{ exercise.difficulty }}</p>
+            <p class="text-sm text-gray-600">MET: {{ exercise.met_value }}</p>
           </div>
           <div class="flex gap-2">
             <button
@@ -80,8 +89,12 @@ export class ExerciseListComponent implements OnInit {
   exercises: Exercise[] = [];
   searchQuery = '';
   selectedDifficulty = '';
+  userProfile = this.userProfileService.profile$;
 
-  constructor(private exerciseService: ExerciseService) {}
+  constructor(
+    private exerciseService: ExerciseService,
+    private userProfileService: UserProfileService
+  ) {}
 
   ngOnInit() {
     this.exerciseService.exercises$.subscribe(
@@ -121,5 +134,12 @@ export class ExerciseListComponent implements OnInit {
       console.error('Error deleting exercise:', error);
       // TODO: Add error handling
     }
+  }
+
+  calculateCalories(exercise: Exercise): number {
+    return this.userProfileService.calculateCalories(
+      exercise.met_value,
+      exercise.duration
+    );
   }
 }

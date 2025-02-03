@@ -238,7 +238,7 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
     try {
       const formData = {
         ...this.exerciseForm.value,
-        calories: this.estimatedCalories
+        calories: 0 // This will be calculated dynamically when displayed
       };
 
       if (this.isEditing) {
