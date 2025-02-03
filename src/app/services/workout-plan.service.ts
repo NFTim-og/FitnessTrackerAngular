@@ -1,4 +1,3 @@
-// src/app/services/workout-plan.service.ts
 import { Injectable } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { BehaviorSubject } from 'rxjs';
@@ -27,7 +26,7 @@ export class WorkoutPlanService {
             exercise:exercises(*)
           )
         `)
-        .order('created_at', { ascending: false });
+        .order('name', { ascending: true });
 
       if (error) throw error;
       this.workoutPlansSubject.next(data || []);
@@ -49,6 +48,7 @@ export class WorkoutPlanService {
           )
         `)
         .eq('id', id)
+        .order('name', { ascending: true })
         .single();
 
       if (error) throw error;

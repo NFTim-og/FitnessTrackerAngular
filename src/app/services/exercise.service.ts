@@ -21,7 +21,7 @@ export class ExerciseService {
       const { data, error } = await this.supabaseClient
         .from('exercises')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('name', { ascending: true });
 
       if (error) throw error;
       this.exercisesSubject.next(data || []);
@@ -106,7 +106,8 @@ export class ExerciseService {
       let queryBuilder = this.supabaseClient
         .from('exercises')
         .select('*')
-        .ilike('name', `%${query}%`);
+        .ilike('name', `%${query}%`)
+        .order('name', { ascending: true });
 
       if (difficulty) {
         queryBuilder = queryBuilder.eq('difficulty', difficulty);
