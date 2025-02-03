@@ -128,8 +128,8 @@ export class WorkoutPlanFormComponent implements OnInit {
 
   async loadExercises() {
     try {
-      await this.exerciseService.loadExercises();
-      this.exerciseService.exercises$.subscribe(exercises => {
+      await this.exerciseService.loadExercises({ page: 1, perPage: 100 });
+      this.exerciseService.data$.subscribe(exercises => {
         this.exercises = exercises;
       });
     } catch (error) {

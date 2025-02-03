@@ -2,14 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { ExerciseService } from '../../../services/exercise.service';
 import { UserProfileService } from '../../../services/user-profile.service';
 import { Exercise } from '../../../models/types';
+import { PaginationState } from '../../../shared/interfaces/pagination.interface';
 
 @Component({
   selector: 'app-exercise-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
   template: `
     <div class="mb-6">
       <h1 class="text-3xl font-bold mb-4">My Exercises</h1>
@@ -40,36 +42,12 @@ import { Exercise } from '../../../models/types';
       </button>
     </div>
 
-    @if (totalPages > 1) {
-      <div class="flex justify-center gap-2 mb-6">
-        <button
-          class="btn btn-secondary"
-          [disabled]="currentPage === 1"
-          (click)="changePage(currentPage - 1)"
-        >
-          Previous
-        </button>
-        
-        @for (page of pages; track page) {
-          <button
-            class="btn"
-            [class.btn-primary]="currentPage === page"
-            [class.btn-secondary]="currentPage !== page"
-            (click)="changePage(page)"
-          >
-            {{ page }}
-          </button>
-        }
-
-        <button
-          class="btn btn-secondary"
-          [disabled]="currentPage === totalPages"
-          (click)="changePage(currentPage + 1)"
-        >
-          Next
-        </button>
-      </div>
-    }
+    <app-pagination
+      [currentPage]="pagination.currentPage"
+      [totalCount]="pagination.totalCount"
+      [perPage]="pagination.perPage"
+      (pageChange)="changePage($event)"
+    ></app-pagination>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       @for (exercise of exercises; track exercise.id) {
@@ -78,8 +56,8 @@ import { Exercise } from '../../../models/types';
           <div class="mb-4">
             <p>Duration: {{ exercise.duration }} minutes</p>
             <p>
-              Calories: {{ calculateCalories(exercise) }}
-              @if (!userProfile) {
+              Calories: {{ calculateCalories(exercise) }} 
+              @if (!(userProfile$ | async)) {
                 <span class="text-sm text-gray-500">
                   (Set your weight in profile for accurate calculation)
                 </span>
@@ -120,20 +98,24 @@ export class ExerciseListComponent implements OnInit {
   exercises: Exercise[] = [];
   searchQuery = '';
   selectedDifficulty = '';
-  userProfile = this.userProfileService.profile$;
-  currentPage = 1;
-  totalCount = 0;
-  readonly perPage = 6;
+  userProfile$ = this.userProfileService.profile$;
+  pagination: PaginationState = {
+    currentPage: 1,
+    totalCount: 0,
+    perPage: 6
+  };
 
   constructor(
     private exerciseService: ExerciseService,
     private userProfileService: UserProfileService
   ) {
-    this.exerciseService.totalCount$.subscribe(count => this.totalCount = count);
+    this.exerciseService.totalCount$.subscribe(count => {
+      this.pagination = { ...this.pagination, totalCount: count };
+    });
   }
 
   ngOnInit() {
-    this.exerciseService.exercises$.subscribe(
+    this.exerciseService.data$.subscribe(
       exercises => this.exercises = exercises
     );
     this.loadExercises();
@@ -141,29 +123,26 @@ export class ExerciseListComponent implements OnInit {
 
   async loadExercises() {
     try {
-      await this.exerciseService.loadExercises(this.currentPage, this.perPage);
+      await this.exerciseService.loadExercises({
+        page: this.pagination.currentPage,
+        perPage: this.pagination.perPage
+      });
     } catch (error) {
       console.error('Error loading exercises:', error);
       // TODO: Add error handling
     }
   }
 
-  get totalPages(): number {
-    return Math.ceil(this.totalCount / this.perPage);
-  }
-
-  get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
   async onSearch() {
-    this.currentPage = 1; // Reset to first page when searching
+    this.pagination.currentPage = 1; // Reset to first page when searching
     try {
       await this.exerciseService.searchExercises(
         this.searchQuery,
         this.selectedDifficulty,
-        this.currentPage,
-        this.perPage
+        {
+          page: this.pagination.currentPage,
+          perPage: this.pagination.perPage
+        }
       );
     } catch (error) {
       console.error('Error searching exercises:', error);
@@ -172,13 +151,15 @@ export class ExerciseListComponent implements OnInit {
   }
 
   async changePage(page: number) {
-    this.currentPage = page;
+    this.pagination.currentPage = page;
     if (this.searchQuery || this.selectedDifficulty) {
       await this.exerciseService.searchExercises(
         this.searchQuery,
         this.selectedDifficulty,
-        this.currentPage,
-        this.perPage
+        {
+          page: this.pagination.currentPage,
+          perPage: this.pagination.perPage
+        }
       );
     } else {
       await this.loadExercises();

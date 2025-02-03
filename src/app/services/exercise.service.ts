@@ -1,45 +1,25 @@
-import { Injectable } from '@angular/core';
-import { SupabaseClient } from '@supabase/supabase-js';
+import { Injectable, inject } from '@angular/core';
 import { Exercise } from '../models/types';
-import { BehaviorSubject } from 'rxjs';
+import { BaseDataService } from '../shared/services/base-data.service';
 import { SupabaseService } from './supabase.service';
+import { PaginationParams } from '../shared/interfaces/pagination.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ExerciseService {
-  private supabaseClient: SupabaseClient;
-  private exercisesSubject = new BehaviorSubject<Exercise[]>([]);
-  exercises$ = this.exercisesSubject.asObservable();
-  private totalCountSubject = new BehaviorSubject<number>(0);
-  totalCount$ = this.totalCountSubject.asObservable();
-
+export class ExerciseService extends BaseDataService<Exercise> {
   constructor(private supabaseService: SupabaseService) {
-    this.supabaseClient = this.supabaseService.client;
+    super(inject(SupabaseService).client, 'exercises');
   }
-
-  async loadExercises(page: number = 1, perPage: number = 6) {
+  async loadExercises(params: PaginationParams) {
     try {
-      // First, get total count
-      const { count, error: countError } = await this.supabaseClient
-        .from('exercises')
-        .select('*', { count: 'exact', head: true });
-
-      if (countError) throw countError;
-      this.totalCountSubject.next(count || 0);
-
-      // Then get paginated data
-      const { data, error } = await this.supabaseClient
-        .from('exercises')
-        .select('*')
-        .order('name', { ascending: true })
-        .range((page - 1) * perPage, page * perPage - 1);
-
-      if (error) throw error;
-      this.exercisesSubject.next(data || []);
+      const response = await this.fetchPaginatedData(params);
+      this.dataSubject.next(response.data);
+      this.totalCountSubject.next(response.totalCount);
     } catch (error) {
       console.error('Error loading exercises:', error);
-      this.exercisesSubject.next([]);
+      this.dataSubject.next([]);
+      this.totalCountSubject.next(0);
       throw error;
     }
   }
@@ -59,7 +39,6 @@ export class ExerciseService {
       throw error;
     }
   }
-
   async createExercise(exercise: Omit<Exercise, 'id' | 'created_at' | 'created_by'>) {
     try {
       const user = this.supabaseService.currentUser;
@@ -72,14 +51,13 @@ export class ExerciseService {
         .single();
 
       if (error) throw error;
-      await this.loadExercises();
+      await this.loadExercises({ page: 1, perPage: 6 });
       return data;
     } catch (error) {
       console.error('Error creating exercise:', error);
       throw error;
     }
   }
-
   async updateExercise(id: string, exercise: Partial<Exercise>) {
     try {
       const { data, error } = await this.supabaseClient
@@ -90,14 +68,13 @@ export class ExerciseService {
         .single();
 
       if (error) throw error;
-      await this.loadExercises();
+      await this.loadExercises({ page: 1, perPage: 6 });
       return data;
     } catch (error) {
       console.error('Error updating exercise:', error);
       throw error;
     }
   }
-
   async deleteExercise(id: string) {
     try {
       const { error } = await this.supabaseClient
@@ -106,47 +83,28 @@ export class ExerciseService {
         .eq('id', id);
 
       if (error) throw error;
-      await this.loadExercises();
+      await this.loadExercises({ page: 1, perPage: 6 });
     } catch (error) {
       console.error('Error deleting exercise:', error);
       throw error;
     }
   }
-
-  async searchExercises(query: string, difficulty?: string, page: number = 1, perPage: number = 6) {
+  async searchExercises(query: string, difficulty: string, params: PaginationParams) {
     try {
-      // First, get total count for search results
-      let countQuery = this.supabaseClient
-        .from('exercises')
-        .select('*', { count: 'exact', head: true })
-        .ilike('name', `%${query}%`);
-
-      if (difficulty) {
-        countQuery = countQuery.eq('difficulty', difficulty);
-      }
-
-      const { count, error: countError } = await countQuery;
-      if (countError) throw countError;
-      this.totalCountSubject.next(count || 0);
-
-      // Then get paginated search results
-      let queryBuilder = this.supabaseClient
-        .from('exercises')
-        .select('*')
-        .ilike('name', `%${query}%`)
-        .order('name', { ascending: true })
-        .range((page - 1) * perPage, page * perPage - 1);
-
-      if (difficulty) {
-        queryBuilder = queryBuilder.eq('difficulty', difficulty);
-      }
-
-      const { data, error } = await queryBuilder;
-      if (error) throw error;
-      this.exercisesSubject.next(data || []);
+      const response = await this.fetchPaginatedData(params, (queryBuilder) => {
+        let q = queryBuilder.ilike('name', `%${query}%`);
+        if (difficulty) {
+          q = q.eq('difficulty', difficulty);
+        }
+        return q;
+      });
+      
+      this.dataSubject.next(response.data);
+      this.totalCountSubject.next(response.totalCount);
     } catch (error) {
       console.error('Error searching exercises:', error);
-      this.exercisesSubject.next([]);
+      this.dataSubject.next([]);
+      this.totalCountSubject.next(0);
       throw error;
     }
   }
