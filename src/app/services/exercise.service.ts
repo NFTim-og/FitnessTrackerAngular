@@ -11,17 +11,29 @@ export class ExerciseService {
   private supabaseClient: SupabaseClient;
   private exercisesSubject = new BehaviorSubject<Exercise[]>([]);
   exercises$ = this.exercisesSubject.asObservable();
+  private totalCountSubject = new BehaviorSubject<number>(0);
+  totalCount$ = this.totalCountSubject.asObservable();
 
   constructor(private supabaseService: SupabaseService) {
     this.supabaseClient = this.supabaseService.client;
   }
 
-  async loadExercises() {
+  async loadExercises(page: number = 1, perPage: number = 6) {
     try {
+      // First, get total count
+      const { count, error: countError } = await this.supabaseClient
+        .from('exercises')
+        .select('*', { count: 'exact', head: true });
+
+      if (countError) throw countError;
+      this.totalCountSubject.next(count || 0);
+
+      // Then get paginated data
       const { data, error } = await this.supabaseClient
         .from('exercises')
         .select('*')
-        .order('name', { ascending: true });
+        .order('name', { ascending: true })
+        .range((page - 1) * perPage, page * perPage - 1);
 
       if (error) throw error;
       this.exercisesSubject.next(data || []);
@@ -101,13 +113,29 @@ export class ExerciseService {
     }
   }
 
-  async searchExercises(query: string, difficulty?: string) {
+  async searchExercises(query: string, difficulty?: string, page: number = 1, perPage: number = 6) {
     try {
+      // First, get total count for search results
+      let countQuery = this.supabaseClient
+        .from('exercises')
+        .select('*', { count: 'exact', head: true })
+        .ilike('name', `%${query}%`);
+
+      if (difficulty) {
+        countQuery = countQuery.eq('difficulty', difficulty);
+      }
+
+      const { count, error: countError } = await countQuery;
+      if (countError) throw countError;
+      this.totalCountSubject.next(count || 0);
+
+      // Then get paginated search results
       let queryBuilder = this.supabaseClient
         .from('exercises')
         .select('*')
         .ilike('name', `%${query}%`)
-        .order('name', { ascending: true });
+        .order('name', { ascending: true })
+        .range((page - 1) * perPage, page * perPage - 1);
 
       if (difficulty) {
         queryBuilder = queryBuilder.eq('difficulty', difficulty);
@@ -115,9 +143,10 @@ export class ExerciseService {
 
       const { data, error } = await queryBuilder;
       if (error) throw error;
-      return data;
+      this.exercisesSubject.next(data || []);
     } catch (error) {
       console.error('Error searching exercises:', error);
+      this.exercisesSubject.next([]);
       throw error;
     }
   }

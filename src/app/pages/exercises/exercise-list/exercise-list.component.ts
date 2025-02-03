@@ -40,6 +40,37 @@ import { Exercise } from '../../../models/types';
       </button>
     </div>
 
+    @if (totalPages > 1) {
+      <div class="flex justify-center gap-2 mb-6">
+        <button
+          class="btn btn-secondary"
+          [disabled]="currentPage === 1"
+          (click)="changePage(currentPage - 1)"
+        >
+          Previous
+        </button>
+        
+        @for (page of pages; track page) {
+          <button
+            class="btn"
+            [class.btn-primary]="currentPage === page"
+            [class.btn-secondary]="currentPage !== page"
+            (click)="changePage(page)"
+          >
+            {{ page }}
+          </button>
+        }
+
+        <button
+          class="btn btn-secondary"
+          [disabled]="currentPage === totalPages"
+          (click)="changePage(currentPage + 1)"
+        >
+          Next
+        </button>
+      </div>
+    }
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       @for (exercise of exercises; track exercise.id) {
         <div class="card">
@@ -90,11 +121,16 @@ export class ExerciseListComponent implements OnInit {
   searchQuery = '';
   selectedDifficulty = '';
   userProfile = this.userProfileService.profile$;
+  currentPage = 1;
+  totalCount = 0;
+  readonly perPage = 6;
 
   constructor(
     private exerciseService: ExerciseService,
     private userProfileService: UserProfileService
-  ) {}
+  ) {
+    this.exerciseService.totalCount$.subscribe(count => this.totalCount = count);
+  }
 
   ngOnInit() {
     this.exerciseService.exercises$.subscribe(
@@ -105,26 +141,49 @@ export class ExerciseListComponent implements OnInit {
 
   async loadExercises() {
     try {
-      await this.exerciseService.loadExercises();
+      await this.exerciseService.loadExercises(this.currentPage, this.perPage);
     } catch (error) {
       console.error('Error loading exercises:', error);
       // TODO: Add error handling
     }
   }
 
+  get totalPages(): number {
+    return Math.ceil(this.totalCount / this.perPage);
+  }
+
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
   async onSearch() {
+    this.currentPage = 1; // Reset to first page when searching
     try {
-      const results = await this.exerciseService.searchExercises(
+      await this.exerciseService.searchExercises(
         this.searchQuery,
-        this.selectedDifficulty
+        this.selectedDifficulty,
+        this.currentPage,
+        this.perPage
       );
-      this.exercises = results;
     } catch (error) {
       console.error('Error searching exercises:', error);
       // TODO: Add error handling
     }
   }
 
+  async changePage(page: number) {
+    this.currentPage = page;
+    if (this.searchQuery || this.selectedDifficulty) {
+      await this.exerciseService.searchExercises(
+        this.searchQuery,
+        this.selectedDifficulty,
+        this.currentPage,
+        this.perPage
+      );
+    } else {
+      await this.loadExercises();
+    }
+  }
   async deleteExercise(id: string) {
     if (!confirm('Are you sure you want to delete this exercise?')) return;
 
