@@ -1,17 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { firstValueFrom } from 'rxjs';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { firstValueFrom, map } from 'rxjs';
 import { UserProfileService } from '../../services/user-profile.service';
+import { SupabaseService } from '../../services/supabase.service';
 import { UserProfile, WeightHistory } from '../../models/types';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   template: `
     <div class="max-w-lg mx-auto">
       <h1 class="text-3xl font-bold mb-6">Profile Settings</h1>
+
+      @if (currentUser$ | async; as user) {
+        <div class="card mb-6">
+          <h2 class="text-xl font-semibold mb-2">Account Information</h2>
+          <p class="text-sm text-gray-600">User ID: {{ user.id }}</p>
+          <p class="text-sm text-gray-600">Email: {{ user.email }}</p>
+        </div>
+      }
 
       @if (profile$ | async; as profile) {
         <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="card">
@@ -124,6 +133,51 @@ import { UserProfile, WeightHistory } from '../../models/types';
         </form>
       }
 
+      @if (isAdmin$ | async) {
+        <div class="card mt-6">
+          <h2 class="text-xl font-semibold mb-4">Admin Controls</h2>
+          <p class="mb-4">You have administrative privileges.</p>
+          
+          <div class="form-group">
+            <label for="userEmail" class="form-label">User Email</label>
+            <input
+              type="email"
+              id="userEmail"
+              [(ngModel)]="userEmail"
+              class="form-control"
+              [ngModelOptions]="{standalone: true}"
+            />
+          </div>
+          
+          <div class="form-group">
+            <label for="userRole" class="form-label">Role</label>
+            <select
+              id="userRole"
+              [(ngModel)]="selectedRole"
+              class="form-control"
+              [ngModelOptions]="{standalone: true}"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <button
+            (click)="updateUserRole()"
+            class="btn btn-primary"
+            [disabled]="!userEmail"
+          >
+            Update User Role
+          </button>
+
+          @if (roleUpdateMessage) {
+            <p class="mt-4" [class.text-green-500]="!roleUpdateError" [class.text-red-500]="roleUpdateError">
+              {{ roleUpdateMessage }}
+            </p>
+          }
+        </div>
+      }
+
       <div class="card mt-6">
         <h2 class="text-xl font-semibold mb-4">About MET Values</h2>
         <p class="mb-4">
@@ -152,13 +206,20 @@ import { UserProfile, WeightHistory } from '../../models/types';
 })
 export class ProfileComponent implements OnInit {
   profile$ = this.userProfileService.profile$;
+  isAdmin$ = this.supabaseService.user$.pipe(map(user => user?.role === 'admin'));
   profileForm: FormGroup;
   isSubmitting = false;
   weightHistory: WeightHistory[] = [];
+  userEmail = '';
+  selectedRole: 'admin' | 'user' = 'user';
+  currentUser$ = this.supabaseService.user$;
+  roleUpdateMessage = '';
+  roleUpdateError = false;
 
   constructor(
     private fb: FormBuilder,
-    private userProfileService: UserProfileService
+    private userProfileService: UserProfileService,
+    public supabaseService: SupabaseService
   ) {
     this.profileForm = this.fb.group({
       weight: ['', [Validators.required, Validators.min(0.1)]],
@@ -183,6 +244,31 @@ export class ProfileComponent implements OnInit {
       this.weightHistory = await this.userProfileService.getWeightHistory();
     } catch (error) {
       console.error('Error loading weight history:', error);
+    }
+  }
+
+  async updateUserRole() {
+    try {
+      this.roleUpdateMessage = '';
+      this.roleUpdateError = false;
+
+      // First, get the user ID from the email
+      const { data: users, error: userError } = await this.supabaseService.client
+        .from('auth.users')
+        .select('id')
+        .eq('email', this.userEmail)
+        .single();
+
+      if (userError) throw new Error('User not found');
+
+      await this.supabaseService.setUserRole(users.id, this.selectedRole);
+      this.roleUpdateMessage = `Successfully updated role for ${this.userEmail}`;
+      this.userEmail = '';
+      this.selectedRole = 'user';
+    } catch (error: any) {
+      console.error('Error updating user role:', error);
+      this.roleUpdateMessage = error.message || 'Error updating user role';
+      this.roleUpdateError = true;
     }
   }
 

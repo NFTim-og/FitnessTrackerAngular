@@ -12,6 +12,37 @@ export class SupabaseService {
   private userSubject = new BehaviorSubject<User | null>(null);
   user$ = this.userSubject.asObservable();
 
+  private async getUserRole(userId: string): Promise<'admin' | 'user'> {
+    const { data, error } = await this.supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .single();
+
+    if (error) {
+      // If the error is that the record doesn't exist, create it with default role
+      if (error.code === 'PGRST116' || error.code === '42P01') {
+        const { data: newRole, error: insertError } = await this.supabase
+          .from('user_roles')
+          .insert({ user_id: userId, role: 'user' })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error creating user role:', insertError);
+          return 'user';
+        }
+
+        return newRole.role;
+      } else {
+        console.error('Error fetching user role:', error);
+      }
+      return 'user'; // Default to user role if there's an error
+    }
+
+    return data?.role || 'user';
+  }
+
   constructor() {
     this.supabase = createClient(
       environment.supabaseUrl,
@@ -40,18 +71,22 @@ export class SupabaseService {
     try {
       const { data: { session } } = await this.supabase.auth.getSession();
       if (session?.user) {
+        const role = await this.getUserRole(session.user.id);
         this.userSubject.next({
           id: session.user.id,
-          email: session.user.email!
+          email: session.user.email!,
+          role
         });
       }
 
       // Listen for auth changes
-      this.supabase.auth.onAuthStateChange((event, session) => {
+      this.supabase.auth.onAuthStateChange(async (event, session) => {
         if (session?.user) {
+          const role = await this.getUserRole(session.user.id);
           this.userSubject.next({
             id: session.user.id,
-            email: session.user.email!
+            email: session.user.email!,
+            role
           });
         } else {
           this.userSubject.next(null);
@@ -69,6 +104,17 @@ export class SupabaseService {
         email,
         password
       });
+      
+      // If signup successful, create user role record
+      if (data.user) {
+        await this.supabase
+          .from('user_roles')
+          .insert([{
+            user_id: data.user.id,
+            role: 'user' // Default role for new users
+          }]);
+      }
+
       if (error) throw error;
       return data;
     } catch (error) {
@@ -107,5 +153,33 @@ export class SupabaseService {
 
   get client() {
     return this.supabase;
+  }
+
+  async setUserRole(userId: string, role: 'admin' | 'user') {
+    try {
+      const { error } = await this.supabase
+        .from('user_roles')
+        .upsert({
+          user_id: userId,
+          role
+        });
+
+      if (error) throw error;
+
+      // If changing current user's role, update the subject
+      if (userId === this.currentUser?.id) {
+        this.userSubject.next({
+          ...this.currentUser,
+          role
+        });
+      }
+    } catch (error) {
+      console.error('Error setting user role:', error);
+      throw error;
+    }
+  }
+
+  isAdmin(): boolean {
+    return this.currentUser?.role === 'admin';
   }
 }

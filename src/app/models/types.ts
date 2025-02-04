@@ -37,6 +37,7 @@ export interface UserWorkoutPlan {
 export interface User {
   id: string;
   email: string;
+  role?: 'admin' | 'user';
 }
 export interface UserProfile {
   id: string;
