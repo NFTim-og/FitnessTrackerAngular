@@ -11,6 +11,8 @@
   --background-color: #f3f4f6;
   --card-background: #ffffff;
   --border-color: #e5e7eb;
+  --button-background: #ffffff;
+  --button-text: #1f2937;
 }
 
 :root.dark-mode {
@@ -20,6 +22,8 @@
   --background-color: #111827;
   --card-background: #1f2937;
   --border-color: #374151;
+  --button-background: #374151;
+  --button-text: #f3f4f6;
 }
 
 * {
@@ -45,6 +49,20 @@ body {
   background-color: var(--background-color);
   min-height: 100vh;
   -webkit-text-size-adjust: 100%;
+}
+
+.nav-link {
+  padding: 0.5rem;
+  background-color: var(--button-background);
+  color: var(--button-text);
+  text-decoration: none;
+  transition: background-color 0.2s, color 0.2s;
+  border-radius: 10px;
+}
+
+.nav-link:hover {
+  background-color: var(--button-background);
+  color: var(--primary-color); /* Change hover color if needed */
 }
 
 /* Layout */

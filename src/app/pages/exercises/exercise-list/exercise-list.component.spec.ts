@@ -3,20 +3,23 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { FormsModule } from '@angular/forms';
 import { ExerciseListComponent } from './exercise-list.component';
 import { ExerciseService } from '../../../services/exercise.service';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
+import { Exercise } from '../../../models/types';
 
 describe('ExerciseListComponent', () => {
   let component: ExerciseListComponent;
   let fixture: ComponentFixture<ExerciseListComponent>;
   let exerciseService: jasmine.SpyObj<ExerciseService>;
+  let dataSubject: BehaviorSubject<Exercise[]>;
+  let totalCountSubject: BehaviorSubject<number>;
 
-  const mockExercises = [
+  const mockExercises: Exercise[] = [
     {
       id: '1',
       name: 'Push-ups',
       duration: 10,
       calories: 100,
-      difficulty: 'medium' as const,
+      difficulty: 'medium',
       created_by: 'user-1',
       created_at: new Date().toISOString(),
       met_value: 5
@@ -26,7 +29,7 @@ describe('ExerciseListComponent', () => {
       name: 'Squats',
       duration: 15,
       calories: 150,
-      difficulty: 'hard' as const,
+      difficulty: 'hard',
       created_by: 'user-1',
       created_at: new Date().toISOString(),
       met_value: 6
@@ -34,12 +37,16 @@ describe('ExerciseListComponent', () => {
   ];
 
   beforeEach(async () => {
+    dataSubject = new BehaviorSubject<Exercise[]>(mockExercises);
+    totalCountSubject = new BehaviorSubject<number>(mockExercises.length);
+
     const exerciseServiceSpy = jasmine.createSpyObj('ExerciseService', [
       'loadExercises',
       'searchExercises',
       'deleteExercise'
     ], {
-      exercises$: of(mockExercises)
+      data$: dataSubject.asObservable(),
+      totalCount$: totalCountSubject.asObservable()
     });
 
     await TestBed.configureTestingModule({
@@ -69,12 +76,16 @@ describe('ExerciseListComponent', () => {
 
   it('should search exercises', async () => {
     const searchResults = [mockExercises[0]];
-    exerciseService.searchExercises.and.returnValue(Promise.resolve(searchResults));
+    exerciseService.searchExercises.and.callFake(() => {
+      dataSubject.next(searchResults);
+      return Promise.resolve();
+    });
 
     component.searchQuery = 'push';
+    component.selectedDifficulty = '';
     await component.onSearch();
 
-    expect(exerciseService.searchExercises).toHaveBeenCalledWith('push', '');
+    expect(exerciseService.searchExercises).toHaveBeenCalledWith('push', '', { page: 1, perPage: 6 });
     expect(component.exercises).toEqual(searchResults);
   });
 

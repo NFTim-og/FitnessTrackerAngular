@@ -4,20 +4,39 @@ import { BehaviorSubject } from 'rxjs';
 import { WorkoutPlan, WorkoutExercise } from '../models/types';
 import { SupabaseService } from './supabase.service';
 
+interface PaginationParams {
+  page: number;
+  perPage: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class WorkoutPlanService {
   private supabaseClient: SupabaseClient;
   private workoutPlansSubject = new BehaviorSubject<WorkoutPlan[]>([]);
+  private totalCountSubject = new BehaviorSubject<number>(0);
+  private currentParams: PaginationParams = { page: 1, perPage: 1 };
+  
   workoutPlans$ = this.workoutPlansSubject.asObservable();
+  totalCount$ = this.totalCountSubject.asObservable();
 
   constructor(private supabaseService: SupabaseService) {
     this.supabaseClient = this.supabaseService.client;
   }
 
-  async loadWorkoutPlans() {
+  async loadWorkoutPlans(params: PaginationParams) {
     try {
+      this.currentParams = params;
+      // First, get total count
+      const { count, error: countError } = await this.supabaseClient
+        .from('workout_plans')
+        .select('*', { count: 'exact', head: true });
+
+      if (countError) throw countError;
+      this.totalCountSubject.next(count || 0);
+
+      // Then get paginated data
       const { data, error } = await this.supabaseClient
         .from('workout_plans')
         .select(`
@@ -26,7 +45,11 @@ export class WorkoutPlanService {
             exercise:exercises(*)
           )
         `)
-        .order('name', { ascending: true });
+        .order('name', { ascending: true })
+        .range(
+          (params.page - 1) * params.perPage,
+          params.page * params.perPage - 1
+        );
 
       if (error) throw error;
       this.workoutPlansSubject.next(data || []);
@@ -88,7 +111,7 @@ export class WorkoutPlanService {
         if (exercisesError) throw exercisesError;
       }
 
-      await this.loadWorkoutPlans();
+      await this.loadWorkoutPlans(this.currentParams);
       return plan;
     } catch (error) {
       console.error('Error creating workout plan:', error);
@@ -138,7 +161,7 @@ export class WorkoutPlanService {
         }
       }
 
-      await this.loadWorkoutPlans();
+      await this.loadWorkoutPlans(this.currentParams);
       return plan;
     } catch (error) {
       console.error('Error updating workout plan:', error);
@@ -154,15 +177,26 @@ export class WorkoutPlanService {
         .eq('id', id);
 
       if (error) throw error;
-      await this.loadWorkoutPlans();
+      await this.loadWorkoutPlans(this.currentParams);
     } catch (error) {
       console.error('Error deleting workout plan:', error);
       throw error;
     }
   }
 
-  async searchWorkoutPlans(query: string) {
+  async searchWorkoutPlans(query: string, params: PaginationParams) {
     try {
+      this.currentParams = params;
+      // First, get filtered total count
+      const { count, error: countError } = await this.supabaseClient
+        .from('workout_plans')
+        .select('*', { count: 'exact', head: true })
+        .ilike('name', `%${query}%`);
+
+      if (countError) throw countError;
+      this.totalCountSubject.next(count || 0);
+
+      // Then get paginated and filtered data
       const { data, error } = await this.supabaseClient
         .from('workout_plans')
         .select(`
@@ -171,10 +205,14 @@ export class WorkoutPlanService {
             exercise:exercises(*)
           )
         `)
-        .ilike('name', `%${query}%`);
+        .ilike('name', `%${query}%`)
+        .range(
+          (params.page - 1) * params.perPage,
+          params.page * params.perPage - 1
+        );
 
       if (error) throw error;
-      return data;
+      this.workoutPlansSubject.next(data || []);
     } catch (error) {
       console.error('Error searching workout plans:', error);
       throw error;

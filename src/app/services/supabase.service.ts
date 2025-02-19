@@ -20,6 +20,11 @@ export class SupabaseService {
       .single();
 
     if (error) {
+      // Handle specific error for infinite recursion
+      if (error.code === '42P17') {
+        console.error('Infinite recursion detected in policy for user_roles. Returning default role.');
+        return 'user'; // Default to user role if there's an error
+      }
       // If the error is that the record doesn't exist, create it with default role
       if (error.code === 'PGRST116' || error.code === '42P01') {
         const { data: newRole, error: insertError } = await this.supabase
@@ -27,7 +32,7 @@ export class SupabaseService {
           .insert({ user_id: userId, role: 'user' })
           .select()
           .single();
-
+  
         if (insertError) {
           console.error('Error creating user role:', insertError);
           return 'user';
@@ -140,10 +145,13 @@ export class SupabaseService {
   async signOut() {
     try {
       const { error } = await this.supabase.auth.signOut();
-      if (error) throw error;
+      if (error) {
+        console.error('Error during sign out:', error);
+        throw error; // Rethrow the error if needed
+      }
     } catch (error) {
       console.error('Error during sign out:', error);
-      throw error;
+      throw error; // Rethrow the error for further handling
     }
   }
 

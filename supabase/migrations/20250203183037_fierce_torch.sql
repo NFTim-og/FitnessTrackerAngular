@@ -1,9 +1,9 @@
 /*
-  # Initial Schema Setup
+  # Unified Schema for Fitness Tracker App
 
   1. Tables
     - user_roles: Store user roles (admin/user)
-    - exercises: Store exercise definitions
+    - exercises: Store exercise definitions with MET values
     - workout_plans: Store workout plan definitions
     - workout_exercises: Junction table for workout plans and exercises
     - user_workout_plans: Track user's workout plans
