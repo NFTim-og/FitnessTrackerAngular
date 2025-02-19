@@ -40,7 +40,6 @@ import { Subscription } from 'rxjs';
             formControlName="duration"
             class="form-control"
             [class.border-red-500]="showError('duration')"
-            (input)="updateCalories()"
           />
           @if (showError('duration')) {
             <p class="text-red-500 text-sm mt-1">
@@ -66,7 +65,6 @@ import { Subscription } from 'rxjs';
             class="form-control"
             [class.border-red-500]="showError('met_value')"
             step="0.1"
-            (input)="updateCalories()"
           />
           @if (showError('met_value')) {
             <p class="text-red-500 text-sm mt-1">
@@ -194,6 +192,15 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
       this.isEditing = true;
       this.loadExercise(exerciseId);
     }
+    // Subscribe to form control changes
+    this.exerciseForm.get('duration')?.valueChanges.subscribe(() => {
+      this.updateCalories();
+    });
+
+    this.exerciseForm.get('met_value')?.valueChanges.subscribe(() => {
+      this.updateCalories();
+    });
+
     this.updateCalories();
   }
 
@@ -238,7 +245,7 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
     try {
       const formData = {
         ...this.exerciseForm.value,
-        calories: 0 // This will be calculated dynamically when displayed
+        calories: this.estimatedCalories
       };
 
       if (this.isEditing) {

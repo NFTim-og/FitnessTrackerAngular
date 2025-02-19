@@ -36,8 +36,9 @@ describe('WorkoutPlanFormComponent', () => {
 
     const exerciseServiceSpy = jasmine.createSpyObj('ExerciseService', 
       ['loadExercises'],
-      { exercises$: of(mockExercises) } // Mock exercises$ observable
+      { data$: of(mockExercises) } // Mock exercises$ observable
     );
+    exerciseServiceSpy.loadExercises.and.returnValue(Promise.resolve());
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, RouterTestingModule],

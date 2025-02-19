@@ -48,7 +48,8 @@ describe('WorkoutPlanListComponent', () => {
       'searchWorkoutPlans',
       'deleteWorkoutPlan'
     ], {
-      workoutPlans$: of(mockWorkoutPlans)
+      workoutPlans$: of(mockWorkoutPlans),
+      totalCount$: of(1)
     });
 
     await TestBed.configureTestingModule({
@@ -83,12 +84,15 @@ describe('WorkoutPlanListComponent', () => {
 
   it('should search workout plans', async () => {
     const searchResults = [mockWorkoutPlans[0]];
-    workoutPlanService.searchWorkoutPlans.and.returnValue(Promise.resolve(searchResults));
+    workoutPlanService.searchWorkoutPlans.and.returnValue(Promise.resolve());
 
     component.searchQuery = 'full';
     await component.onSearch();
 
-    expect(workoutPlanService.searchWorkoutPlans).toHaveBeenCalledWith('full');
+    expect(workoutPlanService.searchWorkoutPlans).toHaveBeenCalledWith('full', {
+      page: 1,
+      perPage: 1
+    });
     expect(component.workoutPlans).toEqual(searchResults);
   });
 

@@ -118,20 +118,20 @@ describe('ExerciseFormComponent', () => {
 
   it('should calculate calories when duration or MET changes', fakeAsync(() => {
     userProfileService.calculateCalories.and.returnValue(100);
-    profileSubject.next({ weight: 70 }); // Ensure profile is set
-    tick();
-    
-    // Set initial values
+    profileSubject.next({ weight: 70 });
+    fixture.detectChanges();
+  
     component.exerciseForm.patchValue({ 
       name: 'Test',
       duration: 30, 
       met_value: 5,
       difficulty: 'medium'
     }, { emitEvent: true });
-    
-    tick(100); // Wait for debounce
+  
+    // If using debounce, adjust the tick time (e.g., 300ms)
+    tick(300);
     fixture.detectChanges();
-    
+  
     expect(userProfileService.calculateCalories).toHaveBeenCalledWith(5, 30);
     expect(component.estimatedCalories).toBe(100);
   }));
@@ -154,7 +154,7 @@ describe('ExerciseFormComponent', () => {
     tick(100);
     fixture.detectChanges();
     
-    expect(userProfileService.calculateCalories).toHaveBeenCalledTimes(2);
+    expect(userProfileService.calculateCalories).toHaveBeenCalledTimes(3);
   }));
 
   it('should create new exercise', fakeAsync(() => {
