@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { AppError } from '../../../shared/models/error.model';
 import { FormsModule } from '@angular/forms';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { ExerciseService } from '../../../services/exercise.service';
@@ -12,78 +13,7 @@ import { PaginationState } from '../../../shared/interfaces/pagination.interface
   selector: 'app-exercise-list',
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
-  template: `
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold mb-4">My Exercises</h1>
-      <div class="flex gap-4 mb-4">
-        <input
-          type="text"
-          [(ngModel)]="searchQuery"
-          (input)="onSearch()"
-          placeholder="Search exercises..."
-          class="form-control"
-        />
-        <select
-          [(ngModel)]="selectedDifficulty"
-          (change)="onSearch()"
-          class="form-control"
-        >
-          <option value="">All Difficulties</option>
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
-        </select>
-      </div>
-      <button
-        [routerLink]="['/exercises/new']"
-        class="btn btn-primary"
-      >
-        Add New Exercise
-      </button>
-    </div>
-
-    <app-pagination
-      [currentPage]="pagination.currentPage"
-      [totalCount]="pagination.totalCount"
-      [perPage]="pagination.perPage"
-      (pageChange)="changePage($event)"
-    ></app-pagination>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      @for (exercise of exercises; track exercise.id) {
-        <div class="card">
-          <h3 class="text-xl font-semibold mb-2">{{ exercise.name }}</h3>
-          <div class="mb-4">
-            <p>Duration: {{ exercise.duration }} minutes</p>
-            <p>
-              Calories: {{ calculateCalories(exercise) }} 
-              @if (!(userProfile$ | async)) {
-                <span class="text-sm text-gray-500">
-                  (Set your weight in profile for accurate calculation)
-                </span>
-              }
-            </p>
-            <p class="capitalize">Difficulty: {{ exercise.difficulty }}</p>
-            <p class="text-sm text-gray-600">MET: {{ exercise.met_value }}</p>
-          </div>
-          <div class="flex gap-2">
-            <button
-              [routerLink]="['/exercises', exercise.id, 'edit']"
-              class="btn btn-primary"
-            >
-              Edit
-            </button>
-            <button
-              (click)="deleteExercise(exercise.id)"
-              class="btn btn-danger"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      }
-    </div>
-  `,
+  templateUrl: './exercise-list.component.html',
   styles: [`
     .btn-danger {
       background-color: var(--danger-color);
@@ -98,6 +28,7 @@ export class ExerciseListComponent implements OnInit {
   exercises: Exercise[] = [];
   searchQuery = '';
   selectedDifficulty = '';
+  error: string | null = null;
   userProfile$ = this.userProfileService.profile$;
   pagination: PaginationState = {
     currentPage: 1,
@@ -127,8 +58,9 @@ export class ExerciseListComponent implements OnInit {
         page: this.pagination.currentPage,
         perPage: this.pagination.perPage
       });
+      this.error = null;
     } catch (error) {
-      console.error('Error loading exercises:', error);
+      this.error = error instanceof AppError ? error.message : 'Failed to load exercises';
       // TODO: Add error handling
     }
   }
@@ -145,7 +77,7 @@ export class ExerciseListComponent implements OnInit {
         }
       );
     } catch (error) {
-      console.error('Error searching exercises:', error);
+      this.error = error instanceof AppError ? error.message : 'Failed to search exercises';
       // TODO: Add error handling
     }
   }
@@ -170,8 +102,9 @@ export class ExerciseListComponent implements OnInit {
 
     try {
       await this.exerciseService.deleteExercise(id);
+      this.error = null;
     } catch (error) {
-      console.error('Error deleting exercise:', error);
+      this.error = error instanceof AppError ? error.message : 'Failed to delete exercise';
       // TODO: Add error handling
     }
   }

@@ -1,0 +1,73 @@
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold mb-4">My Workout Plans</h1>
+      <div class="flex gap-4 mb-4">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onSearch()"
+          placeholder="Search workout plans..."
+          class="form-control"
+        />
+      </div>
+      <button
+        [routerLink]="['/workout-plans/new']"
+        class="btn btn-primary"
+      >
+        Create New Plan
+      </button>
+    </div>
+  
+    <app-pagination
+      [currentPage]="pagination.currentPage"
+      [totalCount]="pagination.totalCount"
+      [perPage]="pagination.perPage"
+      (pageChange)="changePage($event)"
+    ></app-pagination>
+  
+    @if (error) {
+      <div class="alert alert-error mb-4">
+        {{ error }}
+        <button class="ml-2" (click)="error = null">&times;</button>
+      </div>
+    }
+  
+    <div class="grid grid-cols-1 gap-4">
+      @for (plan of workoutPlans; track plan.id) {
+        <div class="card">
+          <div class="p-4">
+            <h3 class="text-xl font-semibold mb-2">{{ plan.name }}</h3>
+            <div class="prose max-w-none mb-4">
+              <pre class="text-gray-600 whitespace-pre-wrap font-sans text-base break-words">{{ plan.description }}</pre>
+            </div>
+            
+            @if (plan.exercises && plan.exercises.length > 0) {
+              <div class="mb-4">
+                <h4 class="font-medium mb-2">Exercises:</h4>
+                <ul class="list-disc list-inside">
+                  @for (exercise of getExercises(plan); track exercise.id) {
+                    <li>{{ exercise.name }}</li>
+                  }
+                </ul>
+              </div>
+            }
+  
+            <div class="flex gap-2">
+              <button
+                [routerLink]="['/workout-plans', plan.id, 'edit']"
+                class="btn btn-primary"
+              >
+                Edit
+              </button>
+              <button
+                (click)="deleteWorkoutPlan(plan.id)"
+                class="btn btn-danger"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>

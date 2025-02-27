@@ -1,15 +1,19 @@
-import { Injectable, inject } from '@angular/core';
-import { Exercise } from '../models/types';
+import { Injectable } from '@angular/core';
+import { Exercise } from '../models/exercise.model';
 import { BaseDataService } from '../shared/services/base-data.service';
+import { ErrorHandlerService } from '../shared/services/error-handler.service';
 import { SupabaseService } from './supabase.service';
-import { PaginationParams } from '../shared/interfaces/pagination.interface';
+import { PaginationParams } from '../shared/models/pagination.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExerciseService extends BaseDataService<Exercise> {
-  constructor(private supabaseService: SupabaseService) {
-    super(inject(SupabaseService).client, 'exercises');
+  constructor(
+    private supabaseService: SupabaseService,
+    private errorHandler: ErrorHandlerService
+  ) {
+    super(supabaseService.client, 'exercises');
   }
   async loadExercises(params: PaginationParams) {
     try {
@@ -17,10 +21,9 @@ export class ExerciseService extends BaseDataService<Exercise> {
       this.dataSubject.next(response.data);
       this.totalCountSubject.next(response.totalCount);
     } catch (error) {
-      console.error('Error loading exercises:', error);
       this.dataSubject.next([]);
       this.totalCountSubject.next(0);
-      throw error;
+      throw this.errorHandler.handleError(error, 'ExerciseService.loadExercises');
     }
   }
 
@@ -35,8 +38,7 @@ export class ExerciseService extends BaseDataService<Exercise> {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error getting exercise:', error);
-      throw error;
+      throw this.errorHandler.handleError(error, 'ExerciseService.getExercise');
     }
   }
   async createExercise(exercise: Omit<Exercise, 'id' | 'created_at' | 'created_by'>) {
@@ -54,8 +56,7 @@ export class ExerciseService extends BaseDataService<Exercise> {
       await this.loadExercises({ page: 1, perPage: 6 });
       return data;
     } catch (error) {
-      console.error('Error creating exercise:', error);
-      throw error;
+      throw this.errorHandler.handleError(error, 'ExerciseService.createExercise');
     }
   }
   async updateExercise(id: string, exercise: Partial<Exercise>) {
@@ -71,8 +72,7 @@ export class ExerciseService extends BaseDataService<Exercise> {
       await this.loadExercises({ page: 1, perPage: 6 });
       return data;
     } catch (error) {
-      console.error('Error updating exercise:', error);
-      throw error;
+      throw this.errorHandler.handleError(error, 'ExerciseService.updateExercise');
     }
   }
   async deleteExercise(id: string) {
@@ -85,8 +85,7 @@ export class ExerciseService extends BaseDataService<Exercise> {
       if (error) throw error;
       await this.loadExercises({ page: 1, perPage: 6 });
     } catch (error) {
-      console.error('Error deleting exercise:', error);
-      throw error;
+      throw this.errorHandler.handleError(error, 'ExerciseService.deleteExercise');
     }
   }
   async searchExercises(query: string, difficulty: string, params: PaginationParams) {
@@ -102,10 +101,9 @@ export class ExerciseService extends BaseDataService<Exercise> {
       this.dataSubject.next(response.data);
       this.totalCountSubject.next(response.totalCount);
     } catch (error) {
-      console.error('Error searching exercises:', error);
       this.dataSubject.next([]);
       this.totalCountSubject.next(0);
-      throw error;
+      throw this.errorHandler.handleError(error, 'ExerciseService.searchExercises');
     }
   }
 }

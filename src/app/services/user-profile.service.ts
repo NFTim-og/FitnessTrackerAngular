@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { BehaviorSubject } from 'rxjs';
-import { UserProfile, WeightHistory } from '../models/types';
+import { UserProfile, WeightHistory } from '../models/user.model';
+import { ErrorHandlerService } from '../shared/services/error-handler.service';
 import { SupabaseService } from './supabase.service';
 
 @Injectable({
@@ -12,7 +13,10 @@ export class UserProfileService {
   private profileSubject = new BehaviorSubject<UserProfile | null>(null);
   profile$ = this.profileSubject.asObservable();
 
-  constructor(private supabaseService: SupabaseService) {
+  constructor(
+    private supabaseService: SupabaseService,
+    private errorHandler: ErrorHandlerService
+  ) {
     this.supabaseClient = this.supabaseService.client;
     this.loadProfile();
   }
@@ -24,10 +28,12 @@ export class UserProfileService {
         .select('*')
         .single();
 
-      if (error) throw error;
-      this.profileSubject.next(data);
+      if (error) {
+        throw this.errorHandler.handleError(error, 'UserProfileService.loadProfile');
+      }
+      this.profileSubject.next(data ? UserProfile.fromJSON(data) : null);
     } catch (error) {
-      console.error('Error loading profile:', error);
+      this.errorHandler.handleError(error, 'UserProfileService.loadProfile');
       this.profileSubject.next(null);
     }
   }
@@ -44,16 +50,18 @@ export class UserProfileService {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        throw this.errorHandler.handleError(error, 'UserProfileService.createProfile');
+      }
 
       // Also record initial weight in history
       await this.recordWeight(weight_kg);
 
-      this.profileSubject.next(data);
-      return data;
+      const profile = UserProfile.fromJSON(data);
+      this.profileSubject.next(profile);
+      return profile;
     } catch (error) {
-      console.error('Error creating profile:', error);
-      throw error;
+      throw this.errorHandler.handleError(error, 'UserProfileService.createProfile');
     }
   }
 
@@ -66,16 +74,18 @@ export class UserProfileService {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        throw this.errorHandler.handleError(error, 'UserProfileService.updateProfile');
+      }
 
       // Record new weight in history
       await this.recordWeight(weight_kg);
 
-      this.profileSubject.next(data);
-      return data;
+      const profile = UserProfile.fromJSON(data);
+      this.profileSubject.next(profile);
+      return profile;
     } catch (error) {
-      console.error('Error updating profile:', error);
-      throw error;
+      throw this.errorHandler.handleError(error, 'UserProfileService.updateProfile');
     }
   }
 
@@ -88,10 +98,11 @@ export class UserProfileService {
           weight_kg
         }]);
 
-      if (error) throw error;
+      if (error) {
+        throw this.errorHandler.handleError(error, 'UserProfileService.recordWeight');
+      }
     } catch (error) {
-      console.error('Error recording weight:', error);
-      throw error;
+      throw this.errorHandler.handleError(error, 'UserProfileService.recordWeight');
     }
   }
 
@@ -102,11 +113,12 @@ export class UserProfileService {
         .select('*')
         .order('recorded_at', { ascending: false });
 
-      if (error) throw error;
-      return data;
+      if (error) {
+        throw this.errorHandler.handleError(error, 'UserProfileService.getWeightHistory');
+      }
+      return (data || []).map(wh => WeightHistory.fromJSON(wh));
     } catch (error) {
-      console.error('Error getting weight history:', error);
-      throw error;
+      throw this.errorHandler.handleError(error, 'UserProfileService.getWeightHistory');
     }
   }
 

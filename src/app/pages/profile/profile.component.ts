@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AppError } from '../../shared/models/error.model';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { firstValueFrom, map } from 'rxjs';
 import { UserProfileService } from '../../services/user-profile.service';
 import { SupabaseService } from '../../services/supabase.service';
-import { UserProfile, WeightHistory } from '../../models/types';
+import { UserProfile, WeightHistory } from '../../models/user.model';
 
 @Component({
   selector: 'app-profile',
@@ -12,6 +13,13 @@ import { UserProfile, WeightHistory } from '../../models/types';
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
   template: `
     <div class="max-w-lg mx-auto">
+      @if (error) {
+        <div class="alert alert-error mb-4">
+          {{ error }}
+          <button class="ml-2" (click)="error = null">&times;</button>
+        </div>
+      }
+
       <h1 class="text-3xl font-bold mb-6">Profile Settings</h1>
 
       @if (currentUser$ | async; as user) {
@@ -210,6 +218,7 @@ export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
   isSubmitting = false;
   weightHistory: WeightHistory[] = [];
+  error: string | null = null;
   userEmail = '';
   selectedRole: 'admin' | 'user' = 'user';
   currentUser$ = this.supabaseService.user$;
@@ -242,8 +251,9 @@ export class ProfileComponent implements OnInit {
   async loadWeightHistory() {
     try {
       this.weightHistory = await this.userProfileService.getWeightHistory();
+      this.error = null;
     } catch (error) {
-      console.error('Error loading weight history:', error);
+      this.error = error instanceof AppError ? error.message : 'Failed to load weight history';
     }
   }
 
@@ -263,11 +273,12 @@ export class ProfileComponent implements OnInit {
 
       await this.supabaseService.setUserRole(users.id, this.selectedRole);
       this.roleUpdateMessage = `Successfully updated role for ${this.userEmail}`;
+      this.error = null;
       this.userEmail = '';
       this.selectedRole = 'user';
     } catch (error: any) {
-      console.error('Error updating user role:', error);
-      this.roleUpdateMessage = error.message || 'Error updating user role';
+      const message = error instanceof AppError ? error.message : 'Failed to update user role';
+      this.roleUpdateMessage = message;
       this.roleUpdateError = true;
     }
   }
@@ -290,10 +301,10 @@ export class ProfileComponent implements OnInit {
       } else {
         await this.userProfileService.createProfile(weight, height);
       }
-
+      this.error = null;
       await this.loadWeightHistory();
     } catch (error) {
-      console.error('Error saving profile:', error);
+      this.error = error instanceof AppError ? error.message : 'Failed to save profile';
     } finally {
       this.isSubmitting = false;
     }

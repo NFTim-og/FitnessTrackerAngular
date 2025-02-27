@@ -1,13 +1,10 @@
 import { Injectable } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { BehaviorSubject } from 'rxjs';
-import { WorkoutPlan, WorkoutExercise } from '../models/types';
+import { ErrorHandlerService } from '../shared/services/error-handler.service';
+import { WorkoutPlan, WorkoutExercise } from '../models/workout-plan.model';
+import { PaginationParams, PaginationResponse } from '../shared/models/pagination.model';
 import { SupabaseService } from './supabase.service';
-
-interface PaginationParams {
-  page: number;
-  perPage: number;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +18,10 @@ export class WorkoutPlanService {
   workoutPlans$ = this.workoutPlansSubject.asObservable();
   totalCount$ = this.totalCountSubject.asObservable();
 
-  constructor(private supabaseService: SupabaseService) {
+  constructor(
+    private supabaseService: SupabaseService,
+    private errorHandler: ErrorHandlerService
+  ) {
     this.supabaseClient = this.supabaseService.client;
   }
 
@@ -36,7 +36,7 @@ export class WorkoutPlanService {
       if (countError) throw countError;
       this.totalCountSubject.next(count || 0);
 
-      // Then get paginated data
+      // Get paginated data
       const { data, error } = await this.supabaseClient
         .from('workout_plans')
         .select(`
@@ -52,11 +52,11 @@ export class WorkoutPlanService {
         );
 
       if (error) throw error;
-      this.workoutPlansSubject.next(data || []);
+      const workoutPlans = (data || []).map(wp => WorkoutPlan.fromJSON(wp));
+      this.workoutPlansSubject.next(workoutPlans);
     } catch (error) {
-      console.error('Error loading workout plans:', error);
       this.workoutPlansSubject.next([]);
-      throw error;
+      throw this.errorHandler.handleError(error, 'WorkoutPlanService.loadWorkoutPlans');
     }
   }
 
@@ -75,10 +75,9 @@ export class WorkoutPlanService {
         .single();
 
       if (error) throw error;
-      return data;
+      return data ? WorkoutPlan.fromJSON(data) : null;
     } catch (error) {
-      console.error('Error getting workout plan:', error);
-      throw error;
+      throw this.errorHandler.handleError(error, 'WorkoutPlanService.getWorkoutPlan');
     }
   }
 
@@ -90,7 +89,7 @@ export class WorkoutPlanService {
       // Start a transaction by creating the workout plan
       const { data: plan, error: planError } = await this.supabaseClient
         .from('workout_plans')
-        .insert([{ ...workoutPlan, created_by: user.id }])
+        .insert([{ ...workoutPlan.toJSON(), created_by: user.id }])
         .select()
         .single();
 
@@ -114,8 +113,7 @@ export class WorkoutPlanService {
       await this.loadWorkoutPlans(this.currentParams);
       return plan;
     } catch (error) {
-      console.error('Error creating workout plan:', error);
-      throw error;
+      throw this.errorHandler.handleError(error, 'WorkoutPlanService.createWorkoutPlan');
     }
   }
 
@@ -128,7 +126,7 @@ export class WorkoutPlanService {
       // Update the workout plan
       const { data: plan, error: planError } = await this.supabaseClient
         .from('workout_plans')
-        .update(workoutPlan)
+        .update(workoutPlan ? (workoutPlan.toJSON?.() || workoutPlan) : {})
         .eq('id', id)
         .select()
         .single();
@@ -164,8 +162,7 @@ export class WorkoutPlanService {
       await this.loadWorkoutPlans(this.currentParams);
       return plan;
     } catch (error) {
-      console.error('Error updating workout plan:', error);
-      throw error;
+      throw this.errorHandler.handleError(error, 'WorkoutPlanService.updateWorkoutPlan');
     }
   }
 
@@ -179,8 +176,7 @@ export class WorkoutPlanService {
       if (error) throw error;
       await this.loadWorkoutPlans(this.currentParams);
     } catch (error) {
-      console.error('Error deleting workout plan:', error);
-      throw error;
+      throw this.errorHandler.handleError(error, 'WorkoutPlanService.deleteWorkoutPlan');
     }
   }
 
@@ -212,10 +208,10 @@ export class WorkoutPlanService {
         );
 
       if (error) throw error;
-      this.workoutPlansSubject.next(data || []);
+      const workoutPlans = (data || []).map(wp => WorkoutPlan.fromJSON(wp));
+      this.workoutPlansSubject.next(workoutPlans);
     } catch (error) {
-      console.error('Error searching workout plans:', error);
-      throw error;
+      throw this.errorHandler.handleError(error, 'WorkoutPlanService.searchWorkoutPlans');
     }
   }
 }

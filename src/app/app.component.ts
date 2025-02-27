@@ -7,12 +7,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, RouterOutlet, NavbarComponent],
-  template: `
-    <app-navbar></app-navbar>
-    <main class="container">
-      <router-outlet></router-outlet>
-    </main>
-  `
+  templateUrl: './app.component.html'
 })
 export class AppComponent {
   title = 'Fitness Tracker';

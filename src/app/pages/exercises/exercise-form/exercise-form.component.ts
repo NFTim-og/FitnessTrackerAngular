@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AppError } from '../../../shared/models/error.model';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ExerciseService } from '../../../services/exercise.service';
@@ -11,157 +12,14 @@ import { Subscription } from 'rxjs';
   selector: 'app-exercise-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  template: `
-    <div class="max-w-lg mx-auto">
-      <h1 class="text-3xl font-bold mb-6">
-        {{ isEditing ? 'Edit' : 'New' }} Exercise
-      </h1>
-
-      <form [formGroup]="exerciseForm" (ngSubmit)="onSubmit()" class="card">
-        <div class="form-group">
-          <label for="name" class="form-label">Exercise Name</label>
-          <input
-            type="text"
-            id="name"
-            formControlName="name"
-            class="form-control"
-            [class.border-red-500]="showError('name')"
-          />
-          @if (showError('name')) {
-            <p class="text-red-500 text-sm mt-1">Exercise name is required</p>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="duration" class="form-label">Duration (minutes)</label>
-          <input
-            type="number"
-            id="duration"
-            formControlName="duration"
-            class="form-control"
-            [class.border-red-500]="showError('duration')"
-          />
-          @if (showError('duration')) {
-            <p class="text-red-500 text-sm mt-1">
-              Duration must be greater than 0
-            </p>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="met" class="form-label">
-            MET Value
-            <span
-              class="ml-2 text-sm text-blue-600 cursor-pointer"
-              (click)="showMetInfo = !showMetInfo"
-            >
-              ℹ️ What's this?
-            </span>
-          </label>
-          <input
-            type="number"
-            id="met"
-            formControlName="met_value"
-            class="form-control"
-            [class.border-red-500]="showError('met_value')"
-            step="0.1"
-          />
-          @if (showError('met_value')) {
-            <p class="text-red-500 text-sm mt-1">
-              MET value must be greater than 0
-            </p>
-          }
-        </div>
-
-        @if (showMetInfo) {
-          <div class="bg-blue-50 p-4 rounded-lg mb-4">
-            <h3 class="font-semibold mb-2">About MET Values</h3>
-            <p class="mb-2">
-              MET (Metabolic Equivalent of Task) represents the energy cost of physical activities.
-              Common values:
-            </p>
-            <ul class="list-disc list-inside mb-2">
-              <li>Light activity (walking slowly): 2-3 METs</li>
-              <li>Moderate activity (brisk walking): 3-6 METs</li>
-              <li>Vigorous activity (running): 6+ METs</li>
-            </ul>
-            <p>
-              Your calories burned will be calculated based on your weight and the MET value.
-            </p>
-          </div>
-        }
-
-        <div class="form-group">
-          <label class="form-label">Difficulty</label>
-          <div class="flex gap-4">
-            <label class="flex items-center">
-              <input
-                type="radio"
-                formControlName="difficulty"
-                value="easy"
-                class="mr-2"
-              />
-              Easy
-            </label>
-            <label class="flex items-center">
-              <input
-                type="radio"
-                formControlName="difficulty"
-                value="medium"
-                class="mr-2"
-              />
-              Medium
-            </label>
-            <label class="flex items-center">
-              <input
-                type="radio"
-                formControlName="difficulty"
-                value="hard"
-                class="mr-2"
-              />
-              Hard
-            </label>
-          </div>
-          @if (showError('difficulty')) {
-            <p class="text-red-500 text-sm mt-1">Please select a difficulty level</p>
-          }
-        </div>
-
-        @if (estimatedCalories > 0) {
-          <div class="bg-green-50 p-4 rounded-lg mb-4">
-            <p class="font-semibold">
-              Estimated Calories: {{ estimatedCalories }} kcal
-            </p>
-            <p class="text-sm text-gray-600">
-              Based on your current weight and the exercise parameters
-            </p>
-          </div>
-        }
-
-        <div class="flex gap-4 mt-6">
-          <button
-            type="submit"
-            class="btn btn-primary"
-            [disabled]="exerciseForm.invalid || isSubmitting"
-          >
-            {{ isSubmitting ? 'Saving...' : (isEditing ? 'Update' : 'Create') }}
-          </button>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            (click)="goBack()"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
-  `
+  templateUrl: './exercise-form.component.html',
+  styles: []
 })
 export class ExerciseFormComponent implements OnInit, OnDestroy {
   exerciseForm: FormGroup;
   isEditing = false;
   isSubmitting = false;
+  error: string | null = null;
   showMetInfo = false;
   estimatedCalories = 0;
   private profileSubscription: Subscription;
@@ -192,15 +50,6 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
       this.isEditing = true;
       this.loadExercise(exerciseId);
     }
-    // Subscribe to form control changes
-    this.exerciseForm.get('duration')?.valueChanges.subscribe(() => {
-      this.updateCalories();
-    });
-
-    this.exerciseForm.get('met_value')?.valueChanges.subscribe(() => {
-      this.updateCalories();
-    });
-
     this.updateCalories();
   }
 
@@ -216,9 +65,10 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
       if (exercise) {
         this.exerciseForm.patchValue(exercise);
         this.updateCalories();
+        this.error = null;
       }
     } catch (error) {
-      console.error('Error loading exercise:', error);
+      this.error = error instanceof AppError ? error.message : 'Failed to load exercise';
     }
   }
 
@@ -245,7 +95,7 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
     try {
       const formData = {
         ...this.exerciseForm.value,
-        calories: this.estimatedCalories
+        calories: 0 // This will be calculated dynamically when displayed
       };
 
       if (this.isEditing) {
@@ -255,8 +105,9 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
         await this.exerciseService.createExercise(formData);
       }
       this.router.navigate(['/exercises']);
+      this.error = null;
     } catch (error) {
-      console.error('Error saving exercise:', error);
+      this.error = error instanceof AppError ? error.message : 'Failed to save exercise';
     } finally {
       this.isSubmitting = false;
     }
