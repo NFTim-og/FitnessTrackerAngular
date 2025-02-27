@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { RouterTestingModule } from '@angular/router/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject } from 'rxjs';
 import { ExerciseFormComponent } from './exercise-form.component';
 import { ExerciseService } from '../../../services/exercise.service';
 import { UserProfileService } from '../../../services/user-profile.service';
+import { Exercise } from '../../../models/exercise.model';
 
 describe('ExerciseFormComponent', () => {
   let component: ExerciseFormComponent;
@@ -36,7 +36,7 @@ describe('ExerciseFormComponent', () => {
       { profile$: profileSubject.asObservable() });
 
     await TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule, RouterTestingModule],
+      imports: [ReactiveFormsModule],
       providers: [
         { provide: ExerciseService, useValue: exerciseServiceSpy },
         { provide: UserProfileService, useValue: userProfileServiceSpy },
@@ -162,27 +162,30 @@ describe('ExerciseFormComponent', () => {
     profileSubject.next({ weight: 70 }); // Ensure profile is set
     tick();
     
-    const newExercise = {
+    const formData = {
       name: 'Squats',
       duration: 15,
       met_value: 5,
-      difficulty: 'hard' as const
+      difficulty: 'hard' as const,
+      calories: 100
     };
 
-    component.exerciseForm.patchValue(newExercise, { emitEvent: true });
+    component.exerciseForm.patchValue({
+      name: formData.name,
+      duration: formData.duration,
+      met_value: formData.met_value,
+      difficulty: formData.difficulty
+    }, { emitEvent: true });
     tick(100);
     fixture.detectChanges();
 
-    exerciseService.createExercise.and.returnValue(Promise.resolve({ ...newExercise, id: '2' }));
+    exerciseService.createExercise.and.returnValue(Promise.resolve({ ...formData, id: '2' }));
     spyOn(router, 'navigate');
 
     component.onSubmit();
     tick();
 
-    expect(exerciseService.createExercise).toHaveBeenCalledWith({
-      ...newExercise,
-      calories: 100
-    });
+    expect(exerciseService.createExercise).toHaveBeenCalledWith(jasmine.objectContaining(formData));
     expect(router.navigate).toHaveBeenCalledWith(['/exercises']);
   }));
 

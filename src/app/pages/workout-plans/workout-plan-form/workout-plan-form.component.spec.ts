@@ -36,7 +36,10 @@ describe('WorkoutPlanFormComponent', () => {
 
     const exerciseServiceSpy = jasmine.createSpyObj('ExerciseService', 
       ['loadExercises'],
-      { data$: of(mockExercises) } // Mock exercises$ observable
+      { 
+        data$: of(mockExercises),
+        totalCount$: of(mockExercises.length)
+      }
     );
     exerciseServiceSpy.loadExercises.and.returnValue(Promise.resolve());
 

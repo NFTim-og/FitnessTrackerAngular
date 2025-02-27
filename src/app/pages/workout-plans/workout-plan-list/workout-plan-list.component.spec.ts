@@ -3,6 +3,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { FormsModule } from '@angular/forms';
 import { WorkoutPlanListComponent } from './workout-plan-list.component';
 import { WorkoutPlanService } from '../../../services/workout-plan.service';
+import { Exercise } from '../../../models/exercise.model';
+import { WorkoutPlan, WorkoutExercise } from '../../../models/workout-plan.model';
 import { of } from 'rxjs';
 
 describe('WorkoutPlanListComponent', () => {
@@ -11,35 +13,35 @@ describe('WorkoutPlanListComponent', () => {
   let workoutPlanService: jasmine.SpyObj<WorkoutPlanService>;
 
   const mockExercises = [
-    {
+    new Exercise({
       id: '1',
       name: 'Push-ups',
       duration: 10,
       calories: 100,
-      difficulty: 'medium' as const,
+      difficulty: 'medium',
       created_by: 'user-1',
       created_at: new Date().toISOString(),
       met_value: 5
-    }
+    })
   ];
 
   const mockWorkoutPlans = [
-    {
+    new WorkoutPlan({
       id: '1',
       name: 'Full Body Workout',
       description: 'Complete workout routine',
       created_by: 'user-1',
       created_at: new Date().toISOString(),
       exercises: [
-        {
+        new WorkoutExercise({
           id: '1',
           workout_plan_id: '1',
           exercise_id: '1',
           order: 1,
           exercise: mockExercises[0]
-        }
+        })
       ]
-    }
+    })
   ];
 
   beforeEach(async () => {

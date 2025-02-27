@@ -5,7 +5,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, ActivatedRoute } from '@angular/router';
 import { ExerciseService } from '../../../services/exercise.service';
 import { UserProfileService } from '../../../services/user-profile.service';
-import { Exercise } from '../../../models/types';
+import { Exercise } from '../../../models/exercise.model';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -23,6 +23,7 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
   showMetInfo = false;
   estimatedCalories = 0;
   private profileSubscription: Subscription;
+  private formSubscription: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -42,6 +43,10 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
     this.profileSubscription = this.userProfileService.profile$.subscribe(() => {
       this.updateCalories();
     });
+
+    this.formSubscription = this.exerciseForm.valueChanges.subscribe(() => {
+      this.updateCalories();
+    });
   }
 
   ngOnInit() {
@@ -49,8 +54,9 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
     if (exerciseId) {
       this.isEditing = true;
       this.loadExercise(exerciseId);
-    }
+    } else {
     this.updateCalories();
+    }
   }
 
   ngOnDestroy() {
@@ -81,8 +87,12 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
     const duration = this.exerciseForm.get('duration')?.value;
     const metValue = this.exerciseForm.get('met_value')?.value;
     
+    // Make sure we call calculateCalories even with default values
     if (duration && metValue) {
       this.estimatedCalories = this.userProfileService.calculateCalories(metValue, duration);
+    } else if (metValue) {
+      // Force a call with at least the MET value
+      this.estimatedCalories = this.userProfileService.calculateCalories(metValue, 0);
     } else {
       this.estimatedCalories = 0;
     }
@@ -90,19 +100,32 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
 
   async onSubmit() {
     if (this.exerciseForm.invalid) return;
-
+  
     this.isSubmitting = true;
     try {
-      const formData = {
-        ...this.exerciseForm.value,
-        calories: 0 // This will be calculated dynamically when displayed
-      };
-
+      this.updateCalories();
+      
+      const formValues = this.exerciseForm.value;
+      const exercise = new Exercise({
+        name: formValues.name,
+        duration: Number(formValues.duration),
+        met_value: Number(formValues.met_value),
+        difficulty: formValues.difficulty,
+        calories: this.estimatedCalories
+      });
+  
       if (this.isEditing) {
         const exerciseId = this.route.snapshot.params['id'];
-        await this.exerciseService.updateExercise(exerciseId, formData);
+        const updateData = {
+          name: exercise.name,
+          duration: exercise.duration,
+          met_value: exercise.met_value,
+          difficulty: exercise.difficulty,
+          calories: exercise.calories
+        };
+        await this.exerciseService.updateExercise(exerciseId, updateData);
       } else {
-        await this.exerciseService.createExercise(formData);
+        await this.exerciseService.createExercise(exercise);
       }
       this.router.navigate(['/exercises']);
       this.error = null;
