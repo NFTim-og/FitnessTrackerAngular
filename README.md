@@ -49,15 +49,15 @@ src/
 ### Diagrama Entitat-Relació
 
 ```mermaid
-erDiagram
-    users ||--o{ user_roles : té
-    users ||--o{ user_profiles : té
-    users ||--o{ user_weight_history : registra
-    users ||--o{ exercises : crea
-    users ||--o{ workout_plans : crea
-    workout_plans ||--o{ workout_exercises : conté
-    workout_exercises }|--|| exercises : fa referència
-    users ||--o{ user_workout_plans : inicia
+graph TD;
+    users -->|té| user_roles;
+    users -->|té| user_profiles;
+    users -->|registra| user_weight_history;
+    users -->|crea| exercises;
+    users -->|crea| workout_plans;
+    workout_plans -->|conté| workout_exercises;
+    workout_exercises -->|fa referència| exercises;
+    users -->|inicia| user_workout_plans;
 
     users {
         uuid id PK
