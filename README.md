@@ -49,75 +49,63 @@ src/
 ### Diagrama Entitat-Relació
 
 ```mermaid
-graph TD;
-    users -->|té| user_roles;
-    users -->|té| user_profiles;
-    users -->|registra| user_weight_history;
-    users -->|crea| exercises;
-    users -->|crea| workout_plans;
-    workout_plans -->|conté| workout_exercises;
-    workout_exercises -->|fa referència| exercises;
-    users -->|inicia| user_workout_plans;
-
-    users {
-        uuid id PK
-        string email
-        timestamp created_at
+erDiagram
+    USER {
+        UUID id PK
+        STRING email
+        STRING password
     }
-
-    user_roles {
-        uuid user_id PK,FK
-        enum role
-        timestamp created_at
+    ROLE {
+        UUID id PK
+        STRING name
     }
-
-    user_profiles {
-        uuid id PK,FK
-        float weight_kg
-        float height_cm
-        timestamp created_at
-        timestamp updated_at
+    PROFILE {
+        UUID id PK
+        UUID user_id FK
+        STRING first_name
+        STRING last_name
+        DATE date_of_birth
     }
-
-    user_weight_history {
-        uuid id PK
-        uuid user_id FK
-        float weight_kg
-        timestamp recorded_at
+    WEIGHT_HISTORY {
+        UUID id PK
+        UUID user_id FK
+        DATE date
+        FLOAT weight
     }
-
-    exercises {
-        uuid id PK
-        string name
-        integer duration
-        integer calories
-        enum difficulty
-        float met_value
-        uuid created_by FK
-        timestamp created_at
+    EXERCISE {
+        UUID id PK
+        UUID user_id FK
+        STRING name
+        STRING description
     }
-
-    workout_plans {
-        uuid id PK
-        string name
-        string description
-        uuid created_by FK
-        timestamp created_at
+    WORKOUT_PLAN {
+        UUID id PK
+        UUID user_id FK
+        STRING name
+        TEXT description
     }
-
-    workout_exercises {
-        uuid id PK
-        uuid workout_plan_id FK
-        uuid exercise_id FK
-        integer order
+    WORKOUT_EXERCISE {
+        UUID id PK
+        UUID workout_plan_id FK
+        UUID exercise_id FK
+        INT sets
+        INT reps
     }
-
-    user_workout_plans {
-        uuid id PK
-        uuid user_id FK
-        uuid workout_plan_id FK
-        timestamp started_at
+    USER_WORKOUT_PLAN {
+        UUID id PK
+        UUID user_id FK
+        UUID workout_plan_id FK
+        DATE start_date
+        DATE end_date
     }
+    USER ||--o{ PROFILE : has
+    USER ||--o{ WEIGHT_HISTORY : records
+    USER ||--o{ EXERCISE : creates
+    USER ||--o{ WORKOUT_PLAN : designs
+    USER ||--o{ USER_WORKOUT_PLAN : engages_in
+    WORKOUT_PLAN ||--o{ WORKOUT_EXERCISE : includes
+    WORKOUT_EXERCISE ||--|| EXERCISE : consists_of
+    ROLE ||--o{ USER : assigned_to
 ```
 
 ## 🔐 Autenticació
