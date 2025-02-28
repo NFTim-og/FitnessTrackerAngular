@@ -2,6 +2,31 @@
 
 Una aplicació de seguiment de fitness full-stack desenvolupada amb Angular i Supabase.
 
+## Índex
+
+1. [⚙️ Configuració del Backend](#configuració-del-backend)  
+   1.1. [Prerequisits](#prerequisits)  
+   1.2. [Variables d'Entorn](#variables-dentorn)  
+   1.3. [Instal·lació i Execució](#instal·lació-i-execució)  
+
+2. [📁 Estructura del Projecte](#estructura-del-projecte)  
+
+3. [🗄️ Base de Dades](#base-de-dades)  
+   3.1. [Diagrama Entitat-Relació](#diagrama-entitat-relació)  
+
+4. [🔐 Autenticació](#autenticació)  
+   4.1. [Característiques](#característiques)  
+
+5. [🔌 API Endpoints](#api-endpoints)  
+   5.1. [Autenticació](#autenticació-1)  
+   - [Registre](#registre)  
+   - [Inici de Sessió](#inici-de-sessió)  
+
+6. [⚠️ Gestió d'Errors](#gestió-derrors)  
+   6.1. [Codis HTTP](#codis-http)  
+   6.2. [Format de Resposta d'Error](#format-de-resposta-derror)  
+   6.3. [Codis d'Error Comuns](#codis-derror-comuns)
+
 ## ⚙️ Configuració del Backend
 
 ### Prerequisits
