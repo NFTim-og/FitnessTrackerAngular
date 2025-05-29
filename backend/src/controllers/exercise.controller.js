@@ -1,231 +1,431 @@
 /**
  * Exercise Controller
- * Handles all business logic for exercise-related operations
+ * UF3/UF4 Curriculum Project
+ * Handles all business logic for exercise-related operations with comprehensive features
  */
 
-const Exercise = require('../models/exercise.model'); // Import Exercise model
+import { v4 as uuidv4 } from 'uuid';
+import { query } from '../db/database.js';
+import { catchAsync, AppError } from '../middlewares/error.middleware.js';
+import {
+  calculatePaginationMeta,
+  createPaginatedResponse,
+  buildWhereClause,
+  buildOrderByClause,
+  buildLimitClause,
+  buildSearchClause
+} from '../utils/pagination.utils.js';
 
 /**
  * Get all exercises with pagination, sorting and filtering
- *
  * @route GET /api/v1/exercises
- * @param {Object} req - Express request object
- * @param {Object} req.query - Query parameters
- * @param {number} [req.query.page=1] - Page number for pagination
- * @param {number} [req.query.limit=10] - Number of items per page
- * @param {string} [req.query.sortBy='name'] - Field to sort by
- * @param {string} [req.query.sortOrder='ASC'] - Sort order (ASC or DESC)
- * @param {string} [req.query.difficulty] - Filter by difficulty level
- * @param {string} [req.query.search] - Search term for exercise name
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with exercises and pagination info
+ * @access Public (with optional authentication for personalized results)
  */
-exports.getAllExercises = async (req, res) => {
-  try {
-    // Parse pagination parameters with defaults
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const sortBy = req.query.sortBy || 'name';
-    const sortOrder = req.query.sortOrder || 'ASC';
+export const getAllExercises = catchAsync(async (req, res, next) => {
+  const { page, limit, offset } = req.pagination;
+  const { sortBy, sortOrder } = req.sorting;
+  const filters = req.filters;
+  const searchTerm = req.query.search;
 
-    // Build filters object from query parameters
-    const filters = {};
-    if (req.query.difficulty) filters.difficulty = req.query.difficulty;
-    if (req.query.search) filters.search = req.query.search;
+  // Build WHERE clause for filters
+  const filterConditions = [];
+  const filterParams = [];
 
-    // Fetch exercises from database with pagination, sorting and filtering
-    const result = await Exercise.findAll(page, limit, sortBy, sortOrder, filters);
-
-    // Return successful response with exercises and pagination info
-    return res.status(200).json({
-      status: 'success',
-      data: {
-        exercises: result.exercises,
-        pagination: result.pagination
-      }
-    });
-  } catch (error) {
-    // Log and handle errors
-    console.error('Get exercises error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: error.message || 'Internal server error'
-    });
+  // Always show public exercises, plus user's own exercises if authenticated
+  if (req.user) {
+    filterConditions.push('(is_public = ? OR created_by = ?)');
+    filterParams.push(true, req.user.id);
+  } else {
+    filterConditions.push('is_public = ?');
+    filterParams.push(true);
   }
-};
+
+  // Add category filter
+  if (filters.category) {
+    filterConditions.push('category = ?');
+    filterParams.push(filters.category);
+  }
+
+  // Add difficulty filter
+  if (filters.difficulty) {
+    filterConditions.push('difficulty = ?');
+    filterParams.push(filters.difficulty);
+  }
+
+  // Add search functionality
+  let searchClause = '';
+  let searchParams = [];
+  if (searchTerm) {
+    const searchResult = buildSearchClause(searchTerm, ['name', 'description'], 'e');
+    searchClause = searchResult.searchClause;
+    searchParams = searchResult.params;
+    if (searchClause) {
+      filterConditions.push(searchClause);
+      filterParams.push(...searchParams);
+    }
+  }
+
+  const whereClause = filterConditions.length > 0 ? `WHERE ${filterConditions.join(' AND ')}` : '';
+
+  // Get total count for pagination
+  const [countResult] = await query(`
+    SELECT COUNT(*) as total
+    FROM exercises e
+    ${whereClause}
+  `, filterParams);
+  const totalCount = countResult.total;
+
+  // Get exercises with pagination
+  const exercises = await query(`
+    SELECT
+      e.id, e.name, e.description, e.category, e.duration_minutes,
+      e.calories_per_minute, e.difficulty, e.met_value, e.equipment_needed,
+      e.muscle_groups, e.instructions, e.created_by, e.is_public,
+      e.created_at, e.updated_at,
+      u.first_name as creator_first_name, u.last_name as creator_last_name
+    FROM exercises e
+    LEFT JOIN users u ON e.created_by = u.id
+    ${whereClause}
+    ${buildOrderByClause(sortBy, sortOrder, 'e')}
+    ${buildLimitClause(limit, offset)}
+  `, filterParams);
+
+  // Calculate pagination metadata
+  const paginationMeta = calculatePaginationMeta(totalCount, page, limit);
+
+  // Format response data
+  const formattedData = exercises.map(exercise => ({
+    id: exercise.id,
+    name: exercise.name,
+    description: exercise.description,
+    category: exercise.category,
+    durationMinutes: exercise.duration_minutes,
+    caloriesPerMinute: exercise.calories_per_minute,
+    difficulty: exercise.difficulty,
+    metValue: exercise.met_value,
+    equipmentNeeded: exercise.equipment_needed,
+    muscleGroups: exercise.muscle_groups ? JSON.parse(exercise.muscle_groups) : [],
+    instructions: exercise.instructions,
+    createdBy: exercise.created_by,
+    creatorName: exercise.creator_first_name && exercise.creator_last_name
+      ? `${exercise.creator_first_name} ${exercise.creator_last_name}`
+      : 'Anonymous',
+    isPublic: exercise.is_public,
+    createdAt: exercise.created_at,
+    updatedAt: exercise.updated_at
+  }));
+
+  res.status(200).json(createPaginatedResponse(
+    formattedData,
+    paginationMeta,
+    'Exercises retrieved successfully'
+  ));
+});
 
 /**
  * Get a specific exercise by ID
- *
  * @route GET /api/v1/exercises/:id
- * @param {Object} req - Express request object
- * @param {Object} req.params - URL parameters
- * @param {string} req.params.id - Exercise ID
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with exercise data or error
+ * @access Public
  */
-exports.getExercise = async (req, res) => {
-  try {
-    // Find exercise by ID in database
-    const exercise = await Exercise.findById(req.params.id);
+export const getExercise = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
 
-    // Return 404 if exercise not found
-    if (!exercise) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Exercise not found'
-      });
-    }
+  // Get exercise with creator information
+  const [exercise] = await query(`
+    SELECT
+      e.id, e.name, e.description, e.category, e.duration_minutes,
+      e.calories_per_minute, e.difficulty, e.met_value, e.equipment_needed,
+      e.muscle_groups, e.instructions, e.created_by, e.is_public,
+      e.created_at, e.updated_at,
+      u.first_name as creator_first_name, u.last_name as creator_last_name
+    FROM exercises e
+    LEFT JOIN users u ON e.created_by = u.id
+    WHERE e.id = ? AND (e.is_public = ? OR e.created_by = ?)
+  `, [id, true, req.user?.id || null]);
 
-    // Return successful response with exercise data
-    return res.status(200).json({
-      status: 'success',
-      data: {
-        exercise
-      }
-    });
-  } catch (error) {
-    // Log and handle errors
-    console.error('Get exercise error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: error.message || 'Internal server error'
-    });
+  if (!exercise) {
+    return next(new AppError('Exercise not found', 404));
   }
-};
+
+  // Format response data
+  const formattedExercise = {
+    id: exercise.id,
+    name: exercise.name,
+    description: exercise.description,
+    category: exercise.category,
+    durationMinutes: exercise.duration_minutes,
+    caloriesPerMinute: exercise.calories_per_minute,
+    difficulty: exercise.difficulty,
+    metValue: exercise.met_value,
+    equipmentNeeded: exercise.equipment_needed,
+    muscleGroups: exercise.muscle_groups ? JSON.parse(exercise.muscle_groups) : [],
+    instructions: exercise.instructions,
+    createdBy: exercise.created_by,
+    creatorName: exercise.creator_first_name && exercise.creator_last_name
+      ? `${exercise.creator_first_name} ${exercise.creator_last_name}`
+      : 'Anonymous',
+    isPublic: exercise.is_public,
+    createdAt: exercise.created_at,
+    updatedAt: exercise.updated_at
+  };
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      exercise: formattedExercise
+    }
+  });
+});
 
 /**
  * Create a new exercise
- * Requires authentication
- *
  * @route POST /api/v1/exercises
- * @param {Object} req - Express request object
- * @param {Object} req.body - Request body
- * @param {string} req.body.name - Exercise name
- * @param {number} req.body.duration - Exercise duration in minutes
- * @param {number} [req.body.calories] - Calories burned
- * @param {string} [req.body.difficulty] - Difficulty level (easy, medium, hard)
- * @param {number} [req.body.met_value] - Metabolic equivalent value
- * @param {Object} req.user - Authenticated user info (from auth middleware)
- * @param {string} req.user.id - User ID
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with created exercise data or error
+ * @access Private
  */
-exports.createExercise = async (req, res) => {
-  try {
-    // Extract exercise data from request body
-    const { name, duration, calories, difficulty, met_value } = req.body;
+export const createExercise = catchAsync(async (req, res, next) => {
+  const {
+    name,
+    description,
+    category,
+    duration_minutes,
+    calories_per_minute,
+    difficulty,
+    met_value,
+    equipment_needed,
+    muscle_groups,
+    instructions,
+    is_public = true
+  } = req.body;
 
-    // Create new exercise in database
-    const exercise = await Exercise.create({
-      name,
-      duration,
-      calories,
-      difficulty,
-      met_value,
-      created_by: req.user.id // Set creator to current authenticated user
-    });
+  // Check if exercise with same name already exists for this user
+  const [existingExercise] = await query(
+    'SELECT id FROM exercises WHERE name = ? AND created_by = ?',
+    [name, req.user.id]
+  );
 
-    // Return successful response with created exercise
-    return res.status(201).json({
-      status: 'success',
-      data: {
-        exercise
-      }
-    });
-  } catch (error) {
-    // Log and handle errors
-    console.error('Create exercise error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: error.message || 'Internal server error'
-    });
+  if (existingExercise) {
+    return next(new AppError('You already have an exercise with this name', 409));
   }
-};
+
+  // Create new exercise
+  const exerciseId = uuidv4();
+  await query(`
+    INSERT INTO exercises (
+      id, name, description, category, duration_minutes, calories_per_minute,
+      difficulty, met_value, equipment_needed, muscle_groups, instructions,
+      created_by, is_public
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `, [
+    exerciseId,
+    name,
+    description,
+    category,
+    duration_minutes,
+    calories_per_minute,
+    difficulty,
+    met_value,
+    equipment_needed,
+    muscle_groups ? JSON.stringify(muscle_groups) : null,
+    instructions,
+    req.user.id,
+    is_public
+  ]);
+
+  // Get the created exercise with creator information
+  const [newExercise] = await query(`
+    SELECT
+      e.id, e.name, e.description, e.category, e.duration_minutes,
+      e.calories_per_minute, e.difficulty, e.met_value, e.equipment_needed,
+      e.muscle_groups, e.instructions, e.created_by, e.is_public,
+      e.created_at, e.updated_at,
+      u.first_name as creator_first_name, u.last_name as creator_last_name
+    FROM exercises e
+    LEFT JOIN users u ON e.created_by = u.id
+    WHERE e.id = ?
+  `, [exerciseId]);
+
+  // Format response data
+  const formattedExercise = {
+    id: newExercise.id,
+    name: newExercise.name,
+    description: newExercise.description,
+    category: newExercise.category,
+    durationMinutes: newExercise.duration_minutes,
+    caloriesPerMinute: newExercise.calories_per_minute,
+    difficulty: newExercise.difficulty,
+    metValue: newExercise.met_value,
+    equipmentNeeded: newExercise.equipment_needed,
+    muscleGroups: newExercise.muscle_groups ? JSON.parse(newExercise.muscle_groups) : [],
+    instructions: newExercise.instructions,
+    createdBy: newExercise.created_by,
+    creatorName: newExercise.creator_first_name && newExercise.creator_last_name
+      ? `${newExercise.creator_first_name} ${newExercise.creator_last_name}`
+      : 'Anonymous',
+    isPublic: newExercise.is_public,
+    createdAt: newExercise.created_at,
+    updatedAt: newExercise.updated_at
+  };
+
+  res.status(201).json({
+    status: 'success',
+    message: 'Exercise created successfully',
+    data: {
+      exercise: formattedExercise
+    }
+  });
+});
 
 /**
  * Update an existing exercise
- * Requires authentication
- *
  * @route PUT /api/v1/exercises/:id
- * @param {Object} req - Express request object
- * @param {Object} req.params - URL parameters
- * @param {string} req.params.id - Exercise ID to update
- * @param {Object} req.body - Request body with fields to update
- * @param {string} [req.body.name] - Exercise name
- * @param {number} [req.body.duration] - Exercise duration in minutes
- * @param {number} [req.body.calories] - Calories burned
- * @param {string} [req.body.difficulty] - Difficulty level
- * @param {number} [req.body.met_value] - Metabolic equivalent value
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with updated exercise data or error
+ * @access Private (Own exercises or Admin)
  */
-exports.updateExercise = async (req, res) => {
-  try {
-    // Extract exercise data from request body
-    const { name, duration, calories, difficulty, met_value } = req.body;
+export const updateExercise = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const {
+    name,
+    description,
+    category,
+    duration_minutes,
+    calories_per_minute,
+    difficulty,
+    met_value,
+    equipment_needed,
+    muscle_groups,
+    instructions,
+    is_public
+  } = req.body;
 
-    // Update exercise in database
-    const exercise = await Exercise.update(req.params.id, {
-      name,
-      duration,
-      calories,
-      difficulty,
-      met_value
-    });
+  // Check if exercise exists and user has permission to update
+  const [existingExercise] = await query(
+    'SELECT id, created_by FROM exercises WHERE id = ?',
+    [id]
+  );
 
-    // Return successful response with updated exercise
-    return res.status(200).json({
-      status: 'success',
-      data: {
-        exercise
-      }
-    });
-  } catch (error) {
-    // Log and handle errors
-    console.error('Update exercise error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: error.message || 'Internal server error'
-    });
+  if (!existingExercise) {
+    return next(new AppError('Exercise not found', 404));
   }
-};
+
+  // Check ownership (only creator or admin can update)
+  if (existingExercise.created_by !== req.user.id && req.user.role !== 'admin') {
+    return next(new AppError('You can only update your own exercises', 403));
+  }
+
+  // Update exercise
+  await query(`
+    UPDATE exercises SET
+      name = ?, description = ?, category = ?, duration_minutes = ?,
+      calories_per_minute = ?, difficulty = ?, met_value = ?,
+      equipment_needed = ?, muscle_groups = ?, instructions = ?,
+      is_public = ?, updated_at = NOW()
+    WHERE id = ?
+  `, [
+    name,
+    description,
+    category,
+    duration_minutes,
+    calories_per_minute,
+    difficulty,
+    met_value,
+    equipment_needed,
+    muscle_groups ? JSON.stringify(muscle_groups) : null,
+    instructions,
+    is_public,
+    id
+  ]);
+
+  // Get updated exercise with creator information
+  const [updatedExercise] = await query(`
+    SELECT
+      e.id, e.name, e.description, e.category, e.duration_minutes,
+      e.calories_per_minute, e.difficulty, e.met_value, e.equipment_needed,
+      e.muscle_groups, e.instructions, e.created_by, e.is_public,
+      e.created_at, e.updated_at,
+      u.first_name as creator_first_name, u.last_name as creator_last_name
+    FROM exercises e
+    LEFT JOIN users u ON e.created_by = u.id
+    WHERE e.id = ?
+  `, [id]);
+
+  // Format response data
+  const formattedExercise = {
+    id: updatedExercise.id,
+    name: updatedExercise.name,
+    description: updatedExercise.description,
+    category: updatedExercise.category,
+    durationMinutes: updatedExercise.duration_minutes,
+    caloriesPerMinute: updatedExercise.calories_per_minute,
+    difficulty: updatedExercise.difficulty,
+    metValue: updatedExercise.met_value,
+    equipmentNeeded: updatedExercise.equipment_needed,
+    muscleGroups: updatedExercise.muscle_groups ? JSON.parse(updatedExercise.muscle_groups) : [],
+    instructions: updatedExercise.instructions,
+    createdBy: updatedExercise.created_by,
+    creatorName: updatedExercise.creator_first_name && updatedExercise.creator_last_name
+      ? `${updatedExercise.creator_first_name} ${updatedExercise.creator_last_name}`
+      : 'Anonymous',
+    isPublic: updatedExercise.is_public,
+    createdAt: updatedExercise.created_at,
+    updatedAt: updatedExercise.updated_at
+  };
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Exercise updated successfully',
+    data: {
+      exercise: formattedExercise
+    }
+  });
+});
 
 /**
  * Delete an exercise
- * Requires authentication
- *
  * @route DELETE /api/v1/exercises/:id
- * @param {Object} req - Express request object
- * @param {Object} req.params - URL parameters
- * @param {string} req.params.id - Exercise ID to delete
- * @param {Object} res - Express response object
- * @returns {Object} JSON response indicating success or error
+ * @access Private (Own exercises or Admin)
  */
-exports.deleteExercise = async (req, res) => {
-  try {
-    // Delete exercise from database
-    const deleted = await Exercise.delete(req.params.id);
+export const deleteExercise = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
 
-    // Return 404 if exercise not found
-    if (!deleted) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Exercise not found'
-      });
-    }
+  // Check if exercise exists and user has permission to delete
+  const [existingExercise] = await query(
+    'SELECT id, created_by, name FROM exercises WHERE id = ?',
+    [id]
+  );
 
-    // Return successful response with no data
-    return res.status(200).json({
-      status: 'success',
-      data: null
-    });
-  } catch (error) {
-    // Log and handle errors
-    console.error('Delete exercise error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: error.message || 'Internal server error'
-    });
+  if (!existingExercise) {
+    return next(new AppError('Exercise not found', 404));
   }
-};
+
+  // Check ownership (only creator or admin can delete)
+  if (existingExercise.created_by !== req.user.id && req.user.role !== 'admin') {
+    return next(new AppError('You can only delete your own exercises', 403));
+  }
+
+  // Check if exercise is being used in any workout plans
+  const [workoutPlanUsage] = await query(
+    'SELECT COUNT(*) as count FROM workout_plan_exercises WHERE exercise_id = ?',
+    [id]
+  );
+
+  if (workoutPlanUsage.count > 0) {
+    return next(new AppError('Cannot delete exercise as it is being used in workout plans', 409));
+  }
+
+  // Check if exercise is being used in any exercise logs
+  const [exerciseLogUsage] = await query(
+    'SELECT COUNT(*) as count FROM user_exercise_logs WHERE exercise_id = ?',
+    [id]
+  );
+
+  if (exerciseLogUsage.count > 0) {
+    return next(new AppError('Cannot delete exercise as it has associated exercise logs', 409));
+  }
+
+  // Delete the exercise
+  await query('DELETE FROM exercises WHERE id = ?', [id]);
+
+  res.status(204).json({
+    status: 'success',
+    message: 'Exercise deleted successfully'
+  });
+});
