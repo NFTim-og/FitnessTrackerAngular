@@ -22,7 +22,7 @@ export class WorkoutPlanListComponent implements OnInit {
   pagination: PaginationState = new PaginationState({
     currentPage: 1,
     totalCount: 0,
-    perPage: 1
+    perPage: 6  // Increased from 1 to 6 to show more workout plans per page
   });
 
   constructor(private workoutPlanService: WorkoutPlanService) {
@@ -36,19 +36,29 @@ export class WorkoutPlanListComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log('WorkoutPlanListComponent - Initializing');
     this.workoutPlanService.workoutPlans$.subscribe(
-      plans => this.workoutPlans = plans
+      plans => {
+        console.log('WorkoutPlanListComponent - Received workout plans:', plans);
+        this.workoutPlans = plans;
+      }
     );
     this.loadWorkoutPlans();
   }
 
   async loadWorkoutPlans() {
+    console.log('WorkoutPlanListComponent - Loading workout plans');
     try {
       await this.workoutPlanService.loadWorkoutPlans({
         page: this.pagination.currentPage,
         perPage: this.pagination.perPage
       });
+      console.log('WorkoutPlanListComponent - Workout plans loaded successfully');
+      console.log('WorkoutPlanListComponent - Current workout plans:', this.workoutPlans);
+      console.log('WorkoutPlanListComponent - Pagination:', this.pagination);
+      this.error = null;
     } catch (error) {
+      console.error('WorkoutPlanListComponent - Error loading workout plans:', error);
       this.error = error instanceof AppError ? error.message : 'Failed to load workout plans';
     }
   }

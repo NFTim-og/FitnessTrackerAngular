@@ -86,7 +86,7 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
   updateCalories() {
     const duration = this.exerciseForm.get('duration')?.value;
     const metValue = this.exerciseForm.get('met_value')?.value;
-    
+
     // Make sure we call calculateCalories even with default values
     if (duration && metValue) {
       this.estimatedCalories = this.userProfileService.calculateCalories(metValue, duration);
@@ -100,11 +100,14 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
 
   async onSubmit() {
     if (this.exerciseForm.invalid) return;
-  
+
+    console.log('ExerciseFormComponent - Form submitted');
+    console.log('ExerciseFormComponent - Form values:', this.exerciseForm.value);
+
     this.isSubmitting = true;
     try {
       this.updateCalories();
-      
+
       const formValues = this.exerciseForm.value;
       const exercise = new Exercise({
         name: formValues.name,
@@ -113,9 +116,12 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
         difficulty: formValues.difficulty,
         calories: this.estimatedCalories
       });
-  
+
+      console.log('ExerciseFormComponent - Exercise object:', exercise);
+
       if (this.isEditing) {
         const exerciseId = this.route.snapshot.params['id'];
+        console.log('ExerciseFormComponent - Updating exercise with ID:', exerciseId);
         const updateData = {
           name: exercise.name,
           duration: exercise.duration,
@@ -124,12 +130,16 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
           calories: exercise.calories
         };
         await this.exerciseService.updateExercise(exerciseId, updateData);
+        console.log('ExerciseFormComponent - Exercise updated successfully');
       } else {
+        console.log('ExerciseFormComponent - Creating new exercise');
         await this.exerciseService.createExercise(exercise);
+        console.log('ExerciseFormComponent - Exercise created successfully');
       }
       this.router.navigate(['/exercises']);
       this.error = null;
     } catch (error) {
+      console.error('ExerciseFormComponent - Error saving exercise:', error);
       this.error = error instanceof AppError ? error.message : 'Failed to save exercise';
     } finally {
       this.isSubmitting = false;

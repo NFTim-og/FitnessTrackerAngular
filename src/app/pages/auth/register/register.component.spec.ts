@@ -3,53 +3,41 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Router } from '@angular/router';
 import { RegisterComponent } from './register.component';
-import { SupabaseService } from '../../../services/supabase.service';
-import { User, Session } from '@supabase/supabase-js';
+import { AuthService } from '../../../services/auth.service';
+import { User } from '../../../models/user.model';
+import { of, throwError } from 'rxjs';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
-  let supabaseService: jasmine.SpyObj<SupabaseService>;
+  let authService: jasmine.SpyObj<AuthService>;
   let router: Router;
 
-  const mockUser: User = {
+  // Mock user data
+  const mockUser = new User({
     id: '1',
     email: 'test@example.com',
-    app_metadata: {},
-    user_metadata: {},
-    aud: 'authenticated',
-    created_at: new Date().toISOString(),
-    role: 'authenticated',
-    updated_at: new Date().toISOString()
-  };
+    role: 'user'
+  });
 
-  const mockSession: Session = {
-    access_token: 'token',
-    refresh_token: 'refresh',
-    expires_in: 3600,
-    token_type: 'bearer',
+  // Mock authentication response
+  const mockAuthResponse = {
+    token: 'mock-token',
     user: mockUser
   };
 
-  const mockAuthResponse = {
-    data: {
-      user: mockUser,
-      session: mockSession
-    },
-    error: null
-  };
-
   beforeEach(async () => {
-    const supabaseServiceSpy = jasmine.createSpyObj('SupabaseService', ['signUp']);
+    // Create spy for AuthService
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['register']);
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule, RouterTestingModule],
       providers: [
-        { provide: SupabaseService, useValue: supabaseServiceSpy }
+        { provide: AuthService, useValue: authServiceSpy }
       ]
     }).compileComponents();
 
-    supabaseService = TestBed.inject(SupabaseService) as jasmine.SpyObj<SupabaseService>;
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     router = TestBed.inject(Router);
   });
 
@@ -66,70 +54,85 @@ describe('RegisterComponent', () => {
   it('should initialize form with empty values', () => {
     expect(component.registerForm.value).toEqual({
       email: '',
-      password: ''
+      password: '',
+      passwordConfirmation: ''
     });
   });
 
   it('should validate required fields', () => {
     expect(component.registerForm.valid).toBeFalse();
-    
+
     component.registerForm.patchValue({
       email: 'test@example.com',
-      password: 'password123'
+      password: 'password123',
+      passwordConfirmation: 'password123'
     });
-    
+
     expect(component.registerForm.valid).toBeTrue();
   });
 
   it('should validate email format', () => {
     const emailControl = component.registerForm.get('email');
-    
+
     emailControl?.setValue('invalid-email');
     expect(emailControl?.valid).toBeFalse();
-    
+
     emailControl?.setValue('test@example.com');
     expect(emailControl?.valid).toBeTrue();
   });
 
   it('should validate password length', () => {
     const passwordControl = component.registerForm.get('password');
-    
+
     passwordControl?.setValue('short');
     expect(passwordControl?.valid).toBeFalse();
-    
+
     passwordControl?.setValue('password123');
     expect(passwordControl?.valid).toBeTrue();
   });
 
-  it('should register user and navigate on successful submit', async () => {
-    supabaseService.signUp.and.returnValue(Promise.resolve(mockAuthResponse.data));
+  it('should register user and navigate on successful submit', () => {
+    // Setup mock response
+    authService.register.and.returnValue(of(mockAuthResponse));
     spyOn(router, 'navigate');
 
+    // Fill the form
     component.registerForm.patchValue({
       email: 'test@example.com',
-      password: 'password123'
+      password: 'password123',
+      passwordConfirmation: 'password123'
     });
 
-    await component.onSubmit();
+    // Submit the form
+    component.onSubmit();
 
-    expect(supabaseService.signUp).toHaveBeenCalledWith(
+    // Verify service was called with correct parameters
+    expect(authService.register).toHaveBeenCalledWith(
       'test@example.com',
+      'password123',
       'password123'
     );
+
+    // Verify navigation occurred
     expect(router.navigate).toHaveBeenCalledWith(['/']);
   });
 
-  it('should handle registration error', async () => {
+  it('should handle registration error', () => {
+    // Setup error response
     const errorMessage = 'Email already exists';
-    supabaseService.signUp.and.returnValue(Promise.reject(new Error(errorMessage)));
+    authService.register.and.returnValue(throwError(() => ({ message: errorMessage })));
 
+    // Fill the form
     component.registerForm.patchValue({
       email: 'existing@example.com',
-      password: 'password123'
+      password: 'password123',
+      passwordConfirmation: 'password123'
     });
 
-    await component.onSubmit();
+    // Submit the form
+    component.onSubmit();
 
+    // Verify error is displayed
     expect(component.error).toBe(errorMessage);
   });
 });

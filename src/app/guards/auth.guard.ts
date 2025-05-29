@@ -1,17 +1,17 @@
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { SupabaseService } from '../services/supabase.service';
+import { AuthService } from '../services/auth.service';
 import { map, take } from 'rxjs/operators';
 
 export const authGuard = () => {
   const router = inject(Router);
-  const supabaseService = inject(SupabaseService);
+  const authService = inject(AuthService);
 
-  return supabaseService.user$.pipe(
+  return authService.user$.pipe(
     take(1),
     map(user => {
       if (user) return true;
-      
+
       router.navigate(['/auth/login']);
       return false;
     })

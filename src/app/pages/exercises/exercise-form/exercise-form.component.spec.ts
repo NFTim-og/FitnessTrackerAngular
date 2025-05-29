@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of, Subject } from 'rxjs';
+import { of, Subject, Observable } from 'rxjs';
 import { ExerciseFormComponent } from './exercise-form.component';
 import { ExerciseService } from '../../../services/exercise.service';
 import { UserProfileService } from '../../../services/user-profile.service';
@@ -28,11 +28,11 @@ describe('ExerciseFormComponent', () => {
 
   beforeEach(async () => {
     profileSubject = new Subject<any>();
-    const exerciseServiceSpy = jasmine.createSpyObj('ExerciseService', 
+    const exerciseServiceSpy = jasmine.createSpyObj('ExerciseService',
       ['getExercise', 'createExercise', 'updateExercise']);
-    
-    const userProfileServiceSpy = jasmine.createSpyObj('UserProfileService', 
-      ['calculateCalories'], 
+
+    const userProfileServiceSpy = jasmine.createSpyObj('UserProfileService',
+      ['calculateCalories'],
       { profile$: profileSubject.asObservable() });
 
     await TestBed.configureTestingModule({
@@ -50,7 +50,7 @@ describe('ExerciseFormComponent', () => {
     exerciseService = TestBed.inject(ExerciseService) as jasmine.SpyObj<ExerciseService>;
     userProfileService = TestBed.inject(UserProfileService) as jasmine.SpyObj<UserProfileService>;
     router = TestBed.inject(Router);
-    
+
     userProfileService.calculateCalories.and.returnValue(100);
     profileSubject.next({ weight: 70 }); // Initial profile data
   });
@@ -76,14 +76,14 @@ describe('ExerciseFormComponent', () => {
 
   it('should validate required fields', () => {
     expect(component.exerciseForm.valid).toBeFalse();
-    
+
     component.exerciseForm.patchValue({
       name: 'Test Exercise',
       duration: 10,
       met_value: 3,
       difficulty: 'easy'
     });
-    
+
     expect(component.exerciseForm.valid).toBeTrue();
   });
 
@@ -91,7 +91,7 @@ describe('ExerciseFormComponent', () => {
     const nameControl = component.exerciseForm.get('name');
     nameControl?.markAsTouched();
     fixture.detectChanges();
-    
+
     const errorMessage = fixture.nativeElement.querySelector('.text-red-500');
     expect(errorMessage.textContent).toContain('Exercise name is required');
   });
@@ -99,14 +99,14 @@ describe('ExerciseFormComponent', () => {
   it('should load exercise data when editing', fakeAsync(() => {
     const route = TestBed.inject(ActivatedRoute);
     (route.snapshot.params as any) = { id: '1' };
-    
-    exerciseService.getExercise.and.returnValue(Promise.resolve(mockExercise));
-    
+
+    exerciseService.getExercise.and.returnValue(of(new Exercise(mockExercise)));
+
     fixture = TestBed.createComponent(ExerciseFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
     tick();
-    
+
     expect(component.isEditing).toBeTrue();
     expect(component.exerciseForm.value).toEqual({
       name: mockExercise.name,
@@ -120,40 +120,40 @@ describe('ExerciseFormComponent', () => {
     userProfileService.calculateCalories.and.returnValue(100);
     profileSubject.next({ weight: 70 });
     fixture.detectChanges();
-  
-    component.exerciseForm.patchValue({ 
+
+    component.exerciseForm.patchValue({
       name: 'Test',
-      duration: 30, 
+      duration: 30,
       met_value: 5,
       difficulty: 'medium'
     }, { emitEvent: true });
-  
+
     // If using debounce, adjust the tick time (e.g., 300ms)
     tick(300);
     fixture.detectChanges();
-  
+
     expect(userProfileService.calculateCalories).toHaveBeenCalledWith(5, 30);
     expect(component.estimatedCalories).toBe(100);
   }));
 
   it('should update calories when profile changes', fakeAsync(() => {
     userProfileService.calculateCalories.and.returnValue(100);
-    
+
     // Set initial values
-    component.exerciseForm.patchValue({ 
+    component.exerciseForm.patchValue({
       name: 'Test',
-      duration: 20, 
+      duration: 20,
       met_value: 4,
       difficulty: 'medium'
     }, { emitEvent: true });
     tick(100);
     fixture.detectChanges();
-    
+
     // Trigger profile change
     profileSubject.next({ weight: 75 });
     tick(100);
     fixture.detectChanges();
-    
+
     expect(userProfileService.calculateCalories).toHaveBeenCalledTimes(3);
   }));
 
@@ -161,7 +161,7 @@ describe('ExerciseFormComponent', () => {
     userProfileService.calculateCalories.and.returnValue(100);
     profileSubject.next({ weight: 70 }); // Ensure profile is set
     tick();
-    
+
     const formData = {
       name: 'Squats',
       duration: 15,
@@ -179,7 +179,7 @@ describe('ExerciseFormComponent', () => {
     tick(100);
     fixture.detectChanges();
 
-    exerciseService.createExercise.and.returnValue(Promise.resolve({ ...formData, id: '2' }));
+    exerciseService.createExercise.and.returnValue(of(new Exercise({ ...formData, id: '2' })));
     spyOn(router, 'navigate');
 
     component.onSubmit();
@@ -192,8 +192,8 @@ describe('ExerciseFormComponent', () => {
   it('should update existing exercise', fakeAsync(async () => {
     const route = TestBed.inject(ActivatedRoute);
     (route.snapshot.params as any) = { id: '1' };
-    exerciseService.getExercise.and.returnValue(Promise.resolve(mockExercise));
-    
+    exerciseService.getExercise.and.returnValue(of(new Exercise(mockExercise)));
+
     fixture = TestBed.createComponent(ExerciseFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -208,7 +208,7 @@ describe('ExerciseFormComponent', () => {
     };
 
     component.exerciseForm.patchValue(updatedExercise);
-    exerciseService.updateExercise.and.returnValue(Promise.resolve({}));
+    exerciseService.updateExercise.and.returnValue(of(new Exercise({ ...mockExercise, ...updatedExercise })));
     spyOn(router, 'navigate');
 
     await component.onSubmit();

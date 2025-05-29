@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { SupabaseService } from '../../../services/supabase.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -17,13 +17,32 @@ export class RegisterComponent {
 
   constructor(
     private fb: FormBuilder,
-    private supabaseService: SupabaseService,
+    private authService: AuthService,
     private router: Router
   ) {
     this.registerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.pattern(/.*\d.*/) // At least one number
+      ]],
+      passwordConfirmation: ['', [Validators.required]]
+    }, {
+      validators: this.passwordMatchValidator
     });
+  }
+
+  // Custom validator to check if password and confirmation match
+  passwordMatchValidator(form: FormGroup) {
+    const password = form.get('password')?.value;
+    const passwordConfirmation = form.get('passwordConfirmation')?.value;
+
+    if (password === passwordConfirmation) {
+      return null;
+    }
+
+    return { passwordMismatch: true };
   }
 
   showError(field: string) {
@@ -31,22 +50,27 @@ export class RegisterComponent {
     return control?.invalid && (control?.dirty || control?.touched);
   }
 
-  async onSubmit() {
+  onSubmit() {
     if (this.registerForm.invalid) return;
 
     this.isLoading = true;
     this.error = '';
 
-    try {
-      await this.supabaseService.signUp(
-        this.registerForm.value.email,
-        this.registerForm.value.password
-      );
-      this.router.navigate(['/']);
-    } catch (error: any) {
-      this.error = error.message || 'An error occurred during registration';
-    } finally {
-      this.isLoading = false;
-    }
+    this.authService.register(
+      this.registerForm.value.email,
+      this.registerForm.value.password,
+      this.registerForm.value.passwordConfirmation
+    ).subscribe({
+      next: () => {
+        this.router.navigate(['/']);
+      },
+      error: (error: any) => {
+        this.error = error.message || 'An error occurred during registration';
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
   }
 }

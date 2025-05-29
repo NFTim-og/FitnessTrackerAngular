@@ -1,10 +1,10 @@
 import { Exercise } from './exercise.model';
 
 export class WorkoutExercise {
-  id: string;
-  workout_plan_id: string;
-  exercise_id: string;
-  order: number;
+  id: string = '';
+  workout_plan_id: string = '';
+  exercise_id: string = '';
+  order: number = 0;
   exercise?: Exercise;
 
   constructor(data: Partial<WorkoutExercise> = {}) {
@@ -24,11 +24,12 @@ export class WorkoutExercise {
 }
 
 export class WorkoutPlan {
-  id: string;
-  name: string;
-  description: string;
-  created_by: string;
-  created_at: string;
+  id: string = '';
+  name: string = '';
+  description: string = '';
+  created_by: string = '';
+  created_at: string = new Date().toISOString();
+  updated_at: string = new Date().toISOString();
   exercises?: WorkoutExercise[];
 
   constructor(data: Partial<WorkoutPlan> = {}) {
@@ -37,6 +38,7 @@ export class WorkoutPlan {
     this.description = data.description || '';
     this.created_by = data.created_by || '';
     this.created_at = data.created_at || new Date().toISOString();
+    this.updated_at = data.updated_at || new Date().toISOString();
     this.exercises = data.exercises?.map(e => new WorkoutExercise(e));
   }
 

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { SupabaseService } from '../../../services/supabase.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +17,7 @@ export class LoginComponent {
 
   constructor(
     private fb: FormBuilder,
-    private supabaseService: SupabaseService,
+    private authService: AuthService,
     private router: Router
   ) {
     this.loginForm = this.fb.group({
@@ -31,22 +31,32 @@ export class LoginComponent {
     return control?.invalid && (control?.dirty || control?.touched);
   }
 
-  async onSubmit() {
+  onSubmit() {
     if (this.loginForm.invalid) return;
 
     this.isLoading = true;
     this.error = '';
 
-    try {
-      await this.supabaseService.signIn(
-        this.loginForm.value.email,
-        this.loginForm.value.password
-      );
-      this.router.navigate(['/']);
-    } catch (error: any) {
-      this.error = error.message || 'An error occurred during sign in';
-    } finally {
-      this.isLoading = false;
-    }
+    console.log('Login Component - Submitting login form');
+
+    this.authService.login(
+      this.loginForm.value.email,
+      this.loginForm.value.password
+    ).subscribe({
+      next: (result) => {
+        console.log('Login Component - Login successful, token received:', !!result.token);
+        console.log('Login Component - User:', result.user);
+        this.router.navigate(['/']);
+      },
+      error: (error: any) => {
+        console.error('Login Component - Login error:', error);
+        this.error = error.message || 'An error occurred during login';
+        this.isLoading = false;
+      },
+      complete: () => {
+        console.log('Login Component - Login complete');
+        this.isLoading = false;
+      }
+    });
   }
 }

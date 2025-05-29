@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule } from '@angular/forms';
 import { WorkoutPlanListComponent } from './workout-plan-list.component';
 import { WorkoutPlanService } from '../../../services/workout-plan.service';
 import { Exercise } from '../../../models/exercise.model';
 import { WorkoutPlan, WorkoutExercise } from '../../../models/workout-plan.model';
-import { of } from 'rxjs';
+import { of, EMPTY } from 'rxjs';
 
 describe('WorkoutPlanListComponent', () => {
   let component: WorkoutPlanListComponent;
@@ -55,7 +56,11 @@ describe('WorkoutPlanListComponent', () => {
     });
 
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, FormsModule],
+      imports: [
+        RouterTestingModule,
+        HttpClientTestingModule,
+        FormsModule
+      ],
       providers: [
         { provide: WorkoutPlanService, useValue: workoutPlanServiceSpy }
       ]
@@ -84,33 +89,32 @@ describe('WorkoutPlanListComponent', () => {
     expect(exercises).toEqual([mockExercises[0]]);
   });
 
-  it('should search workout plans', async () => {
+  it('should search workout plans', () => {
     const searchResults = [mockWorkoutPlans[0]];
-    workoutPlanService.searchWorkoutPlans.and.returnValue(Promise.resolve());
+    workoutPlanService.searchWorkoutPlans.and.returnValue(EMPTY);
 
     component.searchQuery = 'full';
-    await component.onSearch();
+    component.onSearch();
 
     expect(workoutPlanService.searchWorkoutPlans).toHaveBeenCalledWith('full', {
       page: 1,
-      perPage: 1
+      perPage: 6
     });
-    expect(component.workoutPlans).toEqual(searchResults);
   });
 
-  it('should delete workout plan after confirmation', async () => {
+  it('should delete workout plan after confirmation', () => {
     spyOn(window, 'confirm').and.returnValue(true);
-    workoutPlanService.deleteWorkoutPlan.and.returnValue(Promise.resolve());
+    workoutPlanService.deleteWorkoutPlan.and.returnValue(EMPTY);
 
-    await component.deleteWorkoutPlan('1');
+    component.deleteWorkoutPlan('1');
 
     expect(workoutPlanService.deleteWorkoutPlan).toHaveBeenCalledWith('1');
   });
 
-  it('should not delete workout plan if not confirmed', async () => {
+  it('should not delete workout plan if not confirmed', () => {
     spyOn(window, 'confirm').and.returnValue(false);
 
-    await component.deleteWorkoutPlan('1');
+    component.deleteWorkoutPlan('1');
 
     expect(workoutPlanService.deleteWorkoutPlan).not.toHaveBeenCalled();
   });

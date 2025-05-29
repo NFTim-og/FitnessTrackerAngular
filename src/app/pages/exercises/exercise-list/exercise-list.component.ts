@@ -46,20 +46,41 @@ export class ExerciseListComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log('ExerciseListComponent - Initializing');
+
+    // Subscribe to exercises data
     this.exerciseService.data$.subscribe(
-      exercises => this.exercises = exercises
+      (exercises: any[]) => {
+        console.log('ExerciseListComponent - Received exercises:', exercises);
+        this.exercises = exercises;
+      }
     );
+
+    // Subscribe to total count for pagination
+    this.exerciseService.totalCount$.subscribe(
+      (totalCount: number) => {
+        console.log('ExerciseListComponent - Received total count:', totalCount);
+        this.pagination.totalCount = totalCount;
+      }
+    );
+
+    // Load exercises
     this.loadExercises();
   }
 
   async loadExercises() {
+    console.log('ExerciseListComponent - Loading exercises');
     try {
       await this.exerciseService.loadExercises({
         page: this.pagination.currentPage,
         perPage: this.pagination.perPage
       });
+      console.log('ExerciseListComponent - Exercises loaded successfully');
+      console.log('ExerciseListComponent - Current exercises:', this.exercises);
+      console.log('ExerciseListComponent - Pagination:', this.pagination);
       this.error = null;
     } catch (error) {
+      console.error('ExerciseListComponent - Error loading exercises:', error);
       this.error = error instanceof AppError ? error.message : 'Failed to load exercises';
       // TODO: Add error handling
     }

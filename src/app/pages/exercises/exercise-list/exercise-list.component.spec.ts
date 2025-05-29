@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { FormsModule } from '@angular/forms';
 import { ExerciseListComponent } from './exercise-list.component';
 import { ExerciseService } from '../../../services/exercise.service';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, EMPTY } from 'rxjs';
 import { Exercise } from '../../../models/types';
 
 describe('ExerciseListComponent', () => {
@@ -50,7 +51,11 @@ describe('ExerciseListComponent', () => {
     });
 
     await TestBed.configureTestingModule({
-      imports: [RouterTestingModule, FormsModule],
+      imports: [
+        RouterTestingModule,
+        HttpClientTestingModule,
+        FormsModule
+      ],
       providers: [
         { provide: ExerciseService, useValue: exerciseServiceSpy }
       ]
@@ -74,34 +79,34 @@ describe('ExerciseListComponent', () => {
     expect(component.exercises).toEqual(mockExercises);
   });
 
-  it('should search exercises', async () => {
+  it('should search exercises', () => {
     const searchResults = [mockExercises[0]];
-    exerciseService.searchExercises.and.callFake(() => {
+    exerciseService.searchExercises.and.callFake((query, difficulty, params) => {
       dataSubject.next(searchResults);
-      return Promise.resolve();
+      return EMPTY; // Return an empty observable that completes immediately
     });
 
     component.searchQuery = 'push';
     component.selectedDifficulty = '';
-    await component.onSearch();
+    component.onSearch();
 
     expect(exerciseService.searchExercises).toHaveBeenCalledWith('push', '', { page: 1, perPage: 6 });
     expect(component.exercises).toEqual(searchResults);
   });
 
-  it('should delete exercise after confirmation', async () => {
+  it('should delete exercise after confirmation', () => {
     spyOn(window, 'confirm').and.returnValue(true);
-    exerciseService.deleteExercise.and.returnValue(Promise.resolve());
+    exerciseService.deleteExercise.and.returnValue(EMPTY);
 
-    await component.deleteExercise('1');
+    component.deleteExercise('1');
 
     expect(exerciseService.deleteExercise).toHaveBeenCalledWith('1');
   });
 
-  it('should not delete exercise if not confirmed', async () => {
+  it('should not delete exercise if not confirmed', () => {
     spyOn(window, 'confirm').and.returnValue(false);
 
-    await component.deleteExercise('1');
+    component.deleteExercise('1');
 
     expect(exerciseService.deleteExercise).not.toHaveBeenCalled();
   });

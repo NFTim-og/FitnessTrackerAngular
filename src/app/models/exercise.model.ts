@@ -1,14 +1,15 @@
 export type Difficulty = 'easy' | 'medium' | 'hard';
 
 export class Exercise {
-  id: string;
-  name: string;
-  duration: number;
-  calories: number;
-  difficulty: Difficulty;
-  met_value: number;
-  created_by: string;
-  created_at: string;
+  id: string = '';
+  name: string = '';
+  duration: number = 0;
+  calories: number = 0;
+  difficulty: Difficulty = 'medium';
+  met_value: number = 4.0;
+  created_by: string = '';
+  created_at: string = new Date().toISOString();
+  updated_at: string = new Date().toISOString();
 
   constructor(data: Partial<Exercise> = {}) {
     this.id = data.id || '';
@@ -19,6 +20,7 @@ export class Exercise {
     this.met_value = data.met_value || 4.0;
     this.created_by = data.created_by || '';
     this.created_at = data.created_at || new Date().toISOString();
+    this.updated_at = data.updated_at || new Date().toISOString();
   }
 
   static fromJSON(json: any): Exercise {

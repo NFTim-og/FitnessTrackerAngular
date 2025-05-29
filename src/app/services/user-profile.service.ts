@@ -1,130 +1,135 @@
 import { Injectable } from '@angular/core';
-import { SupabaseClient } from '@supabase/supabase-js';
-import { BehaviorSubject } from 'rxjs';
-import { UserProfile, WeightHistory } from '../models/user.model';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 import { ErrorHandlerService } from '../shared/services/error-handler.service';
-import { SupabaseService } from './supabase.service';
+import { UserProfile, WeightRecord } from '../models/user-profile.model';
+import { PaginationParams } from '../shared/models/pagination.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserProfileService {
-  private supabaseClient: SupabaseClient;
+  private apiUrl = `${environment.apiUrl}/profile`;
   private profileSubject = new BehaviorSubject<UserProfile | null>(null);
+  private weightHistorySubject = new BehaviorSubject<WeightRecord[]>([]);
+  private totalWeightRecordsSubject = new BehaviorSubject<number>(0);
+
   profile$ = this.profileSubject.asObservable();
+  weightHistory$ = this.weightHistorySubject.asObservable();
+  totalWeightRecords$ = this.totalWeightRecordsSubject.asObservable();
 
   constructor(
-    private supabaseService: SupabaseService,
+    private http: HttpClient,
     private errorHandler: ErrorHandlerService
   ) {
-    this.supabaseClient = this.supabaseService.client;
     this.loadProfile();
   }
 
-  async loadProfile() {
-    try {
-      const { data, error } = await this.supabaseClient
-        .from('user_profiles')
-        .select('*')
-        .single();
-
-      if (error) {
-        throw this.errorHandler.handleError(error, 'UserProfileService.loadProfile');
+  loadProfile(): void {
+    this.getProfile().subscribe({
+      error: (error) => {
+        this.profileSubject.next(null);
+        this.errorHandler.handleError(error, 'UserProfileService.loadProfile');
       }
-      this.profileSubject.next(data ? UserProfile.fromJSON(data) : null);
-    } catch (error) {
-      this.errorHandler.handleError(error, 'UserProfileService.loadProfile');
-      this.profileSubject.next(null);
-    }
+    });
   }
 
-  async createProfile(weight_kg: number, height_cm: number) {
-    try {
-      const { data, error } = await this.supabaseClient
-        .from('user_profiles')
-        .insert([{
-          id: this.supabaseService.currentUser?.id,
-          weight_kg,
-          height_cm
-        }])
-        .select()
-        .single();
-
-      if (error) {
-        throw this.errorHandler.handleError(error, 'UserProfileService.createProfile');
-      }
-
-      // Also record initial weight in history
-      await this.recordWeight(weight_kg);
-
-      const profile = UserProfile.fromJSON(data);
-      this.profileSubject.next(profile);
-      return profile;
-    } catch (error) {
-      throw this.errorHandler.handleError(error, 'UserProfileService.createProfile');
-    }
+  getProfile(): Observable<UserProfile> {
+    console.log('UserProfileService - Getting profile from:', `${this.apiUrl}`);
+    return this.http.get<any>(`${this.apiUrl}`)
+      .pipe(
+        map(response => {
+          console.log('UserProfileService - Profile response:', response);
+          const profile = new UserProfile(response.data.profile);
+          this.profileSubject.next(profile);
+          return profile;
+        }),
+        catchError(error => {
+          console.error('UserProfileService - Error getting profile:', error);
+          return throwError(() => this.errorHandler.handleError(error, 'UserProfileService.getProfile'));
+        })
+      );
   }
 
-  async updateProfile(weight_kg: number, height_cm: number) {
-    try {
-      const { data, error } = await this.supabaseClient
-        .from('user_profiles')
-        .update({ weight_kg, height_cm })
-        .eq('id', this.supabaseService.currentUser?.id)
-        .select()
-        .single();
-
-      if (error) {
-        throw this.errorHandler.handleError(error, 'UserProfileService.updateProfile');
-      }
-
-      // Record new weight in history
-      await this.recordWeight(weight_kg);
-
-      const profile = UserProfile.fromJSON(data);
-      this.profileSubject.next(profile);
-      return profile;
-    } catch (error) {
-      throw this.errorHandler.handleError(error, 'UserProfileService.updateProfile');
-    }
+  updateProfile(weight_kg: number, height_cm: number): Observable<UserProfile> {
+    return this.http.put<any>(`${this.apiUrl}`, { weight_kg, height_cm })
+      .pipe(
+        map(response => {
+          const profile = new UserProfile(response.data.profile);
+          this.profileSubject.next(profile);
+          return profile;
+        }),
+        catchError(error => {
+          return throwError(() => this.errorHandler.handleError(error, 'UserProfileService.updateProfile'));
+        })
+      );
   }
 
-  async recordWeight(weight_kg: number) {
-    try {
-      const { error } = await this.supabaseClient
-        .from('user_weight_history')
-        .insert([{
-          user_id: this.supabaseService.currentUser?.id,
-          weight_kg
-        }]);
-
-      if (error) {
-        throw this.errorHandler.handleError(error, 'UserProfileService.recordWeight');
-      }
-    } catch (error) {
-      throw this.errorHandler.handleError(error, 'UserProfileService.recordWeight');
-    }
+  createProfile(weight_kg: number, height_cm: number): Observable<UserProfile> {
+    return this.http.post<any>(`${this.apiUrl}`, { weight_kg, height_cm })
+      .pipe(
+        map(response => {
+          const profile = new UserProfile(response.data.profile);
+          this.profileSubject.next(profile);
+          return profile;
+        }),
+        catchError(error => {
+          return throwError(() => this.errorHandler.handleError(error, 'UserProfileService.createProfile'));
+        })
+      );
   }
 
-  async getWeightHistory() {
-    try {
-      const { data, error } = await this.supabaseClient
-        .from('user_weight_history')
-        .select('*')
-        .order('recorded_at', { ascending: false });
+  getWeightHistory(params: PaginationParams): Observable<void> {
+    const httpParams = new HttpParams()
+      .set('page', params.page.toString())
+      .set('limit', params.perPage.toString())
+      .set('sortOrder', params.sortOrder || 'DESC');
 
-      if (error) {
-        throw this.errorHandler.handleError(error, 'UserProfileService.getWeightHistory');
-      }
-      return (data || []).map(wh => WeightHistory.fromJSON(wh));
-    } catch (error) {
-      throw this.errorHandler.handleError(error, 'UserProfileService.getWeightHistory');
-    }
+    return this.http.get<any>(`${this.apiUrl}/weight`, { params: httpParams })
+      .pipe(
+        map(response => {
+          const weightHistory = response.data.weightHistory.map((w: any) => new WeightRecord(w));
+          this.weightHistorySubject.next(weightHistory);
+          this.totalWeightRecordsSubject.next(response.data.pagination.total);
+        }),
+        catchError(error => {
+          this.weightHistorySubject.next([]);
+          this.totalWeightRecordsSubject.next(0);
+          return throwError(() => this.errorHandler.handleError(error, 'UserProfileService.getWeightHistory'));
+        })
+      );
+  }
+
+  recordWeight(weight_kg: number): Observable<WeightRecord> {
+    return this.http.post<any>(`${this.apiUrl}/weight`, { weight_kg })
+      .pipe(
+        map(response => {
+          this.getWeightHistory({ page: 1, perPage: 10 }).subscribe();
+          return new WeightRecord(response.data.weightRecord);
+        }),
+        catchError(error => {
+          return throwError(() => this.errorHandler.handleError(error, 'UserProfileService.recordWeight'));
+        })
+      );
+  }
+
+  deleteWeightRecord(id: string): Observable<void> {
+    return this.http.delete<any>(`${this.apiUrl}/weight/${id}`)
+      .pipe(
+        map(() => {
+          this.getWeightHistory({ page: 1, perPage: 10 }).subscribe();
+        }),
+        catchError(error => {
+          return throwError(() => this.errorHandler.handleError(error, 'UserProfileService.deleteWeightRecord'));
+        })
+      );
   }
 
   calculateCalories(metValue: number, durationMinutes: number): number {
     const profile = this.profileSubject.value;
-    if (!profile) return 0;
+    if (!profile || !profile.weight_kg) return 0;
 
     // Formula: Calories = MET × Weight (kg) × Duration (hours)
     const durationHours = durationMinutes / 60;

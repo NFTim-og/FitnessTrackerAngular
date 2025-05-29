@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { SupabaseService } from '../../services/supabase.service';
+import { AuthService } from '../../services/auth.service';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
 import { AppError } from '../../shared/models/error.model';
 
@@ -31,18 +31,23 @@ import { AppError } from '../../shared/models/error.model';
   `]
 })
 export class NavbarComponent {
-  user$ = this.supabaseService.user$;
+  user$ = this.authService.user$;
   isLoading = false;
   error: string | null = null;
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(private authService: AuthService) {
+    console.log('NavbarComponent - Initializing');
+    this.user$.subscribe(user => {
+      console.log('NavbarComponent - User state changed:', user);
+    });
+  }
 
-  async signOut() {
+  signOut() {
     if (this.isLoading) return;
     this.isLoading = true;
     this.error = null;
     try {
-      await this.supabaseService.signOut();
+      this.authService.logout();
     } catch (error) {
       this.error = error instanceof AppError ? error.message : 'Error signing out';
     } finally {

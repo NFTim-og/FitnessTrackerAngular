@@ -1,0 +1,17 @@
+***************
+*** 247,252 ****
+  app.get('/api/v1/exercises', (req, res) => {
+    console.log('Get exercises route hit');
+    console.log('Query parameters:', req.query);
+  
+    // For testing purposes, return dummy exercises
+    const exercises = [
+--- 247,254 ----
+  app.get('/api/v1/exercises', (req, res) => {
+    console.log('Get exercises route hit');
+    console.log('Query parameters:', req.query);
++   console.log('Request headers:', req.headers);
++   console.log('Authorization header:', req.headers.authorization);
+  
+    // For testing purposes, return dummy exercises
+    const exercises = [

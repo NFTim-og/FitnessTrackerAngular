@@ -1,7 +1,7 @@
 <div class="min-h-[80vh] flex items-center justify-center">
     <div class="max-w-md w-full">
       <h1 class="text-3xl font-bold text-center mb-8">Create Account</h1>
-      
+
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="card">
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
@@ -16,7 +16,7 @@
             <p class="text-red-500 text-sm mt-1">Please enter a valid email</p>
           }
         </div>
-  
+
         <div class="form-group">
           <label for="password" class="form-label">Password</label>
           <input
@@ -28,15 +28,36 @@
           />
           @if (showError('password')) {
             <p class="text-red-500 text-sm mt-1">
-              Password must be at least 6 characters
+              Password must be at least 8 characters and contain at least one number
             </p>
           }
         </div>
-  
+
+        <div class="form-group">
+          <label for="passwordConfirmation" class="form-label">Confirm Password</label>
+          <input
+            type="password"
+            id="passwordConfirmation"
+            formControlName="passwordConfirmation"
+            class="form-control"
+            [class.border-red-500]="showError('passwordConfirmation') || registerForm.hasError('passwordMismatch')"
+          />
+          @if (showError('passwordConfirmation')) {
+            <p class="text-red-500 text-sm mt-1">
+              Please confirm your password
+            </p>
+          }
+          @if (registerForm.hasError('passwordMismatch') && !showError('passwordConfirmation') && registerForm.get('passwordConfirmation')?.touched) {
+            <p class="text-red-500 text-sm mt-1">
+              Passwords do not match
+            </p>
+          }
+        </div>
+
         @if (error) {
           <div class="text-red-500 text-sm mb-4">{{ error }}</div>
         }
-  
+
         <button
           type="submit"
           class="btn btn-primary w-full"
