@@ -1,197 +1,183 @@
 /**
  * Authentication Controller
- * Handles user registration, login, and profile management
+ * UF3/UF4 Curriculum Project
+ * Handles user registration, login, and profile management with comprehensive security
  */
 
-const User = require('../models/user.model'); // User model for database operations
-const Profile = require('../models/profile.model'); // Profile model for user profiles
-const jwt = require('jsonwebtoken'); // JWT for authentication tokens
-require('dotenv').config(); // Load environment variables
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
+import { query } from '../db/database.js';
+import { catchAsync, AppError } from '../middlewares/error.middleware.js';
+import { createSendToken } from '../middlewares/auth.middleware.js';
+import { encryptObjectFields, decryptObjectFields } from '../utils/encryption.utils.js';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 /**
  * Register a new user
- *
  * @route POST /api/v1/auth/register
- * @param {Object} req - Express request object
- * @param {Object} req.body - Request body
- * @param {string} req.body.email - User email
- * @param {string} req.body.password - User password
- * @param {string} req.body.passwordConfirm - Password confirmation
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with user data and token
+ * @access Public
  */
-exports.register = async (req, res) => {
-  try {
-    const { email, password, passwordConfirm } = req.body;
+export const register = catchAsync(async (req, res, next) => {
+  const { email, password, passwordConfirm, firstName, lastName } = req.body;
 
-    // Validate that passwords match
-    if (password !== passwordConfirm) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Passwords do not match'
-      });
-    }
-
-    // Check if email is already registered
-    const existingUser = await User.findByEmail(email);
-    if (existingUser) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Email already in use'
-      });
-    }
-
-    // Create new user in database
-    const user = await User.create({
-      email,
-      password // Password will be hashed in the model
-    });
-
-    // Create user profile
-    await Profile.create({
-      user_id: user.id
-    });
-
-    // Generate JWT authentication token
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.JWT_SECRET || 'your_jwt_secret_key',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
-    );
-
-    // Remove password from response for security
-    user.password = undefined;
-
-    // Return success response with user data and token
-    return res.status(201).json({
-      status: 'success',
-      token,
-      data: {
-        user
-      }
-    });
-  } catch (error) {
-    // Log and handle errors
-    console.error('Registration error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: error.message || 'Internal server error'
-    });
+  // Check if passwords match (additional validation)
+  if (password !== passwordConfirm) {
+    return next(new AppError('Passwords do not match', 400));
   }
-};
+
+  // Check if user already exists
+  const existingUser = await query(
+    'SELECT id FROM users WHERE email = ?',
+    [email]
+  );
+
+  if (existingUser.length > 0) {
+    return next(new AppError('User with this email already exists', 409));
+  }
+
+  // Hash password with high cost factor for security
+  const hashedPassword = await bcrypt.hash(password, 12);
+
+  // Create user with UUID
+  const userId = uuidv4();
+
+  // Encrypt sensitive data if provided
+  const encryptedData = encryptObjectFields({
+    firstName: firstName || null,
+    lastName: lastName || null
+  }, ['firstName', 'lastName']);
+
+  await query(
+    `INSERT INTO users (id, email, password, first_name, last_name, is_active, email_verified)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [userId, email, hashedPassword, encryptedData.firstName, encryptedData.lastName, true, false]
+  );
+
+  // Get the created user
+  const [newUser] = await query(
+    'SELECT id, email, first_name, last_name, role, is_active, created_at FROM users WHERE id = ?',
+    [userId]
+  );
+
+  // Decrypt sensitive data for response
+  const decryptedUser = decryptObjectFields(newUser, ['first_name', 'last_name']);
+
+  // Create and send token
+  createSendToken({
+    id: decryptedUser.id,
+    email: decryptedUser.email,
+    firstName: decryptedUser.first_name,
+    lastName: decryptedUser.last_name,
+    role: decryptedUser.role,
+    isActive: decryptedUser.is_active,
+    createdAt: decryptedUser.created_at
+  }, 201, res);
+});
 
 /**
  * Login user
- *
  * @route POST /api/v1/auth/login
- * @param {Object} req - Express request object
- * @param {Object} req.body - Request body
- * @param {string} req.body.email - User email
- * @param {string} req.body.password - User password
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with user data and token
+ * @access Public
  */
-exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    console.log('Login attempt:', { email, passwordLength: password?.length });
+export const login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
 
-    // Find user by email
-    const user = await User.findByEmail(email);
-    console.log('User found:', !!user);
-    if (user) {
-      console.log('User details:', { id: user.id, email: user.email, role: user.role, passwordExists: !!user.password });
-    }
-
-    // Return generic error if user not found (security best practice)
-    if (!user) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'Invalid email or password'
-      });
-    }
-
-    // Verify password
-    console.log('Comparing password...');
-    const isPasswordValid = await user.comparePassword(password);
-    console.log('Password valid:', isPasswordValid);
-
-    // Return generic error if password is invalid (security best practice)
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'Invalid email or password'
-      });
-    }
-
-    // Generate JWT authentication token
-    const token = jwt.sign(
-      { id: user.id, email: user.email },
-      process.env.JWT_SECRET || 'your_jwt_secret_key',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
-    );
-
-    // Remove password from response for security
-    user.password = undefined;
-
-    // Return success response with user data and token
-    return res.status(200).json({
-      status: 'success',
-      token,
-      data: {
-        user
-      }
-    });
-  } catch (error) {
-    // Log and handle errors
-    console.error('Login error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: error.message || 'Internal server error'
-    });
+  // Check if email and password exist
+  if (!email || !password) {
+    return next(new AppError('Please provide email and password', 400));
   }
-};
+
+  // Check if user exists and password is correct
+  const [user] = await query(
+    'SELECT id, email, password, first_name, last_name, role, is_active FROM users WHERE email = ?',
+    [email]
+  );
+
+  if (!user || !user.is_active) {
+    return next(new AppError('Invalid email or password', 401));
+  }
+
+  // Check password
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+  if (!isPasswordCorrect) {
+    return next(new AppError('Invalid email or password', 401));
+  }
+
+  // Update last login
+  await query(
+    'UPDATE users SET last_login = NOW() WHERE id = ?',
+    [user.id]
+  );
+
+  // Decrypt sensitive data for response
+  const decryptedUser = decryptObjectFields(user, ['first_name', 'last_name']);
+
+  // Create and send token
+  createSendToken({
+    id: decryptedUser.id,
+    email: decryptedUser.email,
+    firstName: decryptedUser.first_name,
+    lastName: decryptedUser.last_name,
+    role: decryptedUser.role,
+    isActive: decryptedUser.is_active
+  }, 200, res);
+});
 
 /**
- * Get current user profile
- * Requires authentication
- *
+ * Get current user information
  * @route GET /api/v1/auth/me
- * @param {Object} req - Express request object
- * @param {Object} req.user - User object from auth middleware
- * @param {string} req.user.id - User ID
- * @param {Object} res - Express response object
- * @returns {Object} JSON response with user data
+ * @access Private
  */
-exports.getCurrentUser = async (req, res) => {
-  try {
-    // Get user from database using ID from JWT token
-    const user = await User.findById(req.user.id);
+export const getCurrentUser = catchAsync(async (req, res, next) => {
+  // User is already attached to req by protect middleware
+  const [user] = await query(
+    'SELECT id, email, first_name, last_name, role, is_active, email_verified, last_login, created_at FROM users WHERE id = ?',
+    [req.user.id]
+  );
 
-    // Handle case where user no longer exists
-    if (!user) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'User not found'
-      });
-    }
-
-    // Remove password from response for security
-    user.password = undefined;
-
-    // Return user data
-    return res.status(200).json({
-      status: 'success',
-      data: {
-        user
-      }
-    });
-  } catch (error) {
-    // Log and handle errors
-    console.error('Get current user error:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: error.message || 'Internal server error'
-    });
+  if (!user) {
+    return next(new AppError('User not found', 404));
   }
-};
+
+  // Decrypt sensitive data for response
+  const decryptedUser = decryptObjectFields(user, ['first_name', 'last_name']);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: {
+        id: decryptedUser.id,
+        email: decryptedUser.email,
+        firstName: decryptedUser.first_name,
+        lastName: decryptedUser.last_name,
+        role: decryptedUser.role,
+        isActive: decryptedUser.is_active,
+        emailVerified: decryptedUser.email_verified,
+        lastLogin: decryptedUser.last_login,
+        createdAt: decryptedUser.created_at
+      }
+    }
+  });
+});
+
+/**
+ * Logout user
+ * @route POST /api/v1/auth/logout
+ * @access Private
+ */
+export const logout = catchAsync(async (req, res, next) => {
+  // Clear the JWT cookie
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Logged out successfully'
+  });
+});
