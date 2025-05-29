@@ -1,49 +1,102 @@
 /**
- * Jest configuration file
- * Configures Jest testing framework for the backend
+ * Jest Configuration for Fitness Tracker Backend
+ * UF3/UF4 Curriculum Project - Comprehensive Testing Setup
  */
 
-module.exports = {
-  // The test environment that will be used for testing
+export default {
+  // Test environment
   testEnvironment: 'node',
-  
-  // The glob patterns Jest uses to detect test files
+
+  // ES Modules support
+  extensionsToTreatAsEsm: ['.js'],
+  globals: {
+    'ts-jest': {
+      useESM: true
+    }
+  },
+  moduleNameMapping: {
+    '^(\\.{1,2}/.*)\\.js$': '$1'
+  },
+
+  // Test file patterns
   testMatch: [
     '**/__tests__/**/*.js',
     '**/?(*.)+(spec|test).js'
   ],
-  
-  // An array of regexp pattern strings that are matched against all test paths
+
+  // Test path ignore patterns
   testPathIgnorePatterns: [
-    '/node_modules/'
+    '/node_modules/',
+    '/dist/',
+    '/build/'
   ],
-  
-  // Indicates whether each individual test should be reported during the run
-  verbose: true,
-  
-  // Automatically clear mock calls and instances between every test
-  clearMocks: true,
-  
-  // Indicates whether the coverage information should be collected while executing the test
-  collectCoverage: false,
-  
-  // The directory where Jest should output its coverage files
+
+  // Coverage configuration
+  collectCoverage: true,
+  collectCoverageFrom: [
+    'src/**/*.js',
+    '!src/**/*.test.js',
+    '!src/**/*.spec.js',
+    '!src/test/**/*.js',
+    '!src/db/seed.js',
+    '!src/server.js',
+    '!src/index.js',
+    '!src/minimal-server.js',
+    '!src/simple-server.js',
+    '!src/test-server*.js'
+  ],
+
+  // Coverage thresholds
+  coverageThreshold: {
+    global: {
+      branches: 75,
+      functions: 75,
+      lines: 75,
+      statements: 75
+    }
+  },
+
+  // Coverage reporting
   coverageDirectory: 'coverage',
-  
-  // An array of regexp pattern strings used to skip coverage collection
+  coverageReporters: ['text', 'lcov', 'html', 'json'],
+
+  // Coverage path ignore patterns
   coveragePathIgnorePatterns: [
     '/node_modules/',
-    '/test/'
+    '/test/',
+    '/coverage/'
   ],
-  
-  // A list of reporter names that Jest uses when writing coverage reports
-  coverageReporters: [
-    'json',
-    'text',
-    'lcov',
-    'clover'
-  ],
-  
-  // The maximum amount of workers used to run your tests
-  maxWorkers: '50%'
+
+  // Setup files
+  setupFilesAfterEnv: ['<rootDir>/src/test/setup.js'],
+
+  // Test timeout
+  testTimeout: 15000,
+
+  // Clear mocks between tests
+  clearMocks: true,
+  restoreMocks: true,
+  resetMocks: true,
+
+  // Verbose output
+  verbose: true,
+
+  // Transform configuration for ES modules
+  transform: {
+    '^.+\\.js$': ['babel-jest', {
+      presets: [['@babel/preset-env', { targets: { node: 'current' } }]]
+    }]
+  },
+
+  // Module file extensions
+  moduleFileExtensions: ['js', 'json'],
+
+  // Maximum workers
+  maxWorkers: '50%',
+
+  // Force exit after tests complete
+  forceExit: true,
+
+  // Detect open handles
+  detectOpenHandles: true
 };
