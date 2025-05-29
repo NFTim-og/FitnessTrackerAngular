@@ -28,7 +28,7 @@ import { createLogger, errorLogger } from './middlewares/logging.middleware.js';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 import exerciseRoutes from './routes/exercise.routes.js';
-import workoutRoutes from './routes/workout.routes.js';
+import workoutRoutes from './routes/workout-plan.routes.js';
 
 // Initialize Express application
 const app = express();

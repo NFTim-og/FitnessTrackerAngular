@@ -1,4 +1,4 @@
-const { query, testConnection } = require('./database');
+import { query, testConnection } from './database.js';
 
 // SQL statements to create tables
 const createUsersTable = `
@@ -65,20 +65,20 @@ CREATE TABLE IF NOT EXISTS workout_plan_exercises (
 
 // Sample data for seeding
 const sampleUser = `
-INSERT INTO users (id, email, password, role) 
+INSERT INTO users (id, email, password, role)
 VALUES ('00000000-0000-0000-0000-000000000099', 'admin@example.com', '$2b$10$X/hX1PxoOUz2YcETYPcnUOXIVvNg9KzHvHFzZ4MYVFRNIyQ6qZmP.', 'admin')
 ON DUPLICATE KEY UPDATE email = email
 `;
 
 const sampleProfile = `
-INSERT INTO profiles (id, user_id, weight_kg, height_cm) 
+INSERT INTO profiles (id, user_id, weight_kg, height_cm)
 VALUES ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000099', 75.5, 180.0)
 ON DUPLICATE KEY UPDATE weight_kg = weight_kg
 `;
 
 const sampleExercises = `
-INSERT INTO exercises (id, name, duration, calories, difficulty, met_value, created_by) 
-VALUES 
+INSERT INTO exercises (id, name, duration, calories, difficulty, met_value, created_by)
+VALUES
 ('00000000-0000-0000-0000-000000000001', 'Push-ups', 10, 100, 'medium', 3.8, '00000000-0000-0000-0000-000000000099'),
 ('00000000-0000-0000-0000-000000000002', 'Sit-ups', 10, 80, 'easy', 3.0, '00000000-0000-0000-0000-000000000099'),
 ('00000000-0000-0000-0000-000000000003', 'Squats', 15, 150, 'medium', 5.0, '00000000-0000-0000-0000-000000000099'),
@@ -89,13 +89,13 @@ ON DUPLICATE KEY UPDATE name = name
 `;
 
 const sampleWorkoutPlan = `
-INSERT INTO workout_plans (id, name, description, created_by) 
+INSERT INTO workout_plans (id, name, description, created_by)
 VALUES ('00000000-0000-0000-0000-000000000001', 'Full Body Workout', 'A complete workout targeting all major muscle groups', '00000000-0000-0000-0000-000000000099')
 ON DUPLICATE KEY UPDATE name = name
 `;
 
 const sampleWorkoutPlanExercise = `
-INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, order_num) 
+INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, order_num)
 VALUES ('00000000-0000-0000-0000-000000000101', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 1)
 ON DUPLICATE KEY UPDATE order_num = order_num
 `;

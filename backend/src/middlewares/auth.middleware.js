@@ -1,11 +1,31 @@
-const jwt = require('jsonwebtoken');
-const { executeQuery } = require('../config/db.config');
-const AppError = require('../utils/error.utils');
+import jwt from 'jsonwebtoken';
+import { query } from '../db/database.js';
+import AppError from '../utils/error.utils.js';
+
+/**
+ * Create and send JWT token
+ */
+export const createSendToken = (user, statusCode, res) => {
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN || '1d'
+  });
+
+  // Remove password from output
+  const { password, ...userWithoutPassword } = user;
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user: userWithoutPassword
+    }
+  });
+};
 
 /**
  * Middleware to protect routes that require authentication
  */
-exports.protect = async (req, res, next) => {
+export const protect = async (req, res, next) => {
   try {
     // 1) Get token from headers
     let token;
@@ -21,7 +41,7 @@ exports.protect = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // 3) Check if user still exists
-    const user = await executeQuery(
+    const user = await query(
       'SELECT id, email, role FROM users WHERE id = ?',
       [decoded.id]
     );
@@ -47,7 +67,7 @@ exports.protect = async (req, res, next) => {
 /**
  * Middleware to restrict access to certain roles
  */
-exports.restrictTo = (...roles) => {
+export const restrictTo = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       return next(new AppError('You do not have permission to perform this action', 403));
