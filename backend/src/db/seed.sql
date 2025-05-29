@@ -1,26 +1,31 @@
 USE fitness_tracker;
 
--- Insert roles
-INSERT INTO roles (name) VALUES ('admin'), ('user');
-
 -- Insert admin user (password: admin123)
-INSERT INTO users (id, email, password, role_id, created_at, updated_at)
+INSERT INTO users (id, email, password, role, first_name, last_name, is_active, email_verified, created_at, updated_at)
 VALUES (
   UUID(),
   'admin@example.com',
-  '$2b$10$3Eo3VxmFwDwQOFCw5QYEzuIw.Tn3HLLKUFGoNyJNUN4tHcN5xKlXu',
-  1,
+  '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAg9S6O',
+  'admin',
+  'Admin',
+  'User',
+  TRUE,
+  TRUE,
   NOW(),
   NOW()
 );
 
 -- Insert regular user (password: user123)
-INSERT INTO users (id, email, password, role_id, created_at, updated_at)
+INSERT INTO users (id, email, password, role, first_name, last_name, is_active, email_verified, created_at, updated_at)
 VALUES (
   UUID(),
   'user@example.com',
-  '$2b$10$3Eo3VxmFwDwQOFCw5QYEzuIw.Tn3HLLKUFGoNyJNUN4tHcN5xKlXu',
-  2,
+  '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAg9S6O',
+  'user',
+  'Test',
+  'User',
+  TRUE,
+  TRUE,
   NOW(),
   NOW()
 );
@@ -51,139 +56,145 @@ VALUES (
 );
 
 -- Insert weight history
-INSERT INTO weight_history (id, user_id, weight_kg, recorded_at, created_at, updated_at)
+INSERT INTO weight_history (id, user_id, weight_kg, recorded_date, created_at)
 VALUES (
   UUID(),
   @admin_id,
   76.2,
   DATE_SUB(NOW(), INTERVAL 30 DAY),
-  NOW(),
   NOW()
 );
 
-INSERT INTO weight_history (id, user_id, weight_kg, recorded_at, created_at, updated_at)
+INSERT INTO weight_history (id, user_id, weight_kg, recorded_date, created_at)
 VALUES (
   UUID(),
   @admin_id,
   75.8,
   DATE_SUB(NOW(), INTERVAL 20 DAY),
-  NOW(),
   NOW()
 );
 
-INSERT INTO weight_history (id, user_id, weight_kg, recorded_at, created_at, updated_at)
+INSERT INTO weight_history (id, user_id, weight_kg, recorded_date, created_at)
 VALUES (
   UUID(),
   @admin_id,
   75.5,
-  NOW(),
-  NOW(),
+  CURDATE(),
   NOW()
 );
 
-INSERT INTO weight_history (id, user_id, weight_kg, recorded_at, created_at, updated_at)
+INSERT INTO weight_history (id, user_id, weight_kg, recorded_date, created_at)
 VALUES (
   UUID(),
   @user_id,
   69.5,
   DATE_SUB(NOW(), INTERVAL 30 DAY),
-  NOW(),
   NOW()
 );
 
-INSERT INTO weight_history (id, user_id, weight_kg, recorded_at, created_at, updated_at)
+INSERT INTO weight_history (id, user_id, weight_kg, recorded_date, created_at)
 VALUES (
   UUID(),
   @user_id,
   68.7,
   DATE_SUB(NOW(), INTERVAL 15 DAY),
-  NOW(),
   NOW()
 );
 
-INSERT INTO weight_history (id, user_id, weight_kg, recorded_at, created_at, updated_at)
+INSERT INTO weight_history (id, user_id, weight_kg, recorded_date, created_at)
 VALUES (
   UUID(),
   @user_id,
   68.2,
-  NOW(),
-  NOW(),
+  CURDATE(),
   NOW()
 );
 
 -- Insert exercises
-INSERT INTO exercises (id, name, duration, calories, difficulty, met_value, created_by, created_at, updated_at)
+INSERT INTO exercises (id, name, description, category, duration_minutes, calories_per_minute, difficulty, met_value, created_by, created_at, updated_at)
 VALUES (
   UUID(),
   'Push-ups',
+  'Classic upper body exercise targeting chest, shoulders, and triceps',
+  'strength',
   10,
-  100,
-  'medium',
+  10.0,
+  'intermediate',
   3.8,
   @admin_id,
   NOW(),
   NOW()
 );
 
-INSERT INTO exercises (id, name, duration, calories, difficulty, met_value, created_by, created_at, updated_at)
+INSERT INTO exercises (id, name, description, category, duration_minutes, calories_per_minute, difficulty, met_value, created_by, created_at, updated_at)
 VALUES (
   UUID(),
   'Sit-ups',
+  'Core strengthening exercise targeting abdominal muscles',
+  'strength',
   10,
-  80,
-  'easy',
+  8.0,
+  'beginner',
   3.0,
   @admin_id,
   NOW(),
   NOW()
 );
 
-INSERT INTO exercises (id, name, duration, calories, difficulty, met_value, created_by, created_at, updated_at)
+INSERT INTO exercises (id, name, description, category, duration_minutes, calories_per_minute, difficulty, met_value, created_by, created_at, updated_at)
 VALUES (
   UUID(),
   'Squats',
+  'Lower body exercise targeting quadriceps, glutes, and hamstrings',
+  'strength',
   15,
-  150,
-  'medium',
+  10.0,
+  'intermediate',
   5.0,
   @admin_id,
   NOW(),
   NOW()
 );
 
-INSERT INTO exercises (id, name, duration, calories, difficulty, met_value, created_by, created_at, updated_at)
+INSERT INTO exercises (id, name, description, category, duration_minutes, calories_per_minute, difficulty, met_value, created_by, created_at, updated_at)
 VALUES (
   UUID(),
   'Lunges',
+  'Single-leg exercise for lower body strength and balance',
+  'strength',
   12,
-  120,
-  'medium',
+  10.0,
+  'intermediate',
   4.0,
   @admin_id,
   NOW(),
   NOW()
 );
 
-INSERT INTO exercises (id, name, duration, calories, difficulty, met_value, created_by, created_at, updated_at)
+INSERT INTO exercises (id, name, description, category, duration_minutes, calories_per_minute, difficulty, met_value, created_by, created_at, updated_at)
 VALUES (
   UUID(),
   'Plank',
+  'Isometric core exercise for building stability and strength',
+  'strength',
   5,
-  50,
-  'hard',
+  10.0,
+  'advanced',
   4.0,
   @admin_id,
   NOW(),
   NOW()
 );
 
-INSERT INTO exercises (id, name, duration, calories, difficulty, met_value, created_by, created_at, updated_at)
+INSERT INTO exercises (id, name, description, category, duration_minutes, calories_per_minute, difficulty, met_value, created_by, created_at, updated_at)
 VALUES (
   UUID(),
   'Jumping Jacks',
+  'Full-body cardio exercise for warming up and conditioning',
+  'cardio',
   8,
-  80,
-  'easy',
+  10.0,
+  'beginner',
   8.0,
   @admin_id,
   NOW(),
@@ -235,82 +246,74 @@ SET @upper_body_id = (SELECT id FROM workout_plans WHERE name = 'Upper Body Stre
 SET @core_id = (SELECT id FROM workout_plans WHERE name = 'Core Strength');
 
 -- Insert workout plan exercises
-INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, `order`, created_at, updated_at)
+INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, exercise_order, created_at)
 VALUES (
   UUID(),
   @full_body_id,
   @pushups_id,
   1,
-  NOW(),
   NOW()
 );
 
-INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, `order`, created_at, updated_at)
+INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, exercise_order, created_at)
 VALUES (
   UUID(),
   @full_body_id,
   @situps_id,
   2,
-  NOW(),
   NOW()
 );
 
-INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, `order`, created_at, updated_at)
+INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, exercise_order, created_at)
 VALUES (
   UUID(),
   @full_body_id,
   @squats_id,
   3,
-  NOW(),
   NOW()
 );
 
-INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, `order`, created_at, updated_at)
+INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, exercise_order, created_at)
 VALUES (
   UUID(),
   @full_body_id,
   @lunges_id,
   4,
-  NOW(),
   NOW()
 );
 
-INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, `order`, created_at, updated_at)
+INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, exercise_order, created_at)
 VALUES (
   UUID(),
   @upper_body_id,
   @pushups_id,
   1,
-  NOW(),
   NOW()
 );
 
-INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, `order`, created_at, updated_at)
+INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, exercise_order, created_at)
 VALUES (
   UUID(),
   @upper_body_id,
   @jumping_jacks_id,
   2,
-  NOW(),
   NOW()
 );
 
-INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, `order`, created_at, updated_at)
+INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, exercise_order, created_at)
 VALUES (
   UUID(),
   @core_id,
   @situps_id,
   1,
-  NOW(),
   NOW()
 );
 
-INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, `order`, created_at, updated_at)
+INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, exercise_order, created_at)
 VALUES (
   UUID(),
   @core_id,
   @plank_id,
   2,
-  NOW(),
   NOW()
 );

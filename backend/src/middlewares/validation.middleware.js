@@ -243,6 +243,39 @@ const validatePagination = [
 ];
 
 /**
+ * Workout exercise validation rules
+ */
+const validateWorkoutExercise = [
+  body('exercise_id')
+    .isUUID()
+    .withMessage('Exercise ID must be a valid UUID'),
+
+  body('sets')
+    .optional()
+    .isInt({ min: 1, max: 20 })
+    .withMessage('Sets must be between 1 and 20'),
+
+  body('reps')
+    .optional()
+    .isInt({ min: 1, max: 100 })
+    .withMessage('Reps must be between 1 and 100'),
+
+  body('duration_minutes')
+    .optional()
+    .isInt({ min: 1, max: 300 })
+    .withMessage('Duration must be between 1 and 300 minutes'),
+
+  body('rest_seconds')
+    .optional()
+    .isInt({ min: 0, max: 600 })
+    .withMessage('Rest time must be between 0 and 600 seconds'),
+
+  body('order_num')
+    .isInt({ min: 1 })
+    .withMessage('Order number must be a positive integer')
+];
+
+/**
  * Weight history validation rules
  */
 const validateWeightEntry = [
@@ -269,6 +302,7 @@ export {
   validateUserProfile,
   validateExercise,
   validateWorkoutPlan,
+  validateWorkoutExercise,
   validateUUID,
   validatePagination,
   validateWeightEntry

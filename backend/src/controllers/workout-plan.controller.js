@@ -3,7 +3,7 @@
  * Handles all business logic for workout plan-related operations
  */
 
-const WorkoutPlan = require('../models/workout-plan.model'); // Import WorkoutPlan model
+import WorkoutPlan from '../models/workout-plan.model.js'; // Import WorkoutPlan model
 
 /**
  * Get all workout plans with pagination
@@ -16,7 +16,7 @@ const WorkoutPlan = require('../models/workout-plan.model'); // Import WorkoutPl
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with workout plans and pagination info
  */
-exports.getAllWorkoutPlans = async (req, res) => {
+export const getAllWorkoutPlans = async (req, res) => {
   try {
     // Parse pagination parameters with defaults
     const page = parseInt(req.query.page) || 1;
@@ -53,7 +53,7 @@ exports.getAllWorkoutPlans = async (req, res) => {
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with workout plan data or error
  */
-exports.getWorkoutPlan = async (req, res) => {
+export const getWorkoutPlan = async (req, res) => {
   try {
     // Find workout plan by ID in database
     const workoutPlan = await WorkoutPlan.findById(req.params.id);
@@ -98,7 +98,7 @@ exports.getWorkoutPlan = async (req, res) => {
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with created workout plan data or error
  */
-exports.createWorkoutPlan = async (req, res) => {
+export const createWorkoutPlan = async (req, res) => {
   try {
     // Extract workout plan data from request body
     const { name, description, exercises } = req.body;
@@ -143,7 +143,7 @@ exports.createWorkoutPlan = async (req, res) => {
  * @param {Object} res - Express response object
  * @returns {Object} JSON response with updated workout plan data or error
  */
-exports.updateWorkoutPlan = async (req, res) => {
+export const updateWorkoutPlan = async (req, res) => {
   try {
     // Extract workout plan data from request body
     const { name, description, exercises } = req.body;
@@ -183,7 +183,7 @@ exports.updateWorkoutPlan = async (req, res) => {
  * @param {Object} res - Express response object
  * @returns {Object} JSON response indicating success or error
  */
-exports.deleteWorkoutPlan = async (req, res) => {
+export const deleteWorkoutPlan = async (req, res) => {
   try {
     // Delete workout plan from database
     const deleted = await WorkoutPlan.delete(req.params.id);
@@ -204,6 +204,156 @@ exports.deleteWorkoutPlan = async (req, res) => {
   } catch (error) {
     // Log and handle errors
     console.error('Delete workout plan error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: error.message || 'Internal server error'
+    });
+  }
+};
+
+/**
+ * Add exercise to workout plan
+ * Requires authentication
+ *
+ * @route POST /api/v1/workout-plans/:id/exercises
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Workout plan ID
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.exercise_id - Exercise ID to add
+ * @param {number} req.body.order_num - Order number in the workout plan
+ * @param {number} [req.body.sets] - Number of sets
+ * @param {number} [req.body.reps] - Number of reps
+ * @param {number} [req.body.duration_minutes] - Duration in minutes
+ * @param {number} [req.body.rest_seconds] - Rest time in seconds
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with updated workout plan or error
+ */
+export const addExerciseToWorkoutPlan = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { exercise_id, order_num, sets, reps, duration_minutes, rest_seconds } = req.body;
+
+    // Find the workout plan
+    const workoutPlan = await WorkoutPlan.findById(id);
+    if (!workoutPlan) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Workout plan not found'
+      });
+    }
+
+    // Add exercise to workout plan (this would need to be implemented in the model)
+    const updatedWorkoutPlan = await WorkoutPlan.addExercise(id, {
+      exercise_id,
+      order_num,
+      sets,
+      reps,
+      duration_minutes,
+      rest_seconds
+    });
+
+    return res.status(201).json({
+      status: 'success',
+      data: {
+        workoutPlan: updatedWorkoutPlan
+      }
+    });
+  } catch (error) {
+    console.error('Add exercise to workout plan error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: error.message || 'Internal server error'
+    });
+  }
+};
+
+/**
+ * Update exercise in workout plan
+ * Requires authentication
+ *
+ * @route PUT /api/v1/workout-plans/:id/exercises/:exerciseId
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Workout plan ID
+ * @param {string} req.params.exerciseId - Exercise ID to update
+ * @param {Object} req.body - Request body with updated exercise data
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response with updated workout plan or error
+ */
+export const updateExerciseInWorkoutPlan = async (req, res) => {
+  try {
+    const { id, exerciseId } = req.params;
+    const updateData = req.body;
+
+    // Find the workout plan
+    const workoutPlan = await WorkoutPlan.findById(id);
+    if (!workoutPlan) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Workout plan not found'
+      });
+    }
+
+    // Update exercise in workout plan (this would need to be implemented in the model)
+    const updatedWorkoutPlan = await WorkoutPlan.updateExercise(id, exerciseId, updateData);
+
+    return res.status(200).json({
+      status: 'success',
+      data: {
+        workoutPlan: updatedWorkoutPlan
+      }
+    });
+  } catch (error) {
+    console.error('Update exercise in workout plan error:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: error.message || 'Internal server error'
+    });
+  }
+};
+
+/**
+ * Remove exercise from workout plan
+ * Requires authentication
+ *
+ * @route DELETE /api/v1/workout-plans/:id/exercises/:exerciseId
+ * @param {Object} req - Express request object
+ * @param {Object} req.params - URL parameters
+ * @param {string} req.params.id - Workout plan ID
+ * @param {string} req.params.exerciseId - Exercise ID to remove
+ * @param {Object} res - Express response object
+ * @returns {Object} JSON response indicating success or error
+ */
+export const removeExerciseFromWorkoutPlan = async (req, res) => {
+  try {
+    const { id, exerciseId } = req.params;
+
+    // Find the workout plan
+    const workoutPlan = await WorkoutPlan.findById(id);
+    if (!workoutPlan) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Workout plan not found'
+      });
+    }
+
+    // Remove exercise from workout plan (this would need to be implemented in the model)
+    const success = await WorkoutPlan.removeExercise(id, exerciseId);
+
+    if (!success) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Exercise not found in workout plan'
+      });
+    }
+
+    return res.status(204).json({
+      status: 'success',
+      data: null
+    });
+  } catch (error) {
+    console.error('Remove exercise from workout plan error:', error);
     return res.status(500).json({
       status: 'error',
       message: error.message || 'Internal server error'

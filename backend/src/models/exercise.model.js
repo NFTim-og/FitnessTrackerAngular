@@ -3,8 +3,8 @@
  * Handles database operations for exercises
  */
 
-const { query } = require('../db/database'); // Database query function
-const { v4: uuidv4 } = require('uuid'); // UUID generator for unique IDs
+import { query } from '../db/database.js'; // Database query function
+import { v4 as uuidv4 } from 'uuid'; // UUID generator for unique IDs
 
 /**
  * Exercise class
@@ -241,4 +241,4 @@ class Exercise {
   }
 }
 
-module.exports = Exercise;
+export default Exercise;

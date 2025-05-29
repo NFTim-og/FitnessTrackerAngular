@@ -10,7 +10,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { query } from '../db/database.js';
 import { catchAsync, AppError } from '../middlewares/error.middleware.js';
 import { createSendToken } from '../middlewares/auth.middleware.js';
-import { encryptObjectFields, decryptObjectFields } from '../utils/encryption.utils.js';
 import dotenv from 'dotenv';
 
 // Load environment variables
@@ -45,16 +44,10 @@ export const register = catchAsync(async (req, res, next) => {
   // Create user with UUID
   const userId = uuidv4();
 
-  // Encrypt sensitive data if provided
-  const encryptedData = encryptObjectFields({
-    firstName: firstName || null,
-    lastName: lastName || null
-  }, ['firstName', 'lastName']);
-
   await query(
     `INSERT INTO users (id, email, password, first_name, last_name, is_active, email_verified)
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [userId, email, hashedPassword, encryptedData.firstName, encryptedData.lastName, true, false]
+    [userId, email, hashedPassword, firstName || null, lastName || null, true, false]
   );
 
   // Get the created user
@@ -63,18 +56,15 @@ export const register = catchAsync(async (req, res, next) => {
     [userId]
   );
 
-  // Decrypt sensitive data for response
-  const decryptedUser = decryptObjectFields(newUser, ['first_name', 'last_name']);
-
   // Create and send token
   createSendToken({
-    id: decryptedUser.id,
-    email: decryptedUser.email,
-    firstName: decryptedUser.first_name,
-    lastName: decryptedUser.last_name,
-    role: decryptedUser.role,
-    isActive: decryptedUser.is_active,
-    createdAt: decryptedUser.created_at
+    id: newUser.id,
+    email: newUser.email,
+    firstName: newUser.first_name,
+    lastName: newUser.last_name,
+    role: newUser.role,
+    isActive: newUser.is_active,
+    createdAt: newUser.created_at
   }, 201, res);
 });
 
@@ -113,17 +103,14 @@ export const login = catchAsync(async (req, res, next) => {
     [user.id]
   );
 
-  // Decrypt sensitive data for response
-  const decryptedUser = decryptObjectFields(user, ['first_name', 'last_name']);
-
   // Create and send token
   createSendToken({
-    id: decryptedUser.id,
-    email: decryptedUser.email,
-    firstName: decryptedUser.first_name,
-    lastName: decryptedUser.last_name,
-    role: decryptedUser.role,
-    isActive: decryptedUser.is_active
+    id: user.id,
+    email: user.email,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    role: user.role,
+    isActive: user.is_active
   }, 200, res);
 });
 
@@ -143,22 +130,19 @@ export const getCurrentUser = catchAsync(async (req, res, next) => {
     return next(new AppError('User not found', 404));
   }
 
-  // Decrypt sensitive data for response
-  const decryptedUser = decryptObjectFields(user, ['first_name', 'last_name']);
-
   res.status(200).json({
     status: 'success',
     data: {
       user: {
-        id: decryptedUser.id,
-        email: decryptedUser.email,
-        firstName: decryptedUser.first_name,
-        lastName: decryptedUser.last_name,
-        role: decryptedUser.role,
-        isActive: decryptedUser.is_active,
-        emailVerified: decryptedUser.email_verified,
-        lastLogin: decryptedUser.last_login,
-        createdAt: decryptedUser.created_at
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        role: user.role,
+        isActive: user.is_active,
+        emailVerified: user.email_verified,
+        lastLogin: user.last_login,
+        createdAt: user.created_at
       }
     }
   });

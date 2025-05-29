@@ -3,9 +3,9 @@
  * Handles database operations and business logic for workout plans
  */
 
-const { query } = require('../db/database'); // Database query function
-const { v4: uuidv4 } = require('uuid'); // UUID generator for unique IDs
-const Exercise = require('./exercise.model'); // Exercise model for relationships
+import { query } from '../db/database.js'; // Database query function
+import { v4 as uuidv4 } from 'uuid'; // UUID generator for unique IDs
+import Exercise from './exercise.model.js'; // Exercise model for relationships
 
 /**
  * WorkoutPlan class
@@ -299,6 +299,96 @@ class WorkoutPlan {
       throw error; // Rethrow for controller to handle
     }
   }
+
+  /**
+   * Add exercise to workout plan
+   * @param {string} workoutPlanId - Workout plan ID
+   * @param {Object} exerciseData - Exercise data to add
+   * @returns {Promise<WorkoutPlan>} Updated workout plan
+   * @throws {Error} Database or server error
+   */
+  static async addExercise(workoutPlanId, exerciseData) {
+    try {
+      const { exercise_id, order_num, sets, reps, duration_minutes, rest_seconds } = exerciseData;
+
+      // Insert workout plan exercise relationship
+      await query(
+        'INSERT INTO workout_plan_exercises (id, workout_plan_id, exercise_id, order_num, sets, reps, duration_minutes, rest_seconds) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          uuidv4(),
+          workoutPlanId,
+          exercise_id,
+          order_num || 1,
+          sets || null,
+          reps || null,
+          duration_minutes || null,
+          rest_seconds || null
+        ]
+      );
+
+      // Return updated workout plan
+      return WorkoutPlan.findById(workoutPlanId);
+    } catch (error) {
+      console.error('Error adding exercise to workout plan:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update exercise in workout plan
+   * @param {string} workoutPlanId - Workout plan ID
+   * @param {string} exerciseId - Exercise ID to update
+   * @param {Object} updateData - Data to update
+   * @returns {Promise<WorkoutPlan>} Updated workout plan
+   * @throws {Error} Database or server error
+   */
+  static async updateExercise(workoutPlanId, exerciseId, updateData) {
+    try {
+      const { order_num, sets, reps, duration_minutes, rest_seconds } = updateData;
+
+      // Update workout plan exercise
+      await query(
+        'UPDATE workout_plan_exercises SET order_num = ?, sets = ?, reps = ?, duration_minutes = ?, rest_seconds = ? WHERE workout_plan_id = ? AND exercise_id = ?',
+        [
+          order_num,
+          sets,
+          reps,
+          duration_minutes,
+          rest_seconds,
+          workoutPlanId,
+          exerciseId
+        ]
+      );
+
+      // Return updated workout plan
+      return WorkoutPlan.findById(workoutPlanId);
+    } catch (error) {
+      console.error('Error updating exercise in workout plan:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Remove exercise from workout plan
+   * @param {string} workoutPlanId - Workout plan ID
+   * @param {string} exerciseId - Exercise ID to remove
+   * @returns {Promise<boolean>} True if exercise was removed
+   * @throws {Error} Database or server error
+   */
+  static async removeExercise(workoutPlanId, exerciseId) {
+    try {
+      // Delete workout plan exercise relationship
+      const result = await query(
+        'DELETE FROM workout_plan_exercises WHERE workout_plan_id = ? AND exercise_id = ?',
+        [workoutPlanId, exerciseId]
+      );
+
+      return result.affectedRows > 0;
+    } catch (error) {
+      console.error('Error removing exercise from workout plan:', error);
+      throw error;
+    }
+  }
 }
 
-module.exports = WorkoutPlan;
+export default WorkoutPlan;

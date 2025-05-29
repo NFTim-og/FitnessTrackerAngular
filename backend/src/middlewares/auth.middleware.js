@@ -75,3 +75,65 @@ export const restrictTo = (...roles) => {
     next();
   };
 };
+
+/**
+ * Middleware to check if user owns the resource or is admin
+ */
+export const checkOwnership = (paramName = 'id') => {
+  return (req, res, next) => {
+    // Check if user is authenticated
+    if (!req.user) {
+      return next(new AppError('You must be logged in to access this resource', 401));
+    }
+
+    // Allow admins to access any resource
+    if (req.user.role === 'admin') {
+      return next();
+    }
+
+    // Check if user is accessing their own resource
+    const userId = req.params[paramName] || req.params.id || req.params.userId;
+    if (userId && userId !== req.user.id) {
+      return next(new AppError('You can only access your own resources', 403));
+    }
+
+    next();
+  };
+};
+
+/**
+ * Optional authentication middleware - doesn't fail if no token provided
+ */
+export const optionalAuth = async (req, res, next) => {
+  try {
+    // 1) Get token from headers
+    let token;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) {
+      // No token provided, continue without user
+      return next();
+    }
+
+    // 2) Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // 3) Check if user still exists
+    const user = await query(
+      'SELECT id, email, role FROM users WHERE id = ?',
+      [decoded.id]
+    );
+
+    if (user && user.length > 0) {
+      // 4) Set user in request if found
+      req.user = user[0];
+    }
+
+    next();
+  } catch (error) {
+    // If token is invalid, continue without user (don't throw error)
+    next();
+  }
+};
