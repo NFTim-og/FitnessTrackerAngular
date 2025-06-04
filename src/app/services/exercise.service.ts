@@ -84,7 +84,7 @@ export class ExerciseService {
         }),
         catchError(error => {
           console.error('ExerciseService - Error loading exercises:', error);
-          return throwError(() => this.errorHandler.handleError(error, 'ExerciseService.loadExercises'));
+          return throwError(() => this.errorHandler.handleError(error, 'ExerciseService.loadExercises', true));
         })
       );
   }
@@ -102,7 +102,7 @@ export class ExerciseService {
         map(response => new Exercise(response.data.exercise)),
         // Handle and format any errors
         catchError(error => {
-          return throwError(() => this.errorHandler.handleError(error, 'ExerciseService.getExercise'));
+          return throwError(() => this.errorHandler.handleError(error, 'ExerciseService.getExercise', true));
         })
       );
   }
@@ -144,7 +144,7 @@ export class ExerciseService {
         // Handle and format any errors
         catchError(error => {
           console.error('ExerciseService - Error creating exercise:', error);
-          return throwError(() => this.errorHandler.handleError(error, 'ExerciseService.createExercise'));
+          return throwError(() => this.errorHandler.handleError(error, 'ExerciseService.createExercise', true));
         })
       );
   }
@@ -187,7 +187,7 @@ export class ExerciseService {
         // Handle and format any errors
         catchError(error => {
           console.error('ExerciseService - Error updating exercise:', error);
-          return throwError(() => this.errorHandler.handleError(error, 'ExerciseService.updateExercise'));
+          return throwError(() => this.errorHandler.handleError(error, 'ExerciseService.updateExercise', true));
         })
       );
   }
@@ -225,7 +225,7 @@ export class ExerciseService {
         // Handle and format any errors
         catchError(error => {
           console.error('ExerciseService - Error deleting exercise:', error);
-          return throwError(() => this.errorHandler.handleError(error, 'ExerciseService.deleteExercise'));
+          return throwError(() => this.errorHandler.handleError(error, 'ExerciseService.deleteExercise', true));
         })
       );
   }

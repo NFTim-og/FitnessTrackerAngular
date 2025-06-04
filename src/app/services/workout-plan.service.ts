@@ -154,7 +154,7 @@ export class WorkoutPlanService {
           console.error('WorkoutPlanService - Error loading workout plans:', error);
           this.workoutPlansSubject.next([]);
           this.totalCountSubject.next(0);
-          return throwError(() => this.errorHandler.handleError(error, 'WorkoutPlanService.loadWorkoutPlans'));
+          return throwError(() => this.errorHandler.handleError(error, 'WorkoutPlanService.loadWorkoutPlans', true));
         })
       );
   }
@@ -164,7 +164,7 @@ export class WorkoutPlanService {
       .pipe(
         map(response => WorkoutPlan.fromJSON(response.data.workoutPlan)),
         catchError(error => {
-          return throwError(() => this.errorHandler.handleError(error, 'WorkoutPlanService.getWorkoutPlan'));
+          return throwError(() => this.errorHandler.handleError(error, 'WorkoutPlanService.getWorkoutPlan', true));
         })
       );
   }
@@ -186,7 +186,7 @@ export class WorkoutPlanService {
           return WorkoutPlan.fromJSON(response.data.workoutPlan);
         }),
         catchError(error => {
-          return throwError(() => this.errorHandler.handleError(error, 'WorkoutPlanService.createWorkoutPlan'));
+          return throwError(() => this.errorHandler.handleError(error, 'WorkoutPlanService.createWorkoutPlan', true));
         })
       );
   }
@@ -217,7 +217,7 @@ export class WorkoutPlanService {
           return WorkoutPlan.fromJSON(response.data.workoutPlan);
         }),
         catchError(error => {
-          return throwError(() => this.errorHandler.handleError(error, 'WorkoutPlanService.updateWorkoutPlan'));
+          return throwError(() => this.errorHandler.handleError(error, 'WorkoutPlanService.updateWorkoutPlan', true));
         })
       );
   }
@@ -229,7 +229,7 @@ export class WorkoutPlanService {
           this.loadWorkoutPlans(this.currentParams).subscribe();
         }),
         catchError(error => {
-          return throwError(() => this.errorHandler.handleError(error, 'WorkoutPlanService.deleteWorkoutPlan'));
+          return throwError(() => this.errorHandler.handleError(error, 'WorkoutPlanService.deleteWorkoutPlan', true));
         })
       );
   }
@@ -254,7 +254,7 @@ export class WorkoutPlanService {
         catchError(error => {
           this.workoutPlansSubject.next([]);
           this.totalCountSubject.next(0);
-          return throwError(() => this.errorHandler.handleError(error, 'WorkoutPlanService.searchWorkoutPlans'));
+          return throwError(() => this.errorHandler.handleError(error, 'WorkoutPlanService.searchWorkoutPlans', true));
         })
       );
   }

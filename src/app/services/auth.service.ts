@@ -100,7 +100,7 @@ export class AuthService {
           return { token, user };
         }),
         catchError(error => {
-          return throwError(() => this.errorHandler.handleError(error, 'AuthService.login'));
+          return throwError(() => this.errorHandler.handleError(error, 'AuthService.login', true));
         })
       );
   }
@@ -130,7 +130,7 @@ export class AuthService {
         }),
         catchError(error => {
           this.logout(); // Log out if token is invalid or expired
-          return throwError(() => this.errorHandler.handleError(error, 'AuthService.getMe'));
+          return throwError(() => this.errorHandler.handleError(error, 'AuthService.getMe', false));
         })
       );
   }
@@ -153,7 +153,7 @@ export class AuthService {
           return { token, user };
         }),
         catchError(error => {
-          return throwError(() => this.errorHandler.handleError(error, 'AuthService.updatePassword'));
+          return throwError(() => this.errorHandler.handleError(error, 'AuthService.updatePassword', true));
         })
       );
   }
