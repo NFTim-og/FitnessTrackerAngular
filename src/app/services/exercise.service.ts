@@ -44,7 +44,7 @@ export class ExerciseService {
 
   /**
    * Load exercises with pagination, sorting and filtering
-   * Uses both fetch API (for reliability) and HttpClient (for consistency)
+   * Uses Angular HttpClient for consistent API communication
    *
    * @param params - Pagination parameters (page, perPage, sortBy, sortOrder)
    * @returns Observable that completes when data is loaded
@@ -60,49 +60,30 @@ export class ExerciseService {
     console.log('ExerciseService - Loading exercises from:', `${this.apiUrl}`);
     console.log('ExerciseService - With params:', params);
 
-    // For debugging and reliability, make a direct fetch request
-    // This is a workaround for issues with Angular HttpClient
-    fetch(`${this.apiUrl}?page=${params.page}&limit=${params.perPage}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('fitness_tracker_token')}` // Add auth token
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('ExerciseService - Direct fetch response:', data);
-
-      // Process the fetch response and update the BehaviorSubjects
-      if (data && data.status === 'success' && data.data && Array.isArray(data.data.exercises)) {
-        // Convert raw data to Exercise objects
-        const exercises = data.data.exercises.map((e: any) => new Exercise(e));
-        console.log('ExerciseService - Parsed exercises from fetch:', exercises);
-
-        // Update the exercises subject with new data
-        this.exercisesSubject.next(exercises);
-
-        // Update the total count for pagination
-        if (data.data.pagination && typeof data.data.pagination.total === 'number') {
-          this.totalCountSubject.next(data.data.pagination.total);
-        } else {
-          this.totalCountSubject.next(exercises.length);
-        }
-      }
-    })
-    .catch(error => {
-      console.error('ExerciseService - Direct fetch error:', error);
-    });
-
-    // Also make the request using Angular HttpClient for consistency
-    // This is mainly for logging and error handling through the Angular system
     return this.http.get<any>(`${this.apiUrl}`, { params: httpParams })
       .pipe(
         map(response => {
-          console.log('ExerciseService - HTTP response:', response);
-          // We're already handling the response with the direct fetch
-          // This is just for logging purposes
+          console.log('ExerciseService - HttpClient response:', response);
+
+          // Process the response and update the BehaviorSubjects
+          if (response && response.status === 'success' && response.data && Array.isArray(response.data.exercises)) {
+            // Convert raw data to Exercise objects
+            const exercises = response.data.exercises.map((e: any) => new Exercise(e));
+            console.log('ExerciseService - Parsed exercises:', exercises);
+
+            // Update the exercises subject with new data
+            this.exercisesSubject.next(exercises);
+
+            // Update the total count for pagination
+            if (response.data.pagination && typeof response.data.pagination.total === 'number') {
+              this.totalCountSubject.next(response.data.pagination.total);
+            } else {
+              this.totalCountSubject.next(exercises.length);
+            }
+          }
         }),
         catchError(error => {
-          console.error('ExerciseService - HTTP error loading exercises:', error);
+          console.error('ExerciseService - Error loading exercises:', error);
           return throwError(() => this.errorHandler.handleError(error, 'ExerciseService.loadExercises'));
         })
       );

@@ -5,13 +5,16 @@ import { routes } from './app/app.routes';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpRequest, HttpHandlerFn } from '@angular/common/http';
+import { inject } from '@angular/core';
 import { environment } from './environments/environment';
+import { TokenService } from './app/shared/services/token.service';
 
 // Create a functional interceptor for authentication
 const authInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
   // Only add auth header for API requests
   if (req.url.startsWith(environment.apiUrl)) {
-    const token = localStorage.getItem('fitness_tracker_token');
+    const tokenService = inject(TokenService);
+    const token = tokenService.getToken();
 
     console.log('Auth Interceptor - URL:', req.url);
     console.log('Auth Interceptor - Token exists:', !!token);

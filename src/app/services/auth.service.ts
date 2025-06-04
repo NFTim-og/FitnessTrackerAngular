@@ -10,6 +10,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { environment } from '../../environments/environment';
 import { ErrorHandlerService } from '../shared/services/error-handler.service';
+import { TokenService } from '../shared/services/token.service';
 
 /**
  * Authentication Service
@@ -23,8 +24,6 @@ export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
   // BehaviorSubject to store and emit user data
   private userSubject = new BehaviorSubject<User | null>(null);
-  // Key used to store the JWT token in localStorage
-  private tokenKey = 'fitness_tracker_token';
 
   // Observable stream that components can subscribe to
   user$ = this.userSubject.asObservable();
@@ -33,21 +32,23 @@ export class AuthService {
    * Constructor
    * @param http - Angular HTTP client for making API requests
    * @param errorHandler - Service for handling and formatting errors
+   * @param tokenService - Service for managing token storage
    */
   constructor(
     private http: HttpClient,
-    private errorHandler: ErrorHandlerService
+    private errorHandler: ErrorHandlerService,
+    private tokenService: TokenService
   ) {
     this.initializeAuth(); // Initialize authentication state on service creation
   }
 
   /**
    * Initialize authentication state
-   * Checks for existing token in localStorage and loads user profile if found
+   * Checks for existing token and loads user profile if found
    * @private
    */
   private initializeAuth(): void {
-    const token = localStorage.getItem(this.tokenKey);
+    const token = this.tokenService.getToken();
     console.log('Auth Service - initializeAuth - Token exists:', !!token);
     if (token) {
       console.log('Auth Service - initializeAuth - Getting user profile');
@@ -106,10 +107,10 @@ export class AuthService {
 
   /**
    * Log out the current user
-   * Removes the token from localStorage and clears the user state
+   * Removes the token and clears the user state
    */
   logout(): void {
-    localStorage.removeItem(this.tokenKey); // Remove token from storage
+    this.tokenService.removeToken(); // Remove token from storage
     this.userSubject.next(null); // Clear user state
   }
 
@@ -159,15 +160,15 @@ export class AuthService {
 
   /**
    * Set the user session
-   * Stores the token in localStorage and updates the user state
+   * Stores the token and updates the user state
    *
    * @param token - JWT authentication token
    * @param user - User object
    * @private
    */
   private setSession(token: string, user: User): void {
-    console.log('Auth Service - Setting token in localStorage:', token.substring(0, 10) + '...');
-    localStorage.setItem(this.tokenKey, token); // Store token in localStorage
+    console.log('Auth Service - Setting token:', token.substring(0, 10) + '...');
+    this.tokenService.setToken(token); // Store token
     this.userSubject.next(user); // Update user state
     console.log('Auth Service - User subject updated:', user);
   }
@@ -185,7 +186,7 @@ export class AuthService {
    * @returns JWT token or null if not logged in
    */
   get token(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return this.tokenService.getToken();
   }
 
   /**
@@ -193,7 +194,7 @@ export class AuthService {
    * @returns True if user is logged in, false otherwise
    */
   get isLoggedIn(): boolean {
-    return !!this.token;
+    return this.tokenService.hasToken();
   }
 
   /**
