@@ -6,10 +6,11 @@
 import { Injectable } from '@angular/core'; // Angular dependency injection
 import { HttpClient, HttpParams } from '@angular/common/http'; // HTTP client for API requests
 import { BehaviorSubject, Observable, throwError } from 'rxjs'; // Reactive programming utilities
-import { catchError, map } from 'rxjs/operators'; // RxJS operators
+import { catchError, map, finalize } from 'rxjs/operators'; // RxJS operators
 import { Exercise } from '../models/exercise.model'; // Exercise model
 import { environment } from '../../environments/environment'; // Environment configuration
 import { ErrorHandlerService } from '../shared/services/error-handler.service'; // Error handling service
+import { LoadingService } from '../shared/services/loading.service'; // Loading state management
 import { PaginationParams, PaginationResponse } from '../shared/models/pagination.model'; // Pagination models
 
 /**
@@ -39,7 +40,8 @@ export class ExerciseService {
    */
   constructor(
     private http: HttpClient,
-    private errorHandler: ErrorHandlerService
+    private errorHandler: ErrorHandlerService,
+    private loadingService: LoadingService
   ) {}
 
   /**
@@ -59,6 +61,8 @@ export class ExerciseService {
 
     console.log('ExerciseService - Loading exercises from:', `${this.apiUrl}`);
     console.log('ExerciseService - With params:', params);
+
+    this.loadingService.start('loadExercises');
 
     return this.http.get<any>(`${this.apiUrl}`, { params: httpParams })
       .pipe(
@@ -85,6 +89,9 @@ export class ExerciseService {
         catchError(error => {
           console.error('ExerciseService - Error loading exercises:', error);
           return throwError(() => this.errorHandler.handleError(error, 'ExerciseService.loadExercises', true));
+        }),
+        finalize(() => {
+          this.loadingService.stop('loadExercises');
         })
       );
   }
@@ -116,6 +123,8 @@ export class ExerciseService {
   createExercise(exercise: Omit<Exercise, 'id' | 'created_at' | 'created_by'>): Observable<Exercise> {
     console.log('ExerciseService - Creating exercise:', exercise);
 
+    this.loadingService.start('createExercise');
+
     // Send POST request to create exercise
     return this.http.post<any>(`${this.apiUrl}`, exercise)
       .pipe(
@@ -145,6 +154,9 @@ export class ExerciseService {
         catchError(error => {
           console.error('ExerciseService - Error creating exercise:', error);
           return throwError(() => this.errorHandler.handleError(error, 'ExerciseService.createExercise', true));
+        }),
+        finalize(() => {
+          this.loadingService.stop('createExercise');
         })
       );
   }

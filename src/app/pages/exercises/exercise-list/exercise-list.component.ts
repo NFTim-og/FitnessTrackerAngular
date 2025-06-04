@@ -4,15 +4,18 @@ import { RouterModule } from '@angular/router';
 import { AppError } from '../../../shared/models/error.model';
 import { FormsModule } from '@angular/forms';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { ExerciseService } from '../../../services/exercise.service';
 import { UserProfileService } from '../../../services/user-profile.service';
+import { LoadingService } from '../../../shared/services/loading.service';
 import { Exercise } from '../../../models/types';
 import { PaginationState } from '../../../shared/interfaces/pagination.interface';
 
 @Component({
   selector: 'app-exercise-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent],
+  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent, LoadingSpinnerComponent, SkeletonLoaderComponent],
   templateUrl: './exercise-list.component.html',
   styles: [`
     .btn-danger {
@@ -36,9 +39,14 @@ export class ExerciseListComponent implements OnInit {
     perPage: 6
   };
 
+  // Loading states
+  isLoadingExercises$ = this.loadingService.isLoading('loadExercises');
+  isCreatingExercise$ = this.loadingService.isLoading('createExercise');
+
   constructor(
     private exerciseService: ExerciseService,
-    private userProfileService: UserProfileService
+    private userProfileService: UserProfileService,
+    private loadingService: LoadingService
   ) {
     this.exerciseService.totalCount$.subscribe(count => {
       this.pagination = { ...this.pagination, totalCount: count };

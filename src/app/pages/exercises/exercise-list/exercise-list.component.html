@@ -5,7 +5,7 @@
         <button class="ml-2" (click)="error = null">&times;</button>
       </div>
     }
-  
+
     <h1 class="text-3xl font-bold mb-4">My Exercises</h1>
     <div class="flex gap-4 mb-4">
       <input
@@ -29,49 +29,75 @@
     <button
       [routerLink]="['/exercises/new']"
       class="btn btn-primary"
+      [disabled]="isLoadingExercises$ | async"
     >
-      Add New Exercise
+      @if (isCreatingExercise$ | async) {
+        <app-loading-spinner size="small" color="white" class="mr-2"></app-loading-spinner>
+        Creating...
+      } @else {
+        Add New Exercise
+      }
     </button>
   </div>
-  
+
   <app-pagination
     [currentPage]="pagination.currentPage"
     [totalCount]="pagination.totalCount"
     [perPage]="pagination.perPage"
     (pageChange)="changePage($event)"
   ></app-pagination>
-  
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    @for (exercise of exercises; track exercise.id) {
-      <div class="card">
-        <h3 class="text-xl font-semibold mb-2">{{ exercise.name }}</h3>
-        <div class="mb-4">
-          <p>Duration: {{ exercise.duration }} minutes</p>
-          <p>
-            Calories: {{ calculateCalories(exercise) }} 
-            @if (!(userProfile$ | async)) {
-              <span class="text-sm text-gray-500">
-                (Set your weight in profile for accurate calculation)
-              </span>
-            }
-          </p>
-          <p class="capitalize">Difficulty: {{ exercise.difficulty }}</p>
-          <p class="text-sm text-gray-600">MET: {{ exercise.met_value }}</p>
+
+  <!-- Loading state -->
+  @if (isLoadingExercises$ | async) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (item of [1,2,3,4,5,6]; track item) {
+        <app-skeleton-loader type="card"></app-skeleton-loader>
+      }
+    </div>
+  } @else {
+    <!-- Exercise grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (exercise of exercises; track exercise.id) {
+        <div class="card">
+          <h3 class="text-xl font-semibold mb-2">{{ exercise.name }}</h3>
+          <div class="mb-4">
+            <p>Duration: {{ exercise.duration }} minutes</p>
+            <p>
+              Calories: {{ calculateCalories(exercise) }}
+              @if (!(userProfile$ | async)) {
+                <span class="text-sm text-gray-500">
+                  (Set your weight in profile for accurate calculation)
+                </span>
+              }
+            </p>
+            <p class="capitalize">Difficulty: {{ exercise.difficulty }}</p>
+            <p class="text-sm text-gray-600">MET: {{ exercise.met_value }}</p>
+          </div>
+          <div class="flex gap-2">
+            <button
+              [routerLink]="['/exercises', exercise.id, 'edit']"
+              class="btn btn-primary"
+            >
+              Edit
+            </button>
+            <button
+              (click)="deleteExercise(exercise.id)"
+              class="btn btn-danger"
+            >
+              Delete
+            </button>
+          </div>
         </div>
-        <div class="flex gap-2">
+      } @empty {
+        <div class="col-span-full text-center py-8">
+          <p class="text-gray-500 text-lg">No exercises found</p>
           <button
-            [routerLink]="['/exercises', exercise.id, 'edit']"
-            class="btn btn-primary"
+            [routerLink]="['/exercises/new']"
+            class="btn btn-primary mt-4"
           >
-            Edit
-          </button>
-          <button
-            (click)="deleteExercise(exercise.id)"
-            class="btn btn-danger"
-          >
-            Delete
+            Create your first exercise
           </button>
         </div>
-      </div>
-    }
-  </div>
+      }
+    </div>
+  }
