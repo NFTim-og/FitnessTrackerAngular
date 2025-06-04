@@ -105,7 +105,7 @@ describe('ExerciseFormComponent', () => {
     fixture = TestBed.createComponent(ExerciseFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    tick();
+    tick(); // Wait for async operations
 
     expect(component.isEditing).toBeTrue();
     expect(component.exerciseForm.value).toEqual({

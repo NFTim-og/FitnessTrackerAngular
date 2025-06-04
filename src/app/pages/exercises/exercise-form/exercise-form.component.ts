@@ -65,17 +65,19 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  async loadExercise(id: string) {
-    try {
-      const exercise = await this.exerciseService.getExercise(id);
-      if (exercise) {
-        this.exerciseForm.patchValue(exercise);
-        this.updateCalories();
-        this.error = null;
+  loadExercise(id: string) {
+    this.exerciseService.getExercise(id).subscribe({
+      next: (exercise) => {
+        if (exercise) {
+          this.exerciseForm.patchValue(exercise);
+          this.updateCalories();
+          this.error = null;
+        }
+      },
+      error: (error) => {
+        this.error = error instanceof AppError ? error.message : 'Failed to load exercise';
       }
-    } catch (error) {
-      this.error = error instanceof AppError ? error.message : 'Failed to load exercise';
-    }
+    });
   }
 
   showError(field: string) {

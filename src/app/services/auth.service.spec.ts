@@ -7,6 +7,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { AuthService } from './auth.service';
 import { ErrorHandlerService } from '../shared/services/error-handler.service';
+import { TokenService } from '../shared/services/token.service';
 import { User } from '../models/user.model';
 import { environment } from '../../environments/environment';
 import { AppError } from '../shared/models/error.model';
@@ -15,23 +16,33 @@ describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
   let errorHandlerSpy: jasmine.SpyObj<ErrorHandlerService>;
+  let tokenServiceSpy: jasmine.SpyObj<TokenService>;
   const apiUrl = `${environment.apiUrl}/auth`;
 
   beforeEach(() => {
-    // Create spy for error handler
-    const spy = jasmine.createSpyObj('ErrorHandlerService', ['handleError']);
+    // Create spies for dependencies
+    const errorHandlerSpyObj = jasmine.createSpyObj('ErrorHandlerService', ['handleError']);
+    const tokenServiceSpyObj = jasmine.createSpyObj('TokenService', [
+      'getToken', 'setToken', 'removeToken', 'hasToken'
+    ]);
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
         AuthService,
-        { provide: ErrorHandlerService, useValue: spy }
+        { provide: ErrorHandlerService, useValue: errorHandlerSpyObj },
+        { provide: TokenService, useValue: tokenServiceSpyObj }
       ]
     });
 
     service = TestBed.inject(AuthService);
     httpMock = TestBed.inject(HttpTestingController);
     errorHandlerSpy = TestBed.inject(ErrorHandlerService) as jasmine.SpyObj<ErrorHandlerService>;
+    tokenServiceSpy = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
+
+    // Setup default token service behavior
+    tokenServiceSpy.getToken.and.returnValue(null);
+    tokenServiceSpy.hasToken.and.returnValue(false);
 
     // Clear localStorage before each test
     localStorage.clear();
@@ -81,8 +92,8 @@ describe('AuthService', () => {
       // Respond with mock data
       req.flush(mockResponse);
 
-      // Verify that token was stored in localStorage
-      expect(localStorage.getItem('fitness_tracker_token')).toBe('mock-token');
+      // Verify that token was stored via TokenService
+      expect(tokenServiceSpy.setToken).toHaveBeenCalledWith('mock-token');
     });
 
     it('should handle registration errors', () => {
@@ -143,22 +154,21 @@ describe('AuthService', () => {
       // Respond with mock data
       req.flush(mockResponse);
 
-      // Verify that token was stored in localStorage
-      expect(localStorage.getItem('fitness_tracker_token')).toBe('mock-token');
+      // Verify that token was stored via TokenService
+      expect(tokenServiceSpy.setToken).toHaveBeenCalledWith('mock-token');
     });
   });
 
   describe('logout', () => {
     it('should log out a user', () => {
-      // Setup: Store a token and set a user
-      localStorage.setItem('fitness_tracker_token', 'mock-token');
+      // Setup: Set a user
       service['userSubject'].next(new User({ id: '1', email: 'test@example.com' }));
 
       // Call the service method
       service.logout();
 
-      // Verify that token was removed from localStorage
-      expect(localStorage.getItem('fitness_tracker_token')).toBeNull();
+      // Verify that token was removed via TokenService
+      expect(tokenServiceSpy.removeToken).toHaveBeenCalled();
 
       // Verify that user was cleared
       service.user$.subscribe(user => {
@@ -197,9 +207,6 @@ describe('AuthService', () => {
     });
 
     it('should log out if getting profile fails', () => {
-      // Setup: Store a token
-      localStorage.setItem('fitness_tracker_token', 'mock-token');
-
       // Setup error handler spy
       errorHandlerSpy.handleError.and.returnValue(new AppError('Unauthorized'));
 
@@ -218,8 +225,8 @@ describe('AuthService', () => {
       // Respond with an error
       req.error(new ErrorEvent('Network error'));
 
-      // Verify that token was removed from localStorage
-      expect(localStorage.getItem('fitness_tracker_token')).toBeNull();
+      // Verify that token was removed via TokenService
+      expect(tokenServiceSpy.removeToken).toHaveBeenCalled();
     });
   });
 
@@ -231,13 +238,15 @@ describe('AuthService', () => {
     });
 
     it('should return the token', () => {
-      localStorage.setItem('fitness_tracker_token', 'mock-token');
+      tokenServiceSpy.getToken.and.returnValue('mock-token');
       expect(service.token).toBe('mock-token');
     });
 
     it('should check if user is logged in', () => {
+      tokenServiceSpy.hasToken.and.returnValue(false);
       expect(service.isLoggedIn).toBeFalse();
-      localStorage.setItem('fitness_tracker_token', 'mock-token');
+
+      tokenServiceSpy.hasToken.and.returnValue(true);
       expect(service.isLoggedIn).toBeTrue();
     });
 
