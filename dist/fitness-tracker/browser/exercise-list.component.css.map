@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;470f3b4604f338fcd6d0b3aa2c42ebb7592af0c623111a407c1136644f8aae00;/Users/TimOliver/Desktop/AngularWorkspaces/fitness-tracker-app/src/app/pages/exercises/exercise-list/exercise-list.component.ts"],
+  "sourcesContent": ["\n    .btn-danger {\n      background-color: var(--danger-color);\n      color: white;\n    }\n    .btn-danger:hover {\n      background-color: #dc2626;\n    }\n  "],
+  "mappings": ";AACI,CAAC;AACC,oBAAkB,IAAI;AACtB,SAAO;AACT;AACA,CAJC,UAIU;AACT,oBAAkB;AACpB;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;7372d433848b8fc08d62d3a721bf68436d181f5074ef79a38e3b00251bc423f1;/Users/TimOliver/Desktop/AngularWorkspaces/fitness-tracker-app/src/app/shared/components/skeleton-loader/skeleton-loader.component.ts"],
+  "sourcesContent": ["\n    .animate-pulse {\n      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;\n    }\n    \n    @keyframes pulse {\n      0%, 100% {\n        opacity: 1;\n      }\n      50% {\n        opacity: .5;\n      }\n    }\n  "],
+  "mappings": ";AACI,CAAC;AACC,aAAW,MAAM,GAAG,aAAa,GAAG,EAAE,CAAC,EAAE,GAAG,EAAE,GAAG;AACnD;AAEA,WAHa;AAIX;AACE,aAAS;AACX;AACA;AACE,aAAS;AACX;AACF;",
+  "names": []
+}

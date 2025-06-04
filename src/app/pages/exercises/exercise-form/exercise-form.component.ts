@@ -7,11 +7,15 @@ import { ExerciseService } from '../../../services/exercise.service';
 import { UserProfileService } from '../../../services/user-profile.service';
 import { Exercise } from '../../../models/exercise.model';
 import { Subscription } from 'rxjs';
+import { ValidationService } from '../../../shared/services/validation.service';
+import { LoadingService } from '../../../shared/services/loading.service';
+import { FormFieldComponent } from '../../../shared/components/form-field/form-field.component';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-exercise-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormFieldComponent, LoadingSpinnerComponent],
   templateUrl: './exercise-form.component.html',
   styles: []
 })
@@ -25,18 +29,38 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
   private profileSubscription: Subscription;
   private formSubscription: Subscription;
 
+  // Loading states
+  isLoadingExercise$ = this.loadingService.isLoading('loadExercise');
+  isSavingExercise$ = this.loadingService.isLoading('saveExercise');
+
   constructor(
     private fb: FormBuilder,
     private exerciseService: ExerciseService,
     private userProfileService: UserProfileService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private loadingService: LoadingService
   ) {
     this.exerciseForm = this.fb.group({
-      name: ['', [Validators.required]],
-      duration: ['', [Validators.required, Validators.min(1)]],
-      met_value: [4.0, [Validators.required, Validators.min(0.1)]],
-      difficulty: ['', [Validators.required]]
+      name: ['', [
+        Validators.required,
+        ValidationService.minLengthValidator(2),
+        ValidationService.maxLengthValidator(100)
+      ]],
+      duration: ['', [
+        Validators.required,
+        ValidationService.positiveNumberValidator(),
+        ValidationService.rangeValidator(1, 300)
+      ]],
+      met_value: [4.0, [
+        Validators.required,
+        ValidationService.positiveNumberValidator(),
+        ValidationService.rangeValidator(0.1, 20)
+      ]],
+      difficulty: ['', [
+        Validators.required,
+        ValidationService.optionsValidator(['easy', 'medium', 'hard'])
+      ]]
     });
 
     // Subscribe to profile changes to update calories when weight changes
@@ -66,6 +90,8 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
   }
 
   loadExercise(id: string) {
+    this.loadingService.start('loadExercise');
+
     this.exerciseService.getExercise(id).subscribe({
       next: (exercise) => {
         if (exercise) {
@@ -73,9 +99,11 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
           this.updateCalories();
           this.error = null;
         }
+        this.loadingService.stop('loadExercise');
       },
       error: (error) => {
         this.error = error instanceof AppError ? error.message : 'Failed to load exercise';
+        this.loadingService.stop('loadExercise');
       }
     });
   }
@@ -83,6 +111,15 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
   showError(field: string) {
     const control = this.exerciseForm.get(field);
     return control?.invalid && (control?.dirty || control?.touched);
+  }
+
+  getFieldError(fieldName: string): string | null {
+    const control = this.exerciseForm.get(fieldName);
+    return ValidationService.getFirstErrorMessage(fieldName, control);
+  }
+
+  getFormControl(fieldName: string) {
+    return this.exerciseForm.get(fieldName);
   }
 
   updateCalories() {
@@ -101,11 +138,16 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
   }
 
   async onSubmit() {
-    if (this.exerciseForm.invalid) return;
+    if (this.exerciseForm.invalid) {
+      // Mark all fields as touched to show validation errors
+      this.exerciseForm.markAllAsTouched();
+      return;
+    }
 
     console.log('ExerciseFormComponent - Form submitted');
     console.log('ExerciseFormComponent - Form values:', this.exerciseForm.value);
 
+    this.loadingService.start('saveExercise');
     this.isSubmitting = true;
     try {
       this.updateCalories();
@@ -145,6 +187,7 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
       this.error = error instanceof AppError ? error.message : 'Failed to save exercise';
     } finally {
       this.isSubmitting = false;
+      this.loadingService.stop('saveExercise');
     }
   }
 

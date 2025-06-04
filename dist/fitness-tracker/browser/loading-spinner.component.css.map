@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;81767098a2039fe9b08c4924302bc1232e1bf0a8285613b48dc1305946f2b148;/Users/TimOliver/Desktop/AngularWorkspaces/fitness-tracker-app/src/app/shared/components/loading-spinner/loading-spinner.component.ts"],
+  "sourcesContent": ["\n    .animate-spin {\n      animation: spin 1s linear infinite;\n    }\n    \n    @keyframes spin {\n      from {\n        transform: rotate(0deg);\n      }\n      to {\n        transform: rotate(360deg);\n      }\n    }\n  "],
+  "mappings": ";AACI,CAAC;AACC,aAAW,KAAK,GAAG,OAAO;AAC5B;AAEA,WAHa;AAIX;AACE,eAAW,OAAO;AACpB;AACA;AACE,eAAW,OAAO;AACpB;AACF;",
+  "names": []
+}

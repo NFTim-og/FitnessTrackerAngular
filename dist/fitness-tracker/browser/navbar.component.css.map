@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;fcd8bd1788b3bc860270aa71512dfb844a2702752d5b94250e5c346ab3f76b1a;/Users/TimOliver/Desktop/AngularWorkspaces/fitness-tracker-app/src/app/components/navbar/navbar.component.ts"],
+  "sourcesContent": ["\n    .nav-link {\n      padding: 0.5rem;\n      background: var(--button-background);\n      border: 1px solid transparent;\n      cursor: pointer;\n      color: var(--text-color);\n      text-decoration: none;\n      transition: color 0.2s;\n    }\n    .nav-link:hover {\n      color: var(--primary-color);\n      border-color: var(--primary-color);\n    }\n    .nav-link:disabled {\n      opacity: 0.5;\n      cursor: not-allowed;\n    }\n  "],
+  "mappings": ";AACI,CAAC;AACC,WAAS;AACT,cAAY,IAAI;AAChB,UAAQ,IAAI,MAAM;AAClB,UAAQ;AACR,SAAO,IAAI;AACX,mBAAiB;AACjB,cAAY,MAAM;AACpB;AACA,CATC,QASQ;AACP,SAAO,IAAI;AACX,gBAAc,IAAI;AACpB;AACA,CAbC,QAaQ;AACP,WAAS;AACT,UAAQ;AACV;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;b57f3e47b6900c46edf6d1bb0de3f3b74b242f2634a7ce67dd5f2347263295c3;/Users/TimOliver/Desktop/AngularWorkspaces/fitness-tracker-app/src/app/components/api-test/api-test.component.ts"],
+  "sourcesContent": ["\n    .container {\n      max-width: 800px;\n    }\n  "],
+  "mappings": ";AACI,CAAC;AACC,aAAW;AACb;",
+  "names": []
+}

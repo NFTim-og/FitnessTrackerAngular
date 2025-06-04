@@ -5,45 +5,43 @@
         <button class="ml-2" (click)="error = null">&times;</button>
       </div>
     }
-  
+
     <h1 class="text-3xl font-bold mb-6">
-      {{ isEditing ? 'Edit' : 'New' }} Exercise
+      @if (isLoadingExercise$ | async) {
+        <div class="flex items-center">
+          <app-loading-spinner size="small" class="mr-2"></app-loading-spinner>
+          Loading Exercise...
+        </div>
+      } @else {
+        {{ isEditing ? 'Edit' : 'New' }} Exercise
+      }
     </h1>
-  
+
     <form [formGroup]="exerciseForm" (ngSubmit)="onSubmit()" class="card">
+      <app-form-field
+        label="Exercise Name"
+        type="text"
+        placeholder="Enter exercise name"
+        [control]="getFormControl('name')"
+        fieldName="Name"
+        [required]="true"
+        helpText="Enter a descriptive name for your exercise (2-100 characters)"
+        formControlName="name">
+      </app-form-field>
+
+      <app-form-field
+        label="Duration (minutes)"
+        type="number"
+        placeholder="Enter duration in minutes"
+        [control]="getFormControl('duration')"
+        fieldName="Duration"
+        [required]="true"
+        helpText="Exercise duration between 1-300 minutes"
+        formControlName="duration">
+      </app-form-field>
+
       <div class="form-group">
-        <label for="name" class="form-label">Exercise Name</label>
-        <input
-          type="text"
-          id="name"
-          formControlName="name"
-          class="form-control"
-          [class.border-red-500]="showError('name')"
-        />
-        @if (showError('name')) {
-          <p class="text-red-500 text-sm mt-1">Exercise name is required</p>
-        }
-      </div>
-  
-      <div class="form-group">
-        <label for="duration" class="form-label">Duration (minutes)</label>
-        <input
-          type="number"
-          id="duration"
-          formControlName="duration"
-          class="form-control"
-          [class.border-red-500]="showError('duration')"
-          (input)="updateCalories()"
-        />
-        @if (showError('duration')) {
-          <p class="text-red-500 text-sm mt-1">
-            Duration must be greater than 0
-          </p>
-        }
-      </div>
-  
-      <div class="form-group">
-        <label for="met" class="form-label">
+        <label class="form-label">
           MET Value
           <span
             class="ml-2 text-sm text-blue-600 cursor-pointer"
@@ -52,22 +50,17 @@
             ℹ️ What's this?
           </span>
         </label>
-        <input
+        <app-form-field
           type="number"
-          id="met"
-          formControlName="met_value"
-          class="form-control"
-          [class.border-red-500]="showError('met_value')"
-          step="0.1"
-          (input)="updateCalories()"
-        />
-        @if (showError('met_value')) {
-          <p class="text-red-500 text-sm mt-1">
-            MET value must be greater than 0
-          </p>
-        }
+          placeholder="Enter MET value (e.g., 4.0)"
+          [control]="getFormControl('met_value')"
+          fieldName="MET Value"
+          [required]="true"
+          helpText="Metabolic Equivalent of Task (0.1-20.0)"
+          formControlName="met_value">
+        </app-form-field>
       </div>
-  
+
       @if (showMetInfo) {
         <div class="bg-blue-50 p-4 rounded-lg mb-4">
           <h3 class="font-semibold mb-2">About MET Values</h3>
@@ -85,7 +78,7 @@
           </p>
         </div>
       }
-  
+
       <div class="form-group">
         <label class="form-label">Difficulty</label>
         <div class="flex gap-4">
@@ -118,10 +111,10 @@
           </label>
         </div>
         @if (showError('difficulty')) {
-          <p class="text-red-500 text-sm mt-1">Please select a difficulty level</p>
+          <p class="text-red-500 text-sm mt-1">{{ getFieldError('Difficulty') }}</p>
         }
       </div>
-  
+
       @if (estimatedCalories > 0) {
         <div class="bg-green-50 p-4 rounded-lg mb-4">
           <p class="font-semibold">
@@ -132,19 +125,25 @@
           </p>
         </div>
       }
-  
+
       <div class="flex gap-4 mt-6">
         <button
           type="submit"
           class="btn btn-primary"
-          [disabled]="exerciseForm.invalid || isSubmitting"
+          [disabled]="exerciseForm.invalid || (isSavingExercise$ | async)"
         >
-          {{ isSubmitting ? 'Saving...' : (isEditing ? 'Update' : 'Create') }}
+          @if (isSavingExercise$ | async) {
+            <app-loading-spinner size="small" color="white" class="mr-2"></app-loading-spinner>
+            Saving...
+          } @else {
+            {{ isEditing ? 'Update' : 'Create' }} Exercise
+          }
         </button>
         <button
           type="button"
           class="btn btn-secondary"
           (click)="goBack()"
+          [disabled]="isSavingExercise$ | async"
         >
           Cancel
         </button>

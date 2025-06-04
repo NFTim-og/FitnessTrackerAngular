@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["angular:styles/component:css;9f43b3c8c7f38f9d94201d483e723284510f8027f74a50f1a412a592e6a61f11;/Users/TimOliver/Desktop/AngularWorkspaces/fitness-tracker-app/src/app/components/theme-toggle/theme-toggle.component.ts"],
+  "sourcesContent": ["\n    .theme-toggle {\n      padding: 0.5rem;\n      border-radius: 0.5rem;\n      background: transparent;\n      border: none;\n      cursor: pointer;\n      color: var(--text-color);\n      transition: color 0.2s, transform 0.2s;\n    }\n    \n    .theme-toggle:hover {\n      color: var(--primary-color);\n      transform: scale(1.1);\n    }\n    \n    .icon {\n      width: 1.5rem;\n      height: 1.5rem;\n    }\n  "],
+  "mappings": ";AACI,CAAC;AACC,WAAS;AACT,iBAAe;AACf,cAAY;AACZ,UAAQ;AACR,UAAQ;AACR,SAAO,IAAI;AACX,cAAY,MAAM,IAAI,EAAE,UAAU;AACpC;AAEA,CAVC,YAUY;AACX,SAAO,IAAI;AACX,aAAW,MAAM;AACnB;AAEA,CAAC;AACC,SAAO;AACP,UAAQ;AACV;",
+  "names": []
+}
