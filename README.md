@@ -429,135 +429,179 @@ The fitness tracker application uses a comprehensive MySQL database schema desig
 ```mermaid
 erDiagram
     users {
-        VARCHAR(36) id PK "UUID, Primary Key"
-        VARCHAR(255) email UK "Unique, Encrypted"
-        VARCHAR(255) password "bcrypt hashed"
-        ENUM role "user, admin"
-        VARCHAR(100) first_name "Encrypted"
-        VARCHAR(100) last_name "Encrypted"
-        BOOLEAN is_active "Default: TRUE"
-        BOOLEAN email_verified "Default: FALSE"
-        TIMESTAMP last_login "Nullable"
-        TIMESTAMP created_at "Auto-generated"
-        TIMESTAMP updated_at "Auto-updated"
+        VARCHAR-36 id PK
+        VARCHAR-255 email UK
+        VARCHAR-255 password
+        ENUM role
+        VARCHAR-100 first_name
+        VARCHAR-100 last_name
+        BOOLEAN is_active
+        BOOLEAN email_verified
+        TIMESTAMP last_login
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
     }
 
     user_profiles {
-        VARCHAR(36) id PK "UUID, Primary Key"
-        VARCHAR(36) user_id FK "Unique, References users(id)"
-        DECIMAL(5,2) weight_kg "CHECK: 30-300kg"
-        DECIMAL(5,2) height_cm "CHECK: 100-250cm"
-        DATE date_of_birth "Nullable"
-        ENUM gender "male, female, other"
-        ENUM activity_level "sedentary to extremely_active"
-        ENUM fitness_goal "lose_weight, gain_weight, etc."
-        TIMESTAMP created_at "Auto-generated"
-        TIMESTAMP updated_at "Auto-updated"
+        VARCHAR-36 id PK
+        VARCHAR-36 user_id FK
+        DECIMAL-5-2 weight_kg
+        DECIMAL-5-2 height_cm
+        DATE date_of_birth
+        ENUM gender
+        ENUM activity_level
+        ENUM fitness_goal
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
     }
 
     exercises {
-        VARCHAR(36) id PK "UUID, Primary Key"
-        VARCHAR(100) name "Exercise name"
-        TEXT description "Detailed description"
-        ENUM category "cardio, strength, flexibility, balance, sports"
-        INT duration_minutes "CHECK: > 0"
-        DECIMAL(4,2) calories_per_minute "CHECK: > 0"
-        ENUM difficulty "beginner, intermediate, advanced"
-        DECIMAL(4,2) met_value "Metabolic equivalent, CHECK: > 0"
-        VARCHAR(255) equipment_needed "Optional equipment"
-        JSON muscle_groups "Array of muscle groups"
-        TEXT instructions "Step-by-step instructions"
-        VARCHAR(36) created_by FK "References users(id)"
-        BOOLEAN is_public "Default: TRUE"
-        TIMESTAMP created_at "Auto-generated"
-        TIMESTAMP updated_at "Auto-updated"
+        VARCHAR-36 id PK
+        VARCHAR-100 name
+        TEXT description
+        ENUM category
+        INT duration_minutes
+        DECIMAL-4-2 calories_per_minute
+        ENUM difficulty
+        DECIMAL-4-2 met_value
+        VARCHAR-255 equipment_needed
+        JSON muscle_groups
+        TEXT instructions
+        VARCHAR-36 created_by FK
+        BOOLEAN is_public
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
     }
 
     workout_plans {
-        VARCHAR(36) id PK "UUID, Primary Key"
-        VARCHAR(100) name "Workout plan name"
-        TEXT description "Plan description"
-        ENUM category "weight_loss, muscle_gain, endurance, etc."
-        ENUM difficulty "beginner, intermediate, advanced"
-        INT estimated_duration_minutes "Total estimated time"
-        INT target_calories "Target calorie burn"
-        VARCHAR(36) created_by FK "References users(id)"
-        BOOLEAN is_public "Default: TRUE"
-        TIMESTAMP created_at "Auto-generated"
-        TIMESTAMP updated_at "Auto-updated"
+        VARCHAR-36 id PK
+        VARCHAR-100 name
+        TEXT description
+        ENUM category
+        ENUM difficulty
+        INT estimated_duration_minutes
+        INT target_calories
+        VARCHAR-36 created_by FK
+        BOOLEAN is_public
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
     }
 
     workout_plan_exercises {
-        VARCHAR(36) id PK "UUID, Primary Key"
-        VARCHAR(36) workout_plan_id FK "References workout_plans(id)"
-        VARCHAR(36) exercise_id FK "References exercises(id)"
-        INT exercise_order "Order in workout, UNIQUE per plan"
-        INT sets "Number of sets, Default: 1"
-        INT reps "Repetitions per set"
-        INT duration_minutes "Exercise duration"
-        INT rest_seconds "Rest between sets, Default: 60"
-        TEXT notes "Exercise-specific notes"
-        TIMESTAMP created_at "Auto-generated"
+        VARCHAR-36 id PK
+        VARCHAR-36 workout_plan_id FK
+        VARCHAR-36 exercise_id FK
+        INT exercise_order
+        INT sets
+        INT reps
+        INT duration_minutes
+        INT rest_seconds
+        TEXT notes
+        TIMESTAMP created_at
     }
 
     user_workout_plans {
-        VARCHAR(36) id PK "UUID, Primary Key"
-        VARCHAR(36) user_id FK "References users(id)"
-        VARCHAR(36) workout_plan_id FK "References workout_plans(id)"
-        DATE assigned_date "When plan was assigned"
-        DATE completed_date "When plan was completed, Nullable"
-        ENUM status "assigned, in_progress, completed, paused"
-        TEXT notes "User notes about the plan"
-        TIMESTAMP created_at "Auto-generated"
-        TIMESTAMP updated_at "Auto-updated"
+        VARCHAR-36 id PK
+        VARCHAR-36 user_id FK
+        VARCHAR-36 workout_plan_id FK
+        DATE assigned_date
+        DATE completed_date
+        ENUM status
+        TEXT notes
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
     }
 
     weight_history {
-        VARCHAR(36) id PK "UUID, Primary Key"
-        VARCHAR(36) user_id FK "References users(id)"
-        DECIMAL(5,2) weight_kg "CHECK: 30-300kg"
-        DATE recorded_date "UNIQUE per user per date"
-        TEXT notes "Optional weight entry notes"
-        TIMESTAMP created_at "Auto-generated"
+        VARCHAR-36 id PK
+        VARCHAR-36 user_id FK
+        DECIMAL-5-2 weight_kg
+        DATE recorded_date
+        TEXT notes
+        TIMESTAMP created_at
     }
 
     user_exercise_logs {
-        VARCHAR(36) id PK "UUID, Primary Key"
-        VARCHAR(36) user_id FK "References users(id)"
-        VARCHAR(36) exercise_id FK "References exercises(id)"
-        VARCHAR(36) workout_plan_id FK "References workout_plans(id), Nullable"
-        DATE session_date "When exercise was performed"
-        INT duration_minutes "Actual duration, CHECK: > 0"
-        INT calories_burned "Calculated calories burned"
-        INT sets_completed "Sets actually completed"
-        INT reps_completed "Reps actually completed"
-        DECIMAL(5,2) weight_used_kg "Weight used for strength exercises"
-        DECIMAL(6,3) distance_km "Distance for cardio exercises"
-        TEXT notes "Session notes"
-        TIMESTAMP created_at "Auto-generated"
+        VARCHAR-36 id PK
+        VARCHAR-36 user_id FK
+        VARCHAR-36 exercise_id FK
+        VARCHAR-36 workout_plan_id FK
+        DATE session_date
+        INT duration_minutes
+        INT calories_burned
+        INT sets_completed
+        INT reps_completed
+        DECIMAL-5-2 weight_used_kg
+        DECIMAL-6-3 distance_km
+        TEXT notes
+        TIMESTAMP created_at
     }
 
-    %% One-to-One Relationships
-    users ||--|| user_profiles : "has profile"
-
-    %% One-to-Many Relationships
+    users ||--|| user_profiles : "has"
     users ||--o{ exercises : "creates"
     users ||--o{ workout_plans : "creates"
-    users ||--o{ weight_history : "tracks weight"
-    users ||--o{ user_exercise_logs : "logs exercises"
-
-    %% Many-to-Many Relationships (via junction tables)
+    users ||--o{ weight_history : "tracks"
+    users ||--o{ user_exercise_logs : "logs"
     workout_plans ||--o{ workout_plan_exercises : "contains"
-    exercises ||--o{ workout_plan_exercises : "included in"
-
-    users ||--o{ user_workout_plans : "assigned to"
-    workout_plans ||--o{ user_workout_plans : "assigned to users"
-
-    exercises ||--o{ user_exercise_logs : "logged by users"
-    workout_plans ||--o{ user_exercise_logs : "part of plan"
+    exercises ||--o{ workout_plan_exercises : "includes"
+    users ||--o{ user_workout_plans : "assigned"
+    workout_plans ||--o{ user_workout_plans : "assigned_to"
+    exercises ||--o{ user_exercise_logs : "performed"
+    workout_plans ||--o{ user_exercise_logs : "part_of"
 ```
 
-### 🔑 Key Database Features
+### � Table Descriptions
+
+#### **Core Entity Tables**
+
+| Table | Purpose | Key Features |
+|-------|---------|--------------|
+| **users** | User accounts and authentication | UUID primary keys, bcrypt passwords, role-based access (user/admin), encrypted sensitive data |
+| **user_profiles** | Health and fitness metrics | Weight/height validation (30-300kg, 100-250cm), activity levels, fitness goals |
+| **exercises** | Exercise library and definitions | Categories (cardio/strength/flexibility/balance/sports), difficulty levels, MET values, JSON muscle groups |
+| **workout_plans** | Structured workout routines | Categories (weight_loss/muscle_gain/endurance), estimated duration and calories, public/private visibility |
+
+#### **Relationship Tables (Many-to-Many)**
+
+| Table | Purpose | Key Features |
+|-------|---------|--------------|
+| **workout_plan_exercises** | Links exercises to workout plans | Exercise ordering, sets/reps configuration, rest periods, exercise-specific notes |
+| **user_workout_plans** | Assigns workout plans to users | Assignment tracking, completion status, progress monitoring |
+| **user_exercise_logs** | Individual exercise session tracking | Actual performance data, calories burned, weight used, distance covered |
+
+#### **Tracking Tables**
+
+| Table | Purpose | Key Features |
+|-------|---------|--------------|
+| **weight_history** | User weight tracking over time | Daily weight entries, progress notes, unique constraint per user per date |
+
+### 🔧 Data Type Specifications
+
+#### **UUID Primary Keys (VARCHAR-36)**
+- Format: `550e8400-e29b-41d4-a716-446655440000`
+- Benefits: Security, scalability, distributed systems compatibility
+- Used in all tables for consistent identification
+
+#### **ENUM Constraints**
+- **Role**: `user`, `admin`
+- **Gender**: `male`, `female`, `other`
+- **Activity Level**: `sedentary`, `lightly_active`, `moderately_active`, `very_active`, `extremely_active`
+- **Exercise Category**: `cardio`, `strength`, `flexibility`, `balance`, `sports`
+- **Difficulty**: `beginner`, `intermediate`, `advanced`
+- **Workout Status**: `assigned`, `in_progress`, `completed`, `paused`
+
+#### **Validation Constraints**
+- **Weight**: DECIMAL(5,2) with CHECK constraint (30.00 - 300.00 kg)
+- **Height**: DECIMAL(5,2) with CHECK constraint (100.00 - 250.00 cm)
+- **Duration**: INT with CHECK constraint (> 0 minutes)
+- **Calories**: DECIMAL(4,2) with CHECK constraint (> 0.00)
+- **MET Value**: DECIMAL(4,2) with CHECK constraint (> 0.00)
+
+#### **JSON Fields**
+- **muscle_groups**: Array of targeted muscle groups for exercises
+- Example: `["chest", "triceps", "shoulders", "core"]`
+
+### �🔑 Key Database Features
 
 #### **UUID Primary Keys**
 - All tables use UUID (36-character) primary keys instead of auto-incrementing integers
