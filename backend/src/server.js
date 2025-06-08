@@ -1,6 +1,6 @@
 /**
  * Main server file for the Fitness Tracker API
- * UF3/UF4 Curriculum Project
+ * Professional REST API implementation for fitness and health management
  * Sets up Express server with comprehensive middleware and routes
  */
 
@@ -12,9 +12,15 @@ import compression from 'compression';
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Load environment variables
 dotenv.config();
+
+// Get current directory for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Import database utilities
 import { testConnection, getStats } from './db/database.js';
@@ -27,6 +33,7 @@ import { createLogger, errorLogger } from './middlewares/logging.middleware.js';
 // Import routes
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
+import profileRoutes from './routes/profile.routes.js';
 import exerciseRoutes from './routes/exercise.routes.js';
 import workoutRoutes from './routes/workout-plan.routes.js';
 
@@ -43,7 +50,7 @@ const swaggerOptions = {
     info: {
       title: 'Fitness Tracker API',
       version: '1.0.0',
-      description: 'REST API for Fitness Tracker Application - UF3/UF4 Curriculum Project',
+      description: 'Professional REST API for Fitness Tracker Application',
       contact: {
         name: 'Student Developer',
         email: 'student@fitness.com'
@@ -74,19 +81,51 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.set('trust proxy', 1);
 
 // Configure CORS
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+  : ['http://localhost:4200'];
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   optionsSuccessStatus: 200
 };
 
 // Configure middleware
 app.use(cors(corsOptions)); // Enable CORS with specific configuration
-app.use(helmet()); // Add security headers
+
+// Configure helmet with CSP that allows inline scripts for status checking
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"], // Allow inline scripts for status checking
+      styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+}));
 app.use(compression()); // Compress responses
 app.use(cookieParser()); // Parse cookies
 app.use(express.json({ limit: '10mb' })); // Parse JSON with size limit
 app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded data
+
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Logging middleware
 app.use(createLogger());
@@ -151,11 +190,22 @@ app.get('/api/v1/status', async (req, res) => {
   }
 });
 
+// Favicon route
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end(); // No content response for favicon
+});
+
+// Root route - serve HTML presentation page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
 // Register API route handlers with their respective URL prefixes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/exercises', exerciseRoutes);
-app.use('/api/v1/workouts', workoutRoutes);
+app.use('/api/v1/workout-plans', workoutRoutes);
 
 // Handle undefined routes
 app.use('*', handleNotFound);
@@ -197,8 +247,9 @@ const startServer = async () => {
       console.log('\n🔗 API Endpoints:');
       console.log(`   Authentication: http://localhost:${PORT}/api/v1/auth`);
       console.log(`   Users: http://localhost:${PORT}/api/v1/users`);
+      console.log(`   Profile: http://localhost:${PORT}/api/v1/profile`);
       console.log(`   Exercises: http://localhost:${PORT}/api/v1/exercises`);
-      console.log(`   Workouts: http://localhost:${PORT}/api/v1/workouts`);
+      console.log(`   Workouts: http://localhost:${PORT}/api/v1/workout-plans`);
 
       console.log('\n📝 Sample requests:');
       console.log(`   POST http://localhost:${PORT}/api/v1/auth/register`);

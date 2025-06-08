@@ -1,21 +1,39 @@
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold mb-4">My Workout Plans</h1>
-      <div class="flex gap-4 mb-4">
-        <input
-          type="text"
-          [(ngModel)]="searchQuery"
-          (input)="onSearch()"
-          placeholder="Search workout plans..."
-          class="form-control"
-        />
+<div class="workout-plans-container">
+    <div class="page-header">
+      @if (error) {
+        <div class="alert alert-error mb-4">
+          {{ error }}
+          <button class="ml-2" (click)="error = null">&times;</button>
+        </div>
+      }
+
+      <div class="header-content">
+        <div class="header-text">
+          <h1 class="page-title">My Workout Plans</h1>
+          <p class="page-subtitle">Create and manage your personalized workout routines</p>
+        </div>
+        <button
+          [routerLink]="['/workout-plans/new']"
+          class="btn btn-primary header-action-btn"
+        >
+          <span class="material-icons text-sm mr-2">add</span>
+          Create New Plan
+        </button>
       </div>
-      <button
-        [routerLink]="['/workout-plans/new']"
-        class="btn btn-primary"
-      >
-        Create New Plan
-      </button>
+
+      <!-- Search Controls -->
+      <div class="search-controls-card">
+        <div class="search-input-container">
+          <span class="search-icon material-icons">search</span>
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (input)="onSearch()"
+            placeholder="Search workout plans..."
+            class="search-input"
+          />
+        </div>
+      </div>
     </div>
   
     <app-pagination
@@ -24,48 +42,108 @@
       [perPage]="pagination.perPage"
       (pageChange)="changePage($event)"
     ></app-pagination>
-  
-    @if (error) {
-      <div class="alert alert-error mb-4">
-        {{ error }}
-        <button class="ml-2" (click)="error = null">&times;</button>
-      </div>
-    }
-  
-    <div class="grid grid-cols-1 gap-4">
+
+
+
+
+
+    <!-- Workout Plans Grid -->
+    <div class="workout-plans-grid">
       @for (plan of workoutPlans; track plan.id) {
-        <div class="card">
-          <div class="p-4">
-            <h3 class="text-xl font-semibold mb-2">{{ plan.name }}</h3>
-            <div class="prose max-w-none mb-4">
-              <pre class="text-gray-600 whitespace-pre-wrap font-sans text-base break-words">{{ plan.description }}</pre>
+        <div class="workout-plan-card" (click)="openWorkoutPlan(plan.id)">
+          <!-- Plan Header -->
+          <div class="workout-plan-header">
+            <div class="plan-header-top">
+              <h3 class="workout-plan-title">{{ plan.name }}</h3>
+              <span class="plan-badge">
+                <span class="material-icons text-sm">event</span>
+                Plan
+              </span>
             </div>
-            
-            @if (plan.exercises && plan.exercises.length > 0) {
-              <div class="mb-4">
-                <h4 class="font-medium mb-2">Exercises:</h4>
-                <ul class="list-disc list-inside">
-                  @for (exercise of getExercises(plan); track exercise.id) {
-                    <li>{{ exercise.name }}</li>
-                  }
-                </ul>
+
+            @if (plan.description) {
+              <div class="workout-plan-description">
+                <p>{{ plan.description }}</p>
+              </div>
+            } @else {
+              <div class="workout-plan-description">
+                <p class="no-description">No description available</p>
               </div>
             }
-  
-            <div class="flex gap-2">
-              <button
-                [routerLink]="['/workout-plans', plan.id, 'edit']"
-                class="btn btn-primary"
-              >
-                Edit
-              </button>
-              <button
-                (click)="deleteWorkoutPlan(plan.id)"
-                class="btn btn-danger"
-              >
-                Delete
-              </button>
+          </div>
+
+          <!-- Plan Stats -->
+          <div class="workout-plan-meta">
+            <div class="workout-plan-meta-item">
+              <span class="material-icons text-sm">schedule</span>
+              <span>{{ plan.estimatedDurationMinutes || 0 }} minutes</span>
             </div>
+
+            <div class="workout-plan-meta-item">
+              <span class="material-icons text-sm">local_fire_department</span>
+              <span>{{ plan.targetCalories || 0 }} calories</span>
+            </div>
+
+            <div class="workout-plan-meta-item">
+              <span class="material-icons text-sm">{{ iconService.getCategoryMaterialIcon(plan.category || 'general') }}</span>
+              <span class="meta-text">{{ plan.category || 'General' }}</span>
+            </div>
+
+            <div class="workout-plan-meta-item">
+              <span class="material-icons text-sm">{{ iconService.getDifficultyMaterialIcon(plan.difficulty || 'beginner') }}</span>
+              <span class="meta-text">{{ plan.difficulty || 'Beginner' }}</span>
+            </div>
+          </div>
+
+          <!-- Exercises Preview -->
+          <div class="workout-plan-exercises">
+            <h4 class="exercises-title">
+              <span class="material-icons text-sm mr-1">fitness_center</span>
+              Exercises
+            </h4>
+            <div class="exercises-preview">
+              <span class="material-icons">list</span>
+              <p class="preview-text">Click "Edit" to view and modify exercises</p>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="workout-plan-actions" (click)="$event.stopPropagation()">
+            <button
+              [routerLink]="['/workout-plans', plan.id, 'edit']"
+              class="btn btn-primary plan-action-btn"
+            >
+              <span class="material-icons text-sm mr-2">edit</span>
+              Edit
+            </button>
+            <button
+              (click)="deleteWorkoutPlan(plan.id)"
+              class="btn btn-danger plan-action-btn"
+            >
+              <span class="material-icons text-sm mr-2">delete</span>
+              Delete
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <div class="empty-state-content">
+            <span class="empty-state-icon material-icons">event</span>
+            <h3 class="empty-state-title">No workout plans found</h3>
+            <p class="empty-state-description">
+              @if (error) {
+                {{ error }}
+              } @else {
+                Create your first workout plan to get started with your fitness journey.
+              }
+            </p>
+            <button
+              [routerLink]="['/workout-plans/new']"
+              class="btn btn-primary empty-state-btn"
+            >
+              <span class="material-icons text-sm mr-2">add</span>
+              Create your first plan
+            </button>
           </div>
         </div>
       }

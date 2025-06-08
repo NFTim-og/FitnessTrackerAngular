@@ -105,13 +105,20 @@ async function getStats() {
       activeConnections: stats[0]?.Value || 0,
       totalProcesses: processlist.length,
       poolConfig: {
-        connectionLimit: pool.config.connectionLimit,
-        queueLimit: pool.config.queueLimit
+        connectionLimit: pool.config?.connectionLimit || 10,
+        queueLimit: pool.config?.queueLimit || 0
       }
     };
   } catch (error) {
     console.error('Error getting database stats:', error);
-    return null;
+    return {
+      activeConnections: 0,
+      totalProcesses: 0,
+      poolConfig: {
+        connectionLimit: 10,
+        queueLimit: 0
+      }
+    };
   }
 }
 

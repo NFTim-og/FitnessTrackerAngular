@@ -2,18 +2,38 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule, MatSelectChange } from '@angular/material/select';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatOptionModule } from '@angular/material/core';
 import { WorkoutPlanService } from '../../../services/workout-plan.service';
 import { ExerciseService } from '../../../services/exercise.service';
 import { Exercise, WorkoutPlan, WorkoutExercise } from '../../../models/types';
 import { PaginationState } from '../../../shared/interfaces/pagination.interface';
 import { Subscription } from 'rxjs';
 import { AppError } from '../../../shared/models/error.model';
+import { MaterialButtonComponent } from '../../../shared/components/material-button/material-button.component';
 
 @Component({
   selector: 'app-workout-plan-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './workout-plan-form.component.html'
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatChipsModule,
+    MaterialButtonComponent
+  ],
+  templateUrl: './workout-plan-form.component.html',
+  styleUrls: ['./workout-plan-form.component.css']
 })
 export class WorkoutPlanFormComponent implements OnInit, OnDestroy {
   workoutForm: FormGroup;
@@ -109,10 +129,10 @@ export class WorkoutPlanFormComponent implements OnInit, OnDestroy {
           }
         }
       }, error => {
-        console.error('Error loading workout plan:', error);
+        this.error = error instanceof Error ? error.message : 'Failed to load workout plan';
       });
     } catch (error) {
-      console.error('Error loading workout plan:', error);
+      this.error = error instanceof Error ? error.message : 'Failed to load workout plan';
     }
   }
 
@@ -122,14 +142,14 @@ export class WorkoutPlanFormComponent implements OnInit, OnDestroy {
     );
   }
 
-  addExercise(event: Event) {
-    const select = event.target as HTMLSelectElement;
-    const exerciseId = select.value;
+  addExercise(event: MatSelectChange) {
+    const exerciseId = event.value;
     const exercise = this.exercises.find(e => e.id === exerciseId);
 
     if (exercise) {
       this.selectedExercises = [...this.selectedExercises, exercise];
-      select.value = '';
+      // Reset the select value
+      event.source.value = '';
     }
   }
 

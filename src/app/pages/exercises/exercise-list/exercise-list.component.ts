@@ -1,31 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AppError } from '../../../shared/models/error.model';
 import { FormsModule } from '@angular/forms';
+
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { ExerciseService } from '../../../services/exercise.service';
 import { UserProfileService } from '../../../services/user-profile.service';
 import { LoadingService } from '../../../shared/services/loading.service';
+import { IconService } from '../../../shared/services/icon.service';
 import { Exercise } from '../../../models/types';
 import { PaginationState } from '../../../shared/interfaces/pagination.interface';
 
 @Component({
   selector: 'app-exercise-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, PaginationComponent, LoadingSpinnerComponent, SkeletonLoaderComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    PaginationComponent,
+    LoadingSpinnerComponent,
+    SkeletonLoaderComponent
+  ],
   templateUrl: './exercise-list.component.html',
-  styles: [`
-    .btn-danger {
-      background-color: var(--danger-color);
-      color: white;
-    }
-    .btn-danger:hover {
-      background-color: #dc2626;
-    }
-  `]
+  styleUrls: ['./exercise-list.component.css']
 })
 export class ExerciseListComponent implements OnInit {
   exercises: Exercise[] = [];
@@ -46,7 +47,9 @@ export class ExerciseListComponent implements OnInit {
   constructor(
     private exerciseService: ExerciseService,
     private userProfileService: UserProfileService,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    public iconService: IconService,
+    private cdr: ChangeDetectorRef
   ) {
     this.exerciseService.totalCount$.subscribe(count => {
       this.pagination = { ...this.pagination, totalCount: count };
@@ -54,20 +57,17 @@ export class ExerciseListComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('ExerciseListComponent - Initializing');
-
     // Subscribe to exercises data
     this.exerciseService.data$.subscribe(
       (exercises: any[]) => {
-        console.log('ExerciseListComponent - Received exercises:', exercises);
         this.exercises = exercises;
+        this.cdr.detectChanges();
       }
     );
 
     // Subscribe to total count for pagination
     this.exerciseService.totalCount$.subscribe(
       (totalCount: number) => {
-        console.log('ExerciseListComponent - Received total count:', totalCount);
         this.pagination.totalCount = totalCount;
       }
     );
@@ -76,72 +76,82 @@ export class ExerciseListComponent implements OnInit {
     this.loadExercises();
   }
 
-  async loadExercises() {
-    console.log('ExerciseListComponent - Loading exercises');
-    try {
-      await this.exerciseService.loadExercises({
+  loadExercises() {
+    this.exerciseService.loadExercises({
+      page: this.pagination.currentPage,
+      perPage: this.pagination.perPage
+    }).subscribe({
+      next: () => {
+        this.error = null;
+      },
+      error: (error) => {
+        this.error = error instanceof AppError ? error.message : 'Failed to load exercises';
+      }
+    });
+  }
+
+  onSearch() {
+    this.pagination.currentPage = 1; // Reset to first page when searching
+    this.exerciseService.searchExercises(
+      this.searchQuery,
+      this.selectedDifficulty,
+      {
         page: this.pagination.currentPage,
         perPage: this.pagination.perPage
-      });
-      console.log('ExerciseListComponent - Exercises loaded successfully');
-      console.log('ExerciseListComponent - Current exercises:', this.exercises);
-      console.log('ExerciseListComponent - Pagination:', this.pagination);
-      this.error = null;
-    } catch (error) {
-      console.error('ExerciseListComponent - Error loading exercises:', error);
-      this.error = error instanceof AppError ? error.message : 'Failed to load exercises';
-      // TODO: Add error handling
-    }
+      }
+    ).subscribe({
+      next: () => {
+        this.error = null;
+      },
+      error: (error) => {
+        this.error = error instanceof AppError ? error.message : 'Failed to search exercises';
+      }
+    });
   }
 
-  async onSearch() {
-    this.pagination.currentPage = 1; // Reset to first page when searching
-    try {
-      await this.exerciseService.searchExercises(
-        this.searchQuery,
-        this.selectedDifficulty,
-        {
-          page: this.pagination.currentPage,
-          perPage: this.pagination.perPage
-        }
-      );
-    } catch (error) {
-      this.error = error instanceof AppError ? error.message : 'Failed to search exercises';
-      // TODO: Add error handling
-    }
-  }
-
-  async changePage(page: number) {
+  changePage(page: number) {
     this.pagination.currentPage = page;
     if (this.searchQuery || this.selectedDifficulty) {
-      await this.exerciseService.searchExercises(
+      this.exerciseService.searchExercises(
         this.searchQuery,
         this.selectedDifficulty,
         {
           page: this.pagination.currentPage,
           perPage: this.pagination.perPage
         }
-      );
+      ).subscribe({
+        error: (error) => {
+          this.error = error instanceof AppError ? error.message : 'Failed to search exercises';
+        }
+      });
     } else {
-      await this.loadExercises();
+      this.loadExercises();
     }
   }
-  async deleteExercise(id: string) {
+  deleteExercise(id: string) {
     if (!confirm('Are you sure you want to delete this exercise?')) return;
 
-    try {
-      await this.exerciseService.deleteExercise(id);
-      this.error = null;
-    } catch (error) {
-      this.error = error instanceof AppError ? error.message : 'Failed to delete exercise';
-      // TODO: Add error handling
-    }
+    this.exerciseService.deleteExercise(id).subscribe({
+      next: () => {
+        this.error = null;
+      },
+      error: (error) => {
+        this.error = error instanceof AppError ? error.message : 'Failed to delete exercise';
+      }
+    });
   }
 
   calculateCalories(exercise: Exercise): number {
     return this.userProfileService.calculateCalories(
       exercise.met_value,
-      exercise.duration
+      exercise.duration_minutes
     );
+  }
+
+  clearFilters() {
+    this.searchQuery = '';
+    this.selectedDifficulty = '';
+    this.pagination.currentPage = 1;
+    this.loadExercises();
   }
 }

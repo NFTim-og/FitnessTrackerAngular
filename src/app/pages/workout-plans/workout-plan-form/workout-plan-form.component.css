@@ -1,0 +1,479 @@
+/* Workout Plan Form Component Styles */
+
+/* ===== CONTAINER ===== */
+.workout-plan-form-container {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
+  .workout-plan-form-container {
+    padding: 2rem;
+  }
+}
+
+/* ===== FORM HEADER ===== */
+.form-header {
+  margin-bottom: 1.5rem;
+}
+
+.form-title {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-color);
+}
+
+.title-icon {
+  color: var(--primary-color);
+}
+
+/* ===== FORM STYLES ===== */
+.workout-plan-form {
+  background: var(--card-background);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.form-field {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+/* ===== EXERCISES SECTION ===== */
+.exercises-section {
+  margin-bottom: 2rem;
+}
+
+.exercises-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-color);
+}
+
+/* Selected Exercises */
+.selected-exercises {
+  margin-bottom: 1rem;
+}
+
+.exercise-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: var(--border-light);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.exercise-item:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.exercise-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.exercise-icon {
+  color: var(--primary-color);
+  font-size: 0.875rem;
+}
+
+.exercise-name {
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.exercise-category {
+  padding: 0.25rem 0.5rem;
+  background-color: #eff6ff;
+  color: #2563eb;
+  font-size: 0.75rem;
+  border-radius: 9999px;
+  text-transform: capitalize;
+}
+
+:root.dark-mode .exercise-category {
+  background-color: #1e3a8a;
+  color: #93c5fd;
+}
+
+.remove-btn {
+  flex-shrink: 0;
+}
+
+/* No Exercises State */
+.no-exercises {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+}
+
+.no-exercises-icon {
+  font-size: 4rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+  display: block;
+}
+
+.no-exercises-text {
+  margin-bottom: 0.25rem;
+  color: var(--text-secondary);
+}
+
+.no-exercises-subtext {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* Exercise Option in Dropdown */
+.exercise-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exercise-option-category {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+/* ===== FORM ACTIONS ===== */
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.action-btn {
+  flex: 1;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 640px) {
+  .workout-plan-form {
+    padding: 1.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .action-btn {
+    width: 100%;
+  }
+}
+
+/* ===== MATERIAL FORM FIELD OVERRIDES ===== */
+::ng-deep .workout-plan-form .mat-mdc-form-field {
+  width: 100%;
+}
+
+::ng-deep .workout-plan-form .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  background-color: var(--card-background);
+}
+
+::ng-deep .workout-plan-form .mat-mdc-form-field .mat-mdc-form-field-focus-overlay {
+  background-color: transparent;
+}
+
+::ng-deep .workout-plan-form .mat-mdc-form-field .mat-mdc-floating-label {
+  color: var(--text-secondary);
+}
+
+::ng-deep .workout-plan-form .mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+  color: var(--primary-color);
+}
+
+::ng-deep .workout-plan-form .mat-mdc-form-field .mat-mdc-input-element {
+  color: var(--text-color);
+}
+
+::ng-deep .workout-plan-form .mat-mdc-form-field .mat-mdc-line-ripple::before {
+  border-bottom-color: var(--border-color);
+}
+
+::ng-deep .workout-plan-form .mat-mdc-form-field.mat-focused .mat-mdc-line-ripple::after {
+  border-bottom-color: var(--primary-color);
+}
+
+/* Select dropdown styling - Fix for dropdown display issues */
+::ng-deep .mat-mdc-select-panel {
+  background-color: var(--card-background) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  max-height: 256px !important;
+  overflow-y: auto !important;
+  position: absolute !important;
+  z-index: 1000 !important;
+  min-width: 100% !important;
+}
+
+::ng-deep .mat-mdc-option {
+  color: var(--text-color) !important;
+  padding: 0 16px !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  position: relative !important;
+}
+
+::ng-deep .mat-mdc-option:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+::ng-deep .mat-mdc-option.mat-mdc-option-active {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  color: var(--primary-color) !important;
+}
+
+::ng-deep .mat-mdc-option.mdc-list-item--selected {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  color: var(--primary-color) !important;
+}
+
+/* Fix select trigger to prevent inline expansion */
+::ng-deep .mat-mdc-select {
+  display: block !important;
+  width: 100% !important;
+}
+
+::ng-deep .mat-mdc-select .mat-mdc-select-trigger {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+}
+
+::ng-deep .mat-mdc-select-value {
+  width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Ensure overlay positioning */
+::ng-deep .cdk-overlay-container {
+  position: fixed !important;
+  z-index: 1000 !important;
+  pointer-events: none !important;
+}
+
+::ng-deep .cdk-overlay-pane {
+  position: absolute !important;
+  pointer-events: auto !important;
+  box-sizing: border-box !important;
+  z-index: 1000 !important;
+}
+
+/* Icon styling */
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+.text-primary-color {
+  color: var(--primary-color);
+}
+
+/* Badge styling for exercise categories */
+.exercise-item .bg-blue-100 {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--primary-color);
+}
+
+:root.dark-mode .exercise-item .bg-blue-100 {
+  background-color: rgba(96, 165, 250, 0.2);
+  color: var(--primary-color);
+}
+
+/* Empty state styling */
+.text-center {
+  text-align: center;
+}
+
+.text-gray-500 {
+  color: var(--text-secondary);
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .exercise-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .exercise-item .flex-1 {
+    width: 100%;
+  }
+  
+  .exercise-item .flex-shrink-0 {
+    width: 100%;
+  }
+  
+  .flex.gap-4 {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .flex-1 {
+    width: 100%;
+  }
+}
+
+/* Form actions styling */
+.border-t {
+  border-top: 1px solid var(--border-color);
+}
+
+.pt-6 {
+  padding-top: 1.5rem;
+}
+
+/* Enhanced spacing utilities */
+.space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mt-8 {
+  margin-top: 2rem;
+}
+
+/* Flex utilities */
+.flex {
+  display: flex;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-3 {
+  gap: 0.75rem;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+/* Width utilities */
+.w-full {
+  width: 100%;
+}
+
+/* Padding utilities */
+.p-3 {
+  padding: 0.75rem;
+}
+
+.py-8 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.px-2 {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+/* Border radius utilities */
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+/* Typography utilities */
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.text-4xl {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}

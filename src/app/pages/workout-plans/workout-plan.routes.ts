@@ -14,6 +14,12 @@ export const WORKOUT_PLAN_ROUTES: Routes = [
         .then(m => m.WorkoutPlanFormComponent)
   },
   {
+    path: ':id',
+    loadComponent: () =>
+      import('./workout-plan-detail/workout-plan-detail.component')
+        .then(m => m.WorkoutPlanDetailComponent)
+  },
+  {
     path: ':id/edit',
     loadComponent: () =>
       import('./workout-plan-form/workout-plan-form.component')

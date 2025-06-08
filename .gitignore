@@ -1,3 +1,5 @@
 node_modules
 .angular/cache/
 .env
+TECHNICAL_DOCUMENTATION.md
+dist/

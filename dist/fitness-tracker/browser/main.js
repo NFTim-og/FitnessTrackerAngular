@@ -1,12 +1,21 @@
 import {
   AuthService,
   TokenService
-} from "./chunk-ZA3SGJBQ.js";
+} from "./chunk-H6O3LT5R.js";
+import {
+  AUTO_STYLE,
+  AnimationGroupPlayer,
+  AnimationMetadataType,
+  NoopAnimationPlayer,
+  sequence,
+  style,
+  ɵPRE_STYLE
+} from "./chunk-VTZJYPZF.js";
 import {
   AppError,
   ErrorHandlerService,
   ErrorSeverity
-} from "./chunk-AQ6Y7BDJ.js";
+} from "./chunk-KBQ4QVJZ.js";
 import {
   environment
 } from "./chunk-NLRHYWXW.js";
@@ -19,7 +28,7 @@ import {
   RouterOutlet,
   bootstrapApplication,
   provideRouter
-} from "./chunk-D7HEFMF2.js";
+} from "./chunk-H5IN37QV.js";
 import {
   ANIMATION_MODULE_TYPE,
   AsyncPipe,
@@ -37,7 +46,6 @@ import {
   NgZone,
   RendererFactory2,
   RuntimeError,
-  ViewEncapsulation$1,
   inject,
   map,
   performanceMarkFeature,
@@ -75,7 +83,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵtextInterpolate2
-} from "./chunk-TOUTZUUN.js";
+} from "./chunk-SMML4NNK.js";
 import {
   __objRest,
   __spreadValues
@@ -88,17 +96,23 @@ var ThemeService = class _ThemeService {
     this.tokenService = tokenService;
     this.darkModeSubject = new BehaviorSubject(false);
     this.darkMode$ = this.darkModeSubject.asObservable();
+    console.log("ThemeService - Initializing");
     try {
       const savedTheme = this.tokenService.getThemePreference();
+      console.log("ThemeService - Saved theme preference:", savedTheme);
       if (savedTheme !== null) {
         this.darkModeSubject.next(savedTheme);
         this.updateTheme(savedTheme);
+      } else {
+        this.updateTheme(false);
       }
     } catch (error) {
+      console.error("ThemeService - Error during initialization:", error);
       this.errorHandler.handleError(error, "ThemeService.constructor");
       this.darkModeSubject.next(false);
       this.updateTheme(false);
     }
+    console.log("ThemeService - Initialization complete, current mode:", this.isDarkMode() ? "dark" : "light");
   }
   isDarkMode() {
     return this.darkModeSubject.value;
@@ -106,19 +120,27 @@ var ThemeService = class _ThemeService {
   toggleTheme() {
     try {
       const newValue = !this.darkModeSubject.value;
+      console.log("ThemeService - Toggling theme to:", newValue ? "dark" : "light");
       this.darkModeSubject.next(newValue);
       this.tokenService.setThemePreference(newValue);
       this.updateTheme(newValue);
     } catch (error) {
+      console.error("ThemeService - Error toggling theme:", error);
       throw this.errorHandler.handleError(new AppError("Failed to toggle theme", "THEME_TOGGLE_ERROR"), "ThemeService.toggleTheme");
     }
   }
   updateTheme(isDark) {
+    console.log("ThemeService - Updating theme, isDark:", isDark);
+    document.documentElement.classList.remove("dark-mode", "light-mode");
     if (isDark) {
       document.documentElement.classList.add("dark-mode");
     } else {
-      document.documentElement.classList.remove("dark-mode");
+      document.documentElement.classList.add("light-mode");
     }
+    document.documentElement.style.display = "none";
+    document.documentElement.offsetHeight;
+    document.documentElement.style.display = "";
+    console.log("ThemeService - Theme updated, classes:", document.documentElement.classList.toString());
   }
   static {
     this.\u0275fac = function ThemeService_Factory(__ngFactoryType__) {
@@ -186,54 +208,71 @@ var ThemeToggleComponent = class _ThemeToggleComponent {
 })();
 
 // src/app/components/navbar/navbar.component.ts
-function NavbarComponent_Conditional_7_Template(rf, ctx) {
+function NavbarComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "a", 6);
-    \u0275\u0275text(1, "Exercises");
+    \u0275\u0275elementStart(0, "a", 7)(1, "span", 8);
+    \u0275\u0275text(2, "fitness_center");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(2, "a", 7);
-    \u0275\u0275text(3, "Workout Plans");
+    \u0275\u0275text(3, " Exercises ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "a", 8);
-    \u0275\u0275text(5, "Profile");
+    \u0275\u0275elementStart(4, "a", 9)(5, "span", 8);
+    \u0275\u0275text(6, "event");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "a", 9);
-    \u0275\u0275text(7, "API Test");
+    \u0275\u0275text(7, " Workout Plans ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "button", 10);
-    \u0275\u0275listener("click", function NavbarComponent_Conditional_7_Template_button_click_8_listener() {
+    \u0275\u0275elementStart(8, "a", 10)(9, "span", 8);
+    \u0275\u0275text(10, "person");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(11, " Profile ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "a", 11)(13, "span", 8);
+    \u0275\u0275text(14, "science");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(15, " API Test ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(16, "button", 12);
+    \u0275\u0275listener("click", function NavbarComponent_Conditional_9_Template_button_click_16_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.signOut());
     });
-    \u0275\u0275text(9);
+    \u0275\u0275elementStart(17, "span", 8);
+    \u0275\u0275text(18, "logout");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(19);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance(8);
+    \u0275\u0275advance(16);
     \u0275\u0275property("disabled", ctx_r1.isLoading);
-    \u0275\u0275advance();
+    \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", ctx_r1.isLoading ? "Signing out..." : "Sign Out", " ");
   }
 }
-function NavbarComponent_Conditional_9_Template(rf, ctx) {
+function NavbarComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "a", 11);
-    \u0275\u0275text(1, "Sign In");
+    \u0275\u0275elementStart(0, "a", 13)(1, "span", 8);
+    \u0275\u0275text(2, "login");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(2, "a", 12);
-    \u0275\u0275text(3, "Register");
+    \u0275\u0275text(3, " Sign In ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "a", 9);
-    \u0275\u0275text(5, "API Test");
+    \u0275\u0275elementStart(4, "a", 14)(5, "span", 8);
+    \u0275\u0275text(6, "person_add");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(7, " Register ");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "a", 11)(9, "span", 8);
+    \u0275\u0275text(10, "science");
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(11, " API Test ");
     \u0275\u0275elementEnd();
   }
 }
-function NavbarComponent_Conditional_10_Template(rf, ctx) {
+function NavbarComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5);
+    \u0275\u0275elementStart(0, "div", 6);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -249,9 +288,7 @@ var NavbarComponent = class _NavbarComponent {
     this.user$ = this.authService.user$;
     this.isLoading = false;
     this.error = null;
-    console.log("NavbarComponent - Initializing");
     this.user$.subscribe((user) => {
-      console.log("NavbarComponent - User state changed:", user);
     });
   }
   signOut() {
@@ -273,24 +310,26 @@ var NavbarComponent = class _NavbarComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NavbarComponent, selectors: [["app-navbar"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 11, vars: 4, consts: [[1, "bg-white", "shadow-md"], [1, "container", "mx-auto", "px-4"], [1, "flex", "justify-between", "items-center", "h-16"], ["routerLink", "/", 1, "text-xl", "font-bold"], [1, "flex", "items-center", "gap-4"], [1, "text-red-500", "text-sm"], ["routerLink", "/exercises", 1, "nav-link"], ["routerLink", "/workout-plans", 1, "nav-link"], ["routerLink", "/profile", 1, "nav-link"], ["routerLink", "/api-test", 1, "nav-link"], [1, "nav-link", 3, "click", "disabled"], ["routerLink", "/auth/login", 1, "nav-link"], ["routerLink", "/auth/register", 1, "nav-link"]], template: function NavbarComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NavbarComponent, selectors: [["app-navbar"]], standalone: true, features: [\u0275\u0275StandaloneFeature], decls: 13, vars: 4, consts: [[1, "navbar"], [1, "container", "mx-auto", "px-4"], [1, "flex", "justify-between", "items-center", "h-16"], ["routerLink", "/", 1, "text-xl", "font-bold", "flex", "items-center", "gap-2"], [1, "material-icons", "text-primary-color"], [1, "flex", "items-center", "gap-4"], [1, "text-red-500", "text-sm"], ["routerLink", "/exercises", 1, "nav-link", "flex", "items-center", "gap-2"], [1, "material-icons", "text-sm"], ["routerLink", "/workout-plans", 1, "nav-link", "flex", "items-center", "gap-2"], ["routerLink", "/profile", 1, "nav-link", "flex", "items-center", "gap-2"], ["routerLink", "/api-test", 1, "nav-link", "flex", "items-center", "gap-2"], [1, "nav-link", "flex", "items-center", "gap-2", 3, "click", "disabled"], ["routerLink", "/auth/login", 1, "nav-link", "flex", "items-center", "gap-2"], ["routerLink", "/auth/register", 1, "nav-link", "flex", "items-center", "gap-2"]], template: function NavbarComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275elementStart(0, "nav", 0)(1, "div", 1)(2, "div", 2)(3, "a", 3);
-        \u0275\u0275text(4, "Fitness Tracker");
+        \u0275\u0275elementStart(0, "nav", 0)(1, "div", 1)(2, "div", 2)(3, "a", 3)(4, "span", 4);
+        \u0275\u0275text(5, "fitness_center");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(5, "div", 4);
-        \u0275\u0275element(6, "app-theme-toggle");
-        \u0275\u0275template(7, NavbarComponent_Conditional_7_Template, 10, 2);
-        \u0275\u0275pipe(8, "async");
-        \u0275\u0275template(9, NavbarComponent_Conditional_9_Template, 6, 0)(10, NavbarComponent_Conditional_10_Template, 2, 1, "div", 5);
+        \u0275\u0275text(6, " Fitness Tracker ");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(7, "div", 5);
+        \u0275\u0275element(8, "app-theme-toggle");
+        \u0275\u0275template(9, NavbarComponent_Conditional_9_Template, 20, 2);
+        \u0275\u0275pipe(10, "async");
+        \u0275\u0275template(11, NavbarComponent_Conditional_11_Template, 12, 0)(12, NavbarComponent_Conditional_12_Template, 2, 1, "div", 6);
         \u0275\u0275elementEnd()()()();
       }
       if (rf & 2) {
         let tmp_0_0;
-        \u0275\u0275advance(7);
-        \u0275\u0275conditional((tmp_0_0 = \u0275\u0275pipeBind1(8, 2, ctx.user$)) ? 7 : 9, tmp_0_0);
+        \u0275\u0275advance(9);
+        \u0275\u0275conditional((tmp_0_0 = \u0275\u0275pipeBind1(10, 2, ctx.user$)) ? 9 : 11, tmp_0_0);
         \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.error ? 10 : -1);
+        \u0275\u0275conditional(ctx.error ? 12 : -1);
       }
     }, dependencies: [CommonModule, AsyncPipe, RouterModule, RouterLink, ThemeToggleComponent], styles: ["\n\n.nav-link[_ngcontent-%COMP%] {\n  padding: 0.5rem;\n  background: var(--button-background);\n  border: 1px solid transparent;\n  cursor: pointer;\n  color: var(--text-color);\n  text-decoration: none;\n  transition: color 0.2s;\n}\n.nav-link[_ngcontent-%COMP%]:hover {\n  color: var(--primary-color);\n  border-color: var(--primary-color);\n}\n.nav-link[_ngcontent-%COMP%]:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n/*# sourceMappingURL=navbar.component.css.map */"] });
   }
@@ -517,12 +556,18 @@ var ErrorNotificationComponent = class _ErrorNotificationComponent {
 
 // src/app/app.component.ts
 var AppComponent = class _AppComponent {
-  constructor() {
+  constructor(themeService) {
+    this.themeService = themeService;
     this.title = "Fitness Tracker";
+    console.log("AppComponent - Theme service initialized");
+  }
+  ngOnInit() {
+    document.body.classList.add("theme-initialized");
+    console.log("AppComponent - Theme initialization complete");
   }
   static {
     this.\u0275fac = function AppComponent_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _AppComponent)();
+      return new (__ngFactoryType__ || _AppComponent)(\u0275\u0275directiveInject(ThemeService));
     };
   }
   static {
@@ -557,454 +602,36 @@ var authGuard = () => {
 var routes = [
   {
     path: "",
-    loadComponent: () => import("./chunk-D3M4DUSZ.js").then((m) => m.HomeComponent)
+    loadComponent: () => import("./chunk-RBDATLIC.js").then((m) => m.HomeComponent)
   },
   {
     path: "auth",
-    loadChildren: () => import("./chunk-AJBRKOEO.js").then((m) => m.AUTH_ROUTES)
+    loadChildren: () => import("./chunk-BHSO3G3K.js").then((m) => m.AUTH_ROUTES)
   },
   {
     path: "exercises",
-    loadChildren: () => import("./chunk-QBLR7XSO.js").then((m) => m.EXERCISE_ROUTES),
+    loadChildren: () => import("./chunk-UXICRJSM.js").then((m) => m.EXERCISE_ROUTES),
     canActivate: [authGuard]
   },
   {
     path: "workout-plans",
-    loadChildren: () => import("./chunk-M6ZP74Q4.js").then((m) => m.WORKOUT_PLAN_ROUTES),
+    loadChildren: () => import("./chunk-4OPXQSCB.js").then((m) => m.WORKOUT_PLAN_ROUTES),
     canActivate: [authGuard]
   },
   {
     path: "profile",
-    loadComponent: () => import("./chunk-QKSM32GL.js").then((m) => m.ProfileComponent),
+    loadComponent: () => import("./chunk-VGLLVHV5.js").then((m) => m.ProfileComponent),
     canActivate: [authGuard]
   },
   {
     path: "api-test",
-    loadComponent: () => import("./chunk-CFTP5NEU.js").then((m) => m.ApiTestComponent)
+    loadComponent: () => import("./chunk-WE6ACM2Q.js").then((m) => m.ApiTestComponent)
   },
   {
     path: "**",
     redirectTo: ""
   }
 ];
-
-// node_modules/@angular/animations/fesm2022/animations.mjs
-var AnimationMetadataType;
-(function(AnimationMetadataType2) {
-  AnimationMetadataType2[AnimationMetadataType2["State"] = 0] = "State";
-  AnimationMetadataType2[AnimationMetadataType2["Transition"] = 1] = "Transition";
-  AnimationMetadataType2[AnimationMetadataType2["Sequence"] = 2] = "Sequence";
-  AnimationMetadataType2[AnimationMetadataType2["Group"] = 3] = "Group";
-  AnimationMetadataType2[AnimationMetadataType2["Animate"] = 4] = "Animate";
-  AnimationMetadataType2[AnimationMetadataType2["Keyframes"] = 5] = "Keyframes";
-  AnimationMetadataType2[AnimationMetadataType2["Style"] = 6] = "Style";
-  AnimationMetadataType2[AnimationMetadataType2["Trigger"] = 7] = "Trigger";
-  AnimationMetadataType2[AnimationMetadataType2["Reference"] = 8] = "Reference";
-  AnimationMetadataType2[AnimationMetadataType2["AnimateChild"] = 9] = "AnimateChild";
-  AnimationMetadataType2[AnimationMetadataType2["AnimateRef"] = 10] = "AnimateRef";
-  AnimationMetadataType2[AnimationMetadataType2["Query"] = 11] = "Query";
-  AnimationMetadataType2[AnimationMetadataType2["Stagger"] = 12] = "Stagger";
-})(AnimationMetadataType || (AnimationMetadataType = {}));
-var AUTO_STYLE = "*";
-function sequence(steps, options = null) {
-  return {
-    type: AnimationMetadataType.Sequence,
-    steps,
-    options
-  };
-}
-function style(tokens) {
-  return {
-    type: AnimationMetadataType.Style,
-    styles: tokens,
-    offset: null
-  };
-}
-var AnimationBuilder = class _AnimationBuilder {
-  static {
-    this.\u0275fac = function AnimationBuilder_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _AnimationBuilder)();
-    };
-  }
-  static {
-    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
-      token: _AnimationBuilder,
-      factory: () => (() => inject(BrowserAnimationBuilder))(),
-      providedIn: "root"
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AnimationBuilder, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root",
-      useFactory: () => inject(BrowserAnimationBuilder)
-    }]
-  }], null, null);
-})();
-var AnimationFactory = class {
-};
-var BrowserAnimationBuilder = class _BrowserAnimationBuilder extends AnimationBuilder {
-  constructor(rootRenderer, doc) {
-    super();
-    this.animationModuleType = inject(ANIMATION_MODULE_TYPE, {
-      optional: true
-    });
-    this._nextAnimationId = 0;
-    const typeData = {
-      id: "0",
-      encapsulation: ViewEncapsulation$1.None,
-      styles: [],
-      data: {
-        animation: []
-      }
-    };
-    this._renderer = rootRenderer.createRenderer(doc.body, typeData);
-    if (this.animationModuleType === null && !isAnimationRenderer(this._renderer)) {
-      throw new RuntimeError(3600, (typeof ngDevMode === "undefined" || ngDevMode) && "Angular detected that the `AnimationBuilder` was injected, but animation support was not enabled. Please make sure that you enable animations in your application by calling `provideAnimations()` or `provideAnimationsAsync()` function.");
-    }
-  }
-  build(animation) {
-    const id = this._nextAnimationId;
-    this._nextAnimationId++;
-    const entry = Array.isArray(animation) ? sequence(animation) : animation;
-    issueAnimationCommand(this._renderer, null, id, "register", [entry]);
-    return new BrowserAnimationFactory(id, this._renderer);
-  }
-  static {
-    this.\u0275fac = function BrowserAnimationBuilder_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _BrowserAnimationBuilder)(\u0275\u0275inject(RendererFactory2), \u0275\u0275inject(DOCUMENT));
-    };
-  }
-  static {
-    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
-      token: _BrowserAnimationBuilder,
-      factory: _BrowserAnimationBuilder.\u0275fac,
-      providedIn: "root"
-    });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BrowserAnimationBuilder, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
-  }], () => [{
-    type: RendererFactory2
-  }, {
-    type: Document,
-    decorators: [{
-      type: Inject,
-      args: [DOCUMENT]
-    }]
-  }], null);
-})();
-var BrowserAnimationFactory = class extends AnimationFactory {
-  constructor(_id, _renderer) {
-    super();
-    this._id = _id;
-    this._renderer = _renderer;
-  }
-  create(element, options) {
-    return new RendererAnimationPlayer(this._id, element, options || {}, this._renderer);
-  }
-};
-var RendererAnimationPlayer = class {
-  constructor(id, element, options, _renderer) {
-    this.id = id;
-    this.element = element;
-    this._renderer = _renderer;
-    this.parentPlayer = null;
-    this._started = false;
-    this.totalTime = 0;
-    this._command("create", options);
-  }
-  _listen(eventName, callback) {
-    return this._renderer.listen(this.element, `@@${this.id}:${eventName}`, callback);
-  }
-  _command(command, ...args) {
-    issueAnimationCommand(this._renderer, this.element, this.id, command, args);
-  }
-  onDone(fn) {
-    this._listen("done", fn);
-  }
-  onStart(fn) {
-    this._listen("start", fn);
-  }
-  onDestroy(fn) {
-    this._listen("destroy", fn);
-  }
-  init() {
-    this._command("init");
-  }
-  hasStarted() {
-    return this._started;
-  }
-  play() {
-    this._command("play");
-    this._started = true;
-  }
-  pause() {
-    this._command("pause");
-  }
-  restart() {
-    this._command("restart");
-  }
-  finish() {
-    this._command("finish");
-  }
-  destroy() {
-    this._command("destroy");
-  }
-  reset() {
-    this._command("reset");
-    this._started = false;
-  }
-  setPosition(p) {
-    this._command("setPosition", p);
-  }
-  getPosition() {
-    return unwrapAnimationRenderer(this._renderer)?.engine?.players[this.id]?.getPosition() ?? 0;
-  }
-};
-function issueAnimationCommand(renderer, element, id, command, args) {
-  renderer.setProperty(element, `@@${id}:${command}`, args);
-}
-function unwrapAnimationRenderer(renderer) {
-  const type = renderer.\u0275type;
-  if (type === 0) {
-    return renderer;
-  } else if (type === 1) {
-    return renderer.animationRenderer;
-  }
-  return null;
-}
-function isAnimationRenderer(renderer) {
-  const type = renderer.\u0275type;
-  return type === 0 || type === 1;
-}
-var NoopAnimationPlayer = class {
-  constructor(duration = 0, delay = 0) {
-    this._onDoneFns = [];
-    this._onStartFns = [];
-    this._onDestroyFns = [];
-    this._originalOnDoneFns = [];
-    this._originalOnStartFns = [];
-    this._started = false;
-    this._destroyed = false;
-    this._finished = false;
-    this._position = 0;
-    this.parentPlayer = null;
-    this.totalTime = duration + delay;
-  }
-  _onFinish() {
-    if (!this._finished) {
-      this._finished = true;
-      this._onDoneFns.forEach((fn) => fn());
-      this._onDoneFns = [];
-    }
-  }
-  onStart(fn) {
-    this._originalOnStartFns.push(fn);
-    this._onStartFns.push(fn);
-  }
-  onDone(fn) {
-    this._originalOnDoneFns.push(fn);
-    this._onDoneFns.push(fn);
-  }
-  onDestroy(fn) {
-    this._onDestroyFns.push(fn);
-  }
-  hasStarted() {
-    return this._started;
-  }
-  init() {
-  }
-  play() {
-    if (!this.hasStarted()) {
-      this._onStart();
-      this.triggerMicrotask();
-    }
-    this._started = true;
-  }
-  /** @internal */
-  triggerMicrotask() {
-    queueMicrotask(() => this._onFinish());
-  }
-  _onStart() {
-    this._onStartFns.forEach((fn) => fn());
-    this._onStartFns = [];
-  }
-  pause() {
-  }
-  restart() {
-  }
-  finish() {
-    this._onFinish();
-  }
-  destroy() {
-    if (!this._destroyed) {
-      this._destroyed = true;
-      if (!this.hasStarted()) {
-        this._onStart();
-      }
-      this.finish();
-      this._onDestroyFns.forEach((fn) => fn());
-      this._onDestroyFns = [];
-    }
-  }
-  reset() {
-    this._started = false;
-    this._finished = false;
-    this._onStartFns = this._originalOnStartFns;
-    this._onDoneFns = this._originalOnDoneFns;
-  }
-  setPosition(position) {
-    this._position = this.totalTime ? position * this.totalTime : 1;
-  }
-  getPosition() {
-    return this.totalTime ? this._position / this.totalTime : 1;
-  }
-  /** @internal */
-  triggerCallback(phaseName) {
-    const methods = phaseName == "start" ? this._onStartFns : this._onDoneFns;
-    methods.forEach((fn) => fn());
-    methods.length = 0;
-  }
-};
-var AnimationGroupPlayer = class {
-  constructor(_players) {
-    this._onDoneFns = [];
-    this._onStartFns = [];
-    this._finished = false;
-    this._started = false;
-    this._destroyed = false;
-    this._onDestroyFns = [];
-    this.parentPlayer = null;
-    this.totalTime = 0;
-    this.players = _players;
-    let doneCount = 0;
-    let destroyCount = 0;
-    let startCount = 0;
-    const total = this.players.length;
-    if (total == 0) {
-      queueMicrotask(() => this._onFinish());
-    } else {
-      this.players.forEach((player) => {
-        player.onDone(() => {
-          if (++doneCount == total) {
-            this._onFinish();
-          }
-        });
-        player.onDestroy(() => {
-          if (++destroyCount == total) {
-            this._onDestroy();
-          }
-        });
-        player.onStart(() => {
-          if (++startCount == total) {
-            this._onStart();
-          }
-        });
-      });
-    }
-    this.totalTime = this.players.reduce((time, player) => Math.max(time, player.totalTime), 0);
-  }
-  _onFinish() {
-    if (!this._finished) {
-      this._finished = true;
-      this._onDoneFns.forEach((fn) => fn());
-      this._onDoneFns = [];
-    }
-  }
-  init() {
-    this.players.forEach((player) => player.init());
-  }
-  onStart(fn) {
-    this._onStartFns.push(fn);
-  }
-  _onStart() {
-    if (!this.hasStarted()) {
-      this._started = true;
-      this._onStartFns.forEach((fn) => fn());
-      this._onStartFns = [];
-    }
-  }
-  onDone(fn) {
-    this._onDoneFns.push(fn);
-  }
-  onDestroy(fn) {
-    this._onDestroyFns.push(fn);
-  }
-  hasStarted() {
-    return this._started;
-  }
-  play() {
-    if (!this.parentPlayer) {
-      this.init();
-    }
-    this._onStart();
-    this.players.forEach((player) => player.play());
-  }
-  pause() {
-    this.players.forEach((player) => player.pause());
-  }
-  restart() {
-    this.players.forEach((player) => player.restart());
-  }
-  finish() {
-    this._onFinish();
-    this.players.forEach((player) => player.finish());
-  }
-  destroy() {
-    this._onDestroy();
-  }
-  _onDestroy() {
-    if (!this._destroyed) {
-      this._destroyed = true;
-      this._onFinish();
-      this.players.forEach((player) => player.destroy());
-      this._onDestroyFns.forEach((fn) => fn());
-      this._onDestroyFns = [];
-    }
-  }
-  reset() {
-    this.players.forEach((player) => player.reset());
-    this._destroyed = false;
-    this._finished = false;
-    this._started = false;
-  }
-  setPosition(p) {
-    const timeAtPosition = p * this.totalTime;
-    this.players.forEach((player) => {
-      const position = player.totalTime ? Math.min(1, timeAtPosition / player.totalTime) : 1;
-      player.setPosition(position);
-    });
-  }
-  getPosition() {
-    const longestPlayer = this.players.reduce((longestSoFar, player) => {
-      const newPlayerIsLongest = longestSoFar === null || player.totalTime > longestSoFar.totalTime;
-      return newPlayerIsLongest ? player : longestSoFar;
-    }, null);
-    return longestPlayer != null ? longestPlayer.getPosition() : 0;
-  }
-  beforeDestroy() {
-    this.players.forEach((player) => {
-      if (player.beforeDestroy) {
-        player.beforeDestroy();
-      }
-    });
-  }
-  /** @internal */
-  triggerCallback(phaseName) {
-    const methods = phaseName == "start" ? this._onStartFns : this._onDoneFns;
-    methods.forEach((fn) => fn());
-    methods.length = 0;
-  }
-};
-var \u0275PRE_STYLE = "!";
 
 // node_modules/@angular/animations/fesm2022/browser.mjs
 var LINE_START = "\n - ";
@@ -5081,10 +4708,7 @@ var authInterceptor = (req, next) => {
   if (req.url.startsWith(environment.apiUrl)) {
     const tokenService = inject(TokenService);
     const token = tokenService.getToken();
-    console.log("Auth Interceptor - URL:", req.url);
-    console.log("Auth Interceptor - Token exists:", !!token);
     if (token) {
-      console.log("Auth Interceptor - Adding token to request");
       req = req.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`
@@ -5102,13 +4726,6 @@ bootstrapApplication(AppComponent, {
   ]
 }).catch((err) => console.error(err));
 /*! Bundled license information:
-
-@angular/animations/fesm2022/animations.mjs:
-  (**
-   * @license Angular v18.2.13
-   * (c) 2010-2024 Google LLC. https://angular.io/
-   * License: MIT
-   *)
 
 @angular/animations/fesm2022/browser.mjs:
   (**

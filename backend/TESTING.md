@@ -1,5 +1,5 @@
 # Testing Documentation
-## UF3/UF4 Curriculum Project - Fitness Tracker Backend
+## Fitness Tracker Backend
 
 This document provides comprehensive information about the testing strategy, implementation, and execution for the Fitness Tracker Backend API.
 
@@ -342,4 +342,4 @@ test('should handle errors', async () => {
 
 ---
 
-This comprehensive testing strategy ensures high code quality, reliability, and maintainability for the Fitness Tracker Backend API, meeting all UF3/UF4 curriculum requirements for professional software development practices.
+This comprehensive testing strategy ensures high code quality, reliability, and maintainability for the Fitness Tracker Backend API, meeting all curriculum requirements for professional software development practices.

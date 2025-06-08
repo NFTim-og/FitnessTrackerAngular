@@ -1,0 +1,339 @@
+/* Material Design theme configuration for Fitness Tracker */
+
+/* Import Angular Material core styles */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+/* Import Material Design Components base styles - try alternative path */
+@import '@angular/cdk/overlay-prebuilt.css';
+
+/* Custom Material Design overrides to match our design system */
+.mat-mdc-form-field {
+  --mdc-filled-text-field-container-color: var(--card-background);
+  --mdc-filled-text-field-label-text-color: var(--text-secondary);
+  --mdc-filled-text-field-input-text-color: var(--text-color);
+  --mdc-filled-text-field-active-indicator-color: var(--primary-color);
+  --mdc-filled-text-field-focus-active-indicator-color: var(--primary-color);
+  --mdc-filled-text-field-hover-active-indicator-color: var(--primary-color);
+  --mdc-filled-text-field-disabled-active-indicator-color: var(--text-muted);
+  --mdc-filled-text-field-error-active-indicator-color: var(--danger-color);
+  --mdc-filled-text-field-error-focus-active-indicator-color: var(--danger-color);
+  --mdc-filled-text-field-error-hover-active-indicator-color: var(--danger-color);
+  --mdc-filled-text-field-error-label-text-color: var(--danger-color);
+  --mdc-filled-text-field-error-input-text-color: var(--text-color);
+}
+
+.mat-mdc-form-field .mdc-text-field--filled {
+  border-radius: var(--radius-md);
+  background-color: var(--card-background);
+}
+
+.mat-mdc-form-field .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: var(--card-background);
+}
+
+/* Button styling */
+.mat-mdc-button {
+  --mdc-text-button-label-text-font: 'Inter', sans-serif;
+  --mdc-filled-button-label-text-font: 'Inter', sans-serif;
+  --mdc-outlined-button-label-text-font: 'Inter', sans-serif;
+  
+  border-radius: var(--radius-md);
+  font-weight: 500;
+}
+
+.mat-mdc-raised-button {
+  --mdc-filled-button-container-color: var(--primary-color);
+  --mdc-filled-button-label-text-color: white;
+}
+
+.mat-mdc-raised-button:hover {
+  --mdc-filled-button-container-color: var(--secondary-color);
+}
+
+/* Select styling */
+.mat-mdc-select {
+  --mdc-filled-text-field-container-color: var(--card-background);
+  --mdc-filled-text-field-label-text-color: var(--text-secondary);
+  --mdc-filled-text-field-input-text-color: var(--text-color);
+}
+
+/* Fix for select dropdown display issues */
+.mat-mdc-select-panel {
+  background-color: var(--card-background) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  max-height: 256px !important;
+  overflow-y: auto !important;
+  position: absolute !important;
+  z-index: 1000 !important;
+  min-width: 100% !important;
+}
+
+/* Ensure proper overlay positioning */
+.cdk-overlay-container {
+  position: fixed !important;
+  z-index: 1000 !important;
+  pointer-events: none !important;
+}
+
+.cdk-overlay-backdrop {
+  position: absolute !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+  pointer-events: auto !important;
+  -webkit-tap-highlight-color: transparent !important;
+  transition: opacity 400ms cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+  opacity: 0 !important;
+}
+
+.cdk-overlay-backdrop.cdk-overlay-backdrop-showing {
+  opacity: 0.32 !important;
+}
+
+.cdk-overlay-pane {
+  position: absolute !important;
+  pointer-events: auto !important;
+  box-sizing: border-box !important;
+  z-index: 1000 !important;
+}
+
+.mat-mdc-option {
+  color: var(--text-color) !important;
+  padding: 0 16px !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  position: relative !important;
+}
+
+.mat-mdc-option:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  color: var(--primary-color) !important;
+}
+
+.mat-mdc-option.mat-mdc-option-active {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  color: var(--primary-color) !important;
+}
+
+/* Fix select arrow */
+.mat-mdc-select-arrow-wrapper {
+  transform: translateY(-50%) !important;
+}
+
+.mat-mdc-select-arrow {
+  width: 0 !important;
+  height: 0 !important;
+  border-left: 5px solid transparent !important;
+  border-right: 5px solid transparent !important;
+  border-top: 5px solid var(--text-secondary) !important;
+  margin: 0 4px !important;
+}
+
+/* Fix select trigger */
+.mat-mdc-select-trigger {
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+}
+
+.mat-mdc-select-value {
+  width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.mat-mdc-select-value-text {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Ensure select doesn't expand inline */
+.mat-mdc-select {
+  display: block !important;
+  width: 100% !important;
+}
+
+.mat-mdc-select .mat-mdc-select-trigger {
+  width: 100% !important;
+}
+
+/* Fix for expanded state */
+.mat-mdc-select.mat-mdc-select-open .mat-mdc-select-arrow {
+  transform: rotate(180deg) !important;
+}
+
+/* Hide native select appearance */
+.mat-mdc-select select {
+  display: none !important;
+}
+
+/* Radio button styling */
+.mat-mdc-radio-button {
+  --mdc-radio-selected-focus-icon-color: var(--primary-color);
+  --mdc-radio-selected-hover-icon-color: var(--primary-color);
+  --mdc-radio-selected-icon-color: var(--primary-color);
+  --mdc-radio-selected-pressed-icon-color: var(--primary-color);
+  --mdc-radio-unselected-focus-icon-color: var(--text-secondary);
+  --mdc-radio-unselected-hover-icon-color: var(--text-secondary);
+  --mdc-radio-unselected-icon-color: var(--text-secondary);
+  --mdc-radio-unselected-pressed-icon-color: var(--text-secondary);
+}
+
+/* Checkbox styling */
+.mat-mdc-checkbox {
+  --mdc-checkbox-selected-checkmark-color: white;
+  --mdc-checkbox-selected-focus-icon-color: var(--primary-color);
+  --mdc-checkbox-selected-hover-icon-color: var(--primary-color);
+  --mdc-checkbox-selected-icon-color: var(--primary-color);
+  --mdc-checkbox-selected-pressed-icon-color: var(--primary-color);
+  --mdc-checkbox-unselected-focus-icon-color: var(--text-secondary);
+  --mdc-checkbox-unselected-hover-icon-color: var(--text-secondary);
+  --mdc-checkbox-unselected-icon-color: var(--text-secondary);
+  --mdc-checkbox-unselected-pressed-icon-color: var(--text-secondary);
+}
+
+/* Icon styling */
+.mat-mdc-form-field .mat-mdc-form-field-icon-suffix {
+  color: var(--text-secondary);
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-form-field-icon-suffix {
+  color: var(--primary-color);
+}
+
+/* Error styling */
+.mat-mdc-form-field .mat-mdc-form-field-error {
+  color: var(--danger-color);
+  font-size: 0.75rem;
+}
+
+/* Custom button variants for our design system */
+.mat-mdc-button.btn-danger {
+  --mdc-filled-button-container-color: var(--danger-color);
+  --mdc-filled-button-label-text-color: white;
+}
+
+.mat-mdc-button.btn-danger:hover {
+  --mdc-filled-button-container-color: #dc2626;
+}
+
+.mat-mdc-button.btn-warning {
+  --mdc-filled-button-container-color: var(--warning-color);
+  --mdc-filled-button-label-text-color: white;
+}
+
+.mat-mdc-button.btn-warning:hover {
+  --mdc-filled-button-container-color: #d97706;
+}
+
+.mat-mdc-button.btn-success {
+  --mdc-filled-button-container-color: var(--success-color);
+  --mdc-filled-button-label-text-color: white;
+}
+
+.mat-mdc-button.btn-success:hover {
+  --mdc-filled-button-container-color: #16a34a;
+}
+
+/* Ensure proper spacing and sizing */
+.mat-mdc-form-field {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.mat-mdc-button {
+  min-width: 100px;
+}
+
+@media (max-width: 640px) {
+  .mat-mdc-button {
+    width: 100%;
+  }
+}
+
+/* Dark mode support */
+:root.dark-mode .mat-mdc-form-field {
+  --mdc-filled-text-field-container-color: var(--card-background);
+  --mdc-filled-text-field-label-text-color: var(--text-secondary);
+  --mdc-filled-text-field-input-text-color: var(--text-color);
+}
+
+:root.dark-mode .mat-mdc-select-panel {
+  background-color: var(--card-background);
+  border-color: var(--border-color);
+}
+
+:root.dark-mode .mat-mdc-option {
+  color: var(--text-color);
+}
+
+/* Ripple effects */
+.mat-ripple-element {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+:root.dark-mode .mat-ripple-element {
+  background-color: rgba(96, 165, 250, 0.1);
+}
+
+/* Focus indicators */
+.mat-mdc-form-field.mat-focused .mdc-line-ripple::before {
+  border-bottom-color: var(--primary-color);
+}
+
+.mat-mdc-form-field.mat-focused .mdc-line-ripple::after {
+  border-bottom-color: var(--primary-color);
+}
+
+/* Placeholder text */
+.mat-mdc-form-field .mat-mdc-input-element::placeholder {
+  color: var(--text-muted);
+}
+
+/* Label positioning */
+.mat-mdc-form-field .mdc-floating-label {
+  color: var(--text-secondary);
+}
+
+.mat-mdc-form-field.mat-focused .mdc-floating-label {
+  color: var(--primary-color);
+}
+
+/* Disabled state */
+.mat-mdc-form-field.mat-form-field-disabled {
+  opacity: 0.6;
+}
+
+.mat-mdc-form-field.mat-form-field-disabled .mdc-text-field--filled {
+  background-color: var(--border-light);
+}
+
+/* Animation improvements */
+.mat-mdc-form-field .mdc-line-ripple::before,
+.mat-mdc-form-field .mdc-line-ripple::after {
+  transition: all 0.2s ease;
+}
+
+.mat-mdc-button {
+  transition: all 0.2s ease;
+}
+
+.mat-mdc-radio-button .mdc-radio,
+.mat-mdc-checkbox .mdc-checkbox {
+  transition: all 0.2s ease;
+}

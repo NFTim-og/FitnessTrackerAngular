@@ -36,119 +36,30 @@ export class WorkoutPlanService {
     console.log('WorkoutPlanService - Loading workout plans from:', `${this.apiUrl}`);
     console.log('WorkoutPlanService - With params:', params);
 
-    // TEMPORARY: Use hardcoded dummy data instead of making an HTTP request
-    console.log('WorkoutPlanService - Using hardcoded dummy data');
+    return this.http.get<any>(`${this.apiUrl}`, { params: httpParams })
+      .pipe(
+        map(response => {
+          // Process the response and update the BehaviorSubjects
+          if (response && response.status === 'success' && response.data && Array.isArray(response.data)) {
+            // Convert raw data to WorkoutPlan objects
+            const workoutPlans = response.data.map((wp: any) => WorkoutPlan.fromJSON(wp));
 
-    // Create dummy workout plans
-    const dummyWorkoutPlans = [
-      WorkoutPlan.fromJSON({
-        id: '00000000-0000-0000-0000-000000000001',
-        name: 'Full Body Workout',
-        description: 'A complete workout targeting all major muscle groups',
-        created_by: '00000000-0000-0000-0000-000000000099',
-        exercises: [
-          {
-            id: '00000000-0000-0000-0000-000000000101',
-            workout_plan_id: '00000000-0000-0000-0000-000000000001',
-            exercise_id: '00000000-0000-0000-0000-000000000001',
-            order: 1,
-            exercise: {
-              id: '00000000-0000-0000-0000-000000000001',
-              name: 'Push-ups',
-              duration: 10,
-              calories: 100,
-              difficulty: 'medium',
-              met_value: 3.8,
-              created_by: '00000000-0000-0000-0000-000000000099'
-            }
-          },
-          {
-            id: '00000000-0000-0000-0000-000000000102',
-            workout_plan_id: '00000000-0000-0000-0000-000000000001',
-            exercise_id: '00000000-0000-0000-0000-000000000002',
-            order: 2,
-            exercise: {
-              id: '00000000-0000-0000-0000-000000000002',
-              name: 'Sit-ups',
-              duration: 10,
-              calories: 80,
-              difficulty: 'easy',
-              met_value: 3.0,
-              created_by: '00000000-0000-0000-0000-000000000099'
-            }
-          }
-        ]
-      }),
-      WorkoutPlan.fromJSON({
-        id: '00000000-0000-0000-0000-000000000002',
-        name: 'Upper Body Strength',
-        description: 'Focus on building upper body strength',
-        created_by: '00000000-0000-0000-0000-000000000099',
-        exercises: [
-          {
-            id: '00000000-0000-0000-0000-000000000201',
-            workout_plan_id: '00000000-0000-0000-0000-000000000002',
-            exercise_id: '00000000-0000-0000-0000-000000000001',
-            order: 1,
-            exercise: {
-              id: '00000000-0000-0000-0000-000000000001',
-              name: 'Push-ups',
-              duration: 10,
-              calories: 100,
-              difficulty: 'medium',
-              met_value: 3.8,
-              created_by: '00000000-0000-0000-0000-000000000099'
-            }
-          }
-        ]
-      }),
-      WorkoutPlan.fromJSON({
-        id: '00000000-0000-0000-0000-000000000003',
-        name: 'Core Strength',
-        description: 'Focus on building core strength',
-        created_by: '00000000-0000-0000-0000-000000000099',
-        exercises: [
-          {
-            id: '00000000-0000-0000-0000-000000000301',
-            workout_plan_id: '00000000-0000-0000-0000-000000000003',
-            exercise_id: '00000000-0000-0000-0000-000000000002',
-            order: 1,
-            exercise: {
-              id: '00000000-0000-0000-0000-000000000002',
-              name: 'Sit-ups',
-              duration: 10,
-              calories: 80,
-              difficulty: 'easy',
-              met_value: 3.0,
-              created_by: '00000000-0000-0000-0000-000000000099'
-            }
-          },
-          {
-            id: '00000000-0000-0000-0000-000000000302',
-            workout_plan_id: '00000000-0000-0000-0000-000000000003',
-            exercise_id: '00000000-0000-0000-0000-000000000005',
-            order: 2,
-            exercise: {
-              id: '00000000-0000-0000-0000-000000000005',
-              name: 'Plank',
-              duration: 5,
-              calories: 50,
-              difficulty: 'hard',
-              met_value: 4.0,
-              created_by: '00000000-0000-0000-0000-000000000099'
-            }
-          }
-        ]
-      })
-    ];
+            // Update the workout plans subject with new data
+            this.workoutPlansSubject.next(workoutPlans);
 
-    console.log('WorkoutPlanService - Dummy workout plans:', dummyWorkoutPlans);
-    this.workoutPlansSubject.next(dummyWorkoutPlans);
-    this.totalCountSubject.next(dummyWorkoutPlans.length);
-
-    return of(undefined).pipe(
-        map(() => {
-          // This is just a placeholder to maintain the Observable<void> return type
+            // Update the total count for pagination
+            if (response.pagination && response.pagination.totalCount !== undefined) {
+              const totalCount = typeof response.pagination.totalCount === 'string'
+                ? parseInt(response.pagination.totalCount, 10)
+                : response.pagination.totalCount;
+              this.totalCountSubject.next(totalCount);
+            } else {
+              this.totalCountSubject.next(workoutPlans.length);
+            }
+          } else {
+            this.workoutPlansSubject.next([]);
+            this.totalCountSubject.next(0);
+          }
         }),
         catchError(error => {
           console.error('WorkoutPlanService - Error loading workout plans:', error);
@@ -247,9 +158,22 @@ export class WorkoutPlanService {
     return this.http.get<any>(`${this.apiUrl}`, { params: httpParams })
       .pipe(
         map(response => {
-          const workoutPlans = response.data.workoutPlans.map((wp: any) => WorkoutPlan.fromJSON(wp));
-          this.workoutPlansSubject.next(workoutPlans);
-          this.totalCountSubject.next(response.data.pagination.total);
+          if (response && response.status === 'success' && response.data && Array.isArray(response.data)) {
+            const workoutPlans = response.data.map((wp: any) => WorkoutPlan.fromJSON(wp));
+            this.workoutPlansSubject.next(workoutPlans);
+
+            if (response.pagination && response.pagination.totalCount !== undefined) {
+              const totalCount = typeof response.pagination.totalCount === 'string'
+                ? parseInt(response.pagination.totalCount, 10)
+                : response.pagination.totalCount;
+              this.totalCountSubject.next(totalCount);
+            } else {
+              this.totalCountSubject.next(workoutPlans.length);
+            }
+          } else {
+            this.workoutPlansSubject.next([]);
+            this.totalCountSubject.next(0);
+          }
         }),
         catchError(error => {
           this.workoutPlansSubject.next([]);

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker API - UF3/UF4 Curriculum Project</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .endpoint {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .endpoint .method {
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 10px;
+        }
+        
+        .endpoint .url {
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .feature-list {
+            list-style: none;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .feature-list li:before {
+            content: "✅";
+            margin-right: 10px;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 10px 10px 10px 0;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .status {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .credentials {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .tech-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏋️ Fitness Tracker API</h1>
+            <p>Professional REST API Implementation for Fitness and Health Management</p>
+        </div>
+
+        <div class="status">
+            <strong>🎉 API Status:</strong> <span id="api-status">Checking...</span> | 
+            <strong>Database:</strong> <span id="db-status">Checking...</span> | 
+            <strong>Environment:</strong> <span id="env-status">Loading...</span>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>📚 API Documentation</h2>
+                <p>Interactive Swagger documentation with all endpoints, schemas, and testing capabilities.</p>
+                <a href="/api-docs" class="btn" target="_blank">Open API Docs</a>
+                <a href="/health" class="btn" target="_blank">Health Check</a>
+                <a href="/api/v1/status" class="btn" target="_blank">System Status</a>
+            </div>
+
+            <div class="card">
+                <h2>🔗 Core API Endpoints</h2>
+                <div class="endpoint">
+                    <span class="method">POST</span>
+                    <span class="url">/api/v1/auth/register</span>
+                    <p>User registration with validation</p>
+                </div>
+                <div class="endpoint">
+                    <span class="method">POST</span>
+                    <span class="url">/api/v1/auth/login</span>
+                    <p>JWT-based authentication</p>
+                </div>
+                <div class="endpoint">
+                    <span class="method">GET</span>
+                    <span class="url">/api/v1/exercises</span>
+                    <p>Exercise management with pagination</p>
+                </div>
+                <div class="endpoint">
+                    <span class="method">GET</span>
+                    <span class="url">/api/v1/workouts</span>
+                    <p>Workout plan management</p>
+                </div>
+                <div class="endpoint">
+                    <span class="method">GET</span>
+                    <span class="url">/api/v1/users/:id/profile</span>
+                    <p>User profile and health data</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>✨ Implemented Features</h2>
+                <ul class="feature-list">
+                    <li>JWT Authentication & Authorization</li>
+                    <li>Role-based Access Control (User/Admin)</li>
+                    <li>Input Validation & Sanitization</li>
+                    <li>Rate Limiting & Security Headers</li>
+                    <li>Pagination & Advanced Sorting</li>
+                    <li>Many-to-Many Database Relationships</li>
+                    <li>UUID Primary Keys</li>
+                    <li>SQL Injection Prevention</li>
+                    <li>Comprehensive Error Handling</li>
+                    <li>API Logging & Monitoring</li>
+                    <li>Docker Containerization</li>
+                    <li>Automated Testing (Jest + Supertest)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>🛠️ Technology Stack</h2>
+                <div class="tech-stack">
+                    <span class="tech-badge">Express.js 4.19</span>
+                    <span class="tech-badge">MySQL 8.0</span>
+                    <span class="tech-badge">JWT Auth</span>
+                    <span class="tech-badge">bcrypt</span>
+                    <span class="tech-badge">Docker</span>
+                    <span class="tech-badge">Jest Testing</span>
+                    <span class="tech-badge">Swagger UI</span>
+                    <span class="tech-badge">ES Modules</span>
+                </div>
+                
+                <div class="credentials">
+                    <strong>🔑 Default Test Credentials:</strong><br>
+                    <strong>Admin:</strong> admin@example.com / admin123<br>
+                    <strong>User:</strong> user@example.com / user123
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🎯 Technical Features</h2>
+            <p><strong>Professional Implementation</strong> - Modern backend development practices</p>
+            <ul class="feature-list">
+                <li>ES Module import system throughout</li>
+                <li>Modular architecture (routes/controllers/models/middlewares)</li>
+                <li>All routes use /api/v1 prefix</li>
+                <li>Complete CRUD operations with proper HTTP methods</li>
+                <li>Dynamic (req.params) and static (req.query) parameter handling</li>
+                <li>Centralized error handling with 500-599 status codes</li>
+                <li>MySQL database with connection pooling</li>
+                <li>Complex many-to-many relationships</li>
+                <li>UUID identifiers and data encryption</li>
+                <li>Comprehensive documentation and testing</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Check API status
+        async function checkStatus() {
+            try {
+                const healthResponse = await fetch('/health');
+                const healthData = await healthResponse.json();
+                
+                document.getElementById('api-status').textContent = healthData.status === 'success' ? '✅ Running' : '❌ Error';
+                document.getElementById('db-status').textContent = healthData.database === 'connected' ? '✅ Connected' : '❌ Disconnected';
+                document.getElementById('env-status').textContent = healthData.environment || 'Unknown';
+            } catch (error) {
+                document.getElementById('api-status').textContent = '❌ Offline';
+                document.getElementById('db-status').textContent = '❌ Unknown';
+                document.getElementById('env-status').textContent = 'Unknown';
+            }
+        }
+        
+        // Check status on page load
+        checkStatus();
+        
+        // Refresh status every 30 seconds
+        setInterval(checkStatus, 30000);
+    </script>
+</body>
+</html>

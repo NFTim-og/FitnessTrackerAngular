@@ -1,29 +1,120 @@
-<nav class="bg-white shadow-md">
-  <div class="container mx-auto px-4">
-    <div class="flex justify-between items-center h-16">
-      <a routerLink="/" class="text-xl font-bold">Fitness Tracker</a>
+<nav class="navbar">
+  <div class="navbar-container">
+    <div class="navbar-content">
+      <a routerLink="/" class="brand-logo">
+        <span class="material-icons brand-icon">fitness_center</span>
+        Fitness Tracker
+      </a>
 
-      <div class="flex items-center gap-4">
+      <!-- Mobile menu button -->
+      <button
+        class="mobile-menu-button"
+        (click)="toggleMobileMenu()"
+        [attr.aria-expanded]="isMobileMenuOpen"
+        aria-label="Toggle navigation menu"
+      >
+        <span class="material-icons">{{ isMobileMenuOpen ? 'close' : 'menu' }}</span>
+      </button>
+
+      <!-- Desktop navigation -->
+      <div class="desktop-nav">
         <app-theme-toggle></app-theme-toggle>
         @if (user$ | async; as user) {
-          <a routerLink="/exercises" class="nav-link">Exercises</a>
-          <a routerLink="/workout-plans" class="nav-link">Workout Plans</a>
-          <a routerLink="/profile" class="nav-link">Profile</a>
-          <a routerLink="/api-test" class="nav-link">API Test</a>
+          <a routerLink="/exercises" class="nav-link">
+            <span class="material-icons">fitness_center</span>
+            Exercises
+          </a>
+          <a routerLink="/workout-plans" class="nav-link">
+            <span class="material-icons">event</span>
+            Workout Plans
+          </a>
+          <a routerLink="/profile" class="nav-link">
+            <span class="material-icons">person</span>
+            Profile
+          </a>
+          <a routerLink="/api-test" class="nav-link">
+            <span class="material-icons">science</span>
+            API Test
+          </a>
           <button
             (click)="signOut()"
-            class="nav-link"
+            class="nav-link nav-button"
             [disabled]="isLoading"
           >
+            <span class="material-icons">logout</span>
             {{ isLoading ? 'Signing out...' : 'Sign Out' }}
           </button>
         } @else {
-          <a routerLink="/auth/login" class="nav-link">Sign In</a>
-          <a routerLink="/auth/register" class="nav-link">Register</a>
-          <a routerLink="/api-test" class="nav-link">API Test</a>
+          <a routerLink="/auth/login" class="nav-link">
+            <span class="material-icons">login</span>
+            Sign In
+          </a>
+          <a routerLink="/auth/register" class="nav-link">
+            <span class="material-icons">person_add</span>
+            Register
+          </a>
+          <a routerLink="/api-test" class="nav-link">
+            <span class="material-icons">science</span>
+            API Test
+          </a>
         }
         @if (error) {
-          <div class="text-red-500 text-sm">{{ error }}</div>
+          <div class="nav-error">{{ error }}</div>
+        }
+      </div>
+    </div>
+
+    <!-- Mobile navigation menu -->
+    <div class="mobile-menu" [class.mobile-menu-open]="isMobileMenuOpen">
+      <!-- Mobile menu backdrop -->
+      <div
+        class="mobile-menu-backdrop"
+        [class.mobile-menu-backdrop-open]="isMobileMenuOpen"
+        (click)="closeMobileMenu()"
+      ></div>
+      <div class="mobile-menu-content">
+        <app-theme-toggle class="mobile-theme-toggle"></app-theme-toggle>
+        @if (user$ | async; as user) {
+          <a routerLink="/exercises" class="mobile-nav-link" (click)="closeMobileMenu()">
+            <span class="material-icons">fitness_center</span>
+            Exercises
+          </a>
+          <a routerLink="/workout-plans" class="mobile-nav-link" (click)="closeMobileMenu()">
+            <span class="material-icons">event</span>
+            Workout Plans
+          </a>
+          <a routerLink="/profile" class="mobile-nav-link" (click)="closeMobileMenu()">
+            <span class="material-icons">person</span>
+            Profile
+          </a>
+          <a routerLink="/api-test" class="mobile-nav-link" (click)="closeMobileMenu()">
+            <span class="material-icons">science</span>
+            API Test
+          </a>
+          <button
+            (click)="signOut()"
+            class="mobile-nav-link mobile-nav-button"
+            [disabled]="isLoading"
+          >
+            <span class="material-icons">logout</span>
+            {{ isLoading ? 'Signing out...' : 'Sign Out' }}
+          </button>
+        } @else {
+          <a routerLink="/auth/login" class="mobile-nav-link" (click)="closeMobileMenu()">
+            <span class="material-icons">login</span>
+            Sign In
+          </a>
+          <a routerLink="/auth/register" class="mobile-nav-link" (click)="closeMobileMenu()">
+            <span class="material-icons">person_add</span>
+            Register
+          </a>
+          <a routerLink="/api-test" class="mobile-nav-link" (click)="closeMobileMenu()">
+            <span class="material-icons">science</span>
+            API Test
+          </a>
+        }
+        @if (error) {
+          <div class="mobile-nav-error">{{ error }}</div>
         }
       </div>
     </div>

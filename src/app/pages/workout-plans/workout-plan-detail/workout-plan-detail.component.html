@@ -1,0 +1,184 @@
+<div class="container mx-auto px-4 py-8">
+  @if (error) {
+    <div class="alert alert-error mb-4">
+      {{ error }}
+      <button class="ml-2" (click)="error = null">&times;</button>
+    </div>
+  }
+
+  @if (isLoading) {
+    <div class="flex items-center justify-center py-12">
+      <app-loading-spinner size="large"></app-loading-spinner>
+      <span class="ml-3 text-lg">Loading workout plan...</span>
+    </div>
+  } @else if (workoutPlan) {
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <button
+        (click)="goBack()"
+        class="btn btn-secondary flex items-center gap-2"
+      >
+        <span class="material-icons text-sm">arrow_back</span>
+        Back to Plans
+      </button>
+      
+      <div class="flex gap-2">
+        <button
+          (click)="editWorkoutPlan()"
+          class="btn btn-primary flex items-center gap-2"
+        >
+          <span class="material-icons text-sm">edit</span>
+          Edit Plan
+        </button>
+        <button
+          (click)="deleteWorkoutPlan()"
+          class="btn btn-danger flex items-center gap-2"
+        >
+          <span class="material-icons text-sm">delete</span>
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Workout Plan Details -->
+    <div class="workout-plan-detail-card card mb-6">
+      <div class="flex justify-between items-start mb-4">
+        <div>
+          <h1 class="text-3xl font-bold mb-2">{{ workoutPlan.name }}</h1>
+          @if (workoutPlan.description) {
+            <p class="text-secondary">{{ workoutPlan.description }}</p>
+          }
+        </div>
+        <span class="badge text-blue-600 bg-blue-50 flex items-center gap-1">
+          <span class="material-icons text-sm">event</span>
+          Workout Plan
+        </span>
+      </div>
+
+      <!-- Plan Statistics -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="workout-plan-meta-item flex-col items-start">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="material-icons text-sm">schedule</span>
+            <span class="text-sm text-secondary">Duration</span>
+          </div>
+          <span class="text-lg font-semibold">{{ getTotalDuration() }} min</span>
+        </div>
+
+        <div class="workout-plan-meta-item flex-col items-start">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="material-icons text-sm">local_fire_department</span>
+            <span class="text-sm text-secondary">Calories</span>
+          </div>
+          <span class="text-lg font-semibold">{{ getTotalCalories() }} kcal</span>
+        </div>
+
+        <div class="workout-plan-meta-item flex-col items-start">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="material-icons text-sm">{{ iconService.getCategoryMaterialIcon(workoutPlan.category || 'general') }}</span>
+            <span class="text-sm text-secondary">Category</span>
+          </div>
+          <span class="text-lg font-semibold capitalize">{{ workoutPlan.category || 'General' }}</span>
+        </div>
+
+        <div class="workout-plan-meta-item flex-col items-start">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="material-icons text-sm">{{ iconService.getDifficultyMaterialIcon(workoutPlan.difficulty || 'beginner') }}</span>
+            <span class="text-sm text-secondary">Difficulty</span>
+          </div>
+          <span class="text-lg font-semibold capitalize">{{ workoutPlan.difficulty || 'Beginner' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exercises List -->
+    <div class="card">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="material-icons">fitness_center</span>
+        <h2 class="text-xl font-semibold">Exercises ({{ workoutPlan.exercises?.length || 0 }})</h2>
+      </div>
+
+      @if (workoutPlan.exercises && workoutPlan.exercises.length > 0) {
+        <div class="space-y-4">
+          @for (workoutExercise of workoutPlan.exercises; track workoutExercise.exercise?.id) {
+            @if (workoutExercise.exercise) {
+              <div class="exercise-card p-4 rounded-lg">
+                <div class="flex justify-between items-start mb-3">
+                  <h3 class="text-lg font-medium">{{ workoutExercise.exercise.name }}</h3>
+                  <span class="badge {{ iconService.getMuscleGroupColor(workoutExercise.exercise.category) }}">
+                    {{ workoutExercise.exercise.category }}
+                  </span>
+                </div>
+
+                @if (workoutExercise.exercise.description) {
+                  <p class="text-secondary mb-3">{{ workoutExercise.exercise.description }}</p>
+                }
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="material-icons text-sm">schedule</span>
+                    <span class="text-sm">{{ workoutExercise.exercise.duration_minutes }} min</span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <span class="material-icons text-sm">local_fire_department</span>
+                    <span class="text-sm">{{ workoutExercise.exercise.calories_per_minute * workoutExercise.exercise.duration_minutes }} kcal</span>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <span class="material-icons text-sm">{{ iconService.getDifficultyMaterialIcon(workoutExercise.exercise.difficulty) }}</span>
+                    <span class="text-sm capitalize">{{ workoutExercise.exercise.difficulty }}</span>
+                  </div>
+
+                  @if (workoutExercise.exercise.equipment_needed && workoutExercise.exercise.equipment_needed !== 'none') {
+                    <div class="flex items-center gap-2">
+                      <span class="material-icons text-sm">{{ iconService.getEquipmentMaterialIcon(workoutExercise.exercise.equipment_needed) }}</span>
+                      <span class="text-sm capitalize">{{ workoutExercise.exercise.equipment_needed.replace('_', ' ') }}</span>
+                    </div>
+                  }
+                </div>
+
+                @if (workoutExercise.exercise.muscle_groups && workoutExercise.exercise.muscle_groups.length > 0) {
+                  <div class="flex flex-wrap gap-2">
+                    <span class="text-sm text-secondary">Muscle Groups:</span>
+                    @for (group of workoutExercise.exercise.muscle_groups; track group) {
+                      <span class="badge badge-sm {{ iconService.getMuscleGroupColor(group) }} flex items-center gap-1">
+                        <span class="material-icons text-xs">{{ iconService.getMuscleGroupMaterialIcon(group) }}</span>
+                        {{ group.replace('_', ' ') }}
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          }
+        </div>
+      } @else {
+        <div class="text-center py-8">
+          <span class="material-icons text-4xl text-muted mb-2 block">fitness_center</span>
+          <p class="text-secondary">No exercises added to this workout plan yet.</p>
+          <button
+            (click)="editWorkoutPlan()"
+            class="btn btn-primary mt-4 flex items-center gap-2 mx-auto"
+          >
+            <span class="material-icons text-sm">add</span>
+            Add Exercises
+          </button>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="text-center py-12">
+      <span class="material-icons text-6xl text-muted mb-4 block">error</span>
+      <h2 class="text-xl font-medium mb-2">Workout Plan Not Found</h2>
+      <p class="text-secondary mb-4">The workout plan you're looking for doesn't exist or has been deleted.</p>
+      <button
+        (click)="goBack()"
+        class="btn btn-primary flex items-center gap-2 mx-auto"
+      >
+        <span class="material-icons text-sm">arrow_back</span>
+        Back to Plans
+      </button>
+    </div>
+  }
+</div>

@@ -1,152 +1,490 @@
-<div class="max-w-lg mx-auto">
+<div class="form-container">
     @if (error) {
-      <div class="alert alert-error mb-4">
+      <div class="alert alert-error form-error">
         {{ error }}
-        <button class="ml-2" (click)="error = null">&times;</button>
+        <button class="error-close-btn" (click)="error = null">&times;</button>
       </div>
     }
 
-    <h1 class="text-3xl font-bold mb-6">
-      @if (isLoadingExercise$ | async) {
-        <div class="flex items-center">
-          <app-loading-spinner size="small" class="mr-2"></app-loading-spinner>
-          Loading Exercise...
+    <div class="form-header">
+      <h1 class="form-title">
+        @if (isLoadingExercise$ | async) {
+          <div class="loading-header">
+            <app-loading-spinner size="small" class="loading-spinner"></app-loading-spinner>
+            Loading Exercise...
+          </div>
+        } @else {
+          {{ isEditing ? 'Edit' : 'New' }} Exercise
+        }
+      </h1>
+      <p class="form-subtitle">
+        {{ isEditing ? 'Update your exercise details below' : 'Create a new exercise for your fitness routine' }}
+      </p>
+    </div>
+
+    <form [formGroup]="exerciseForm" (ngSubmit)="onSubmit()" class="enhanced-form-card">
+      <!-- Basic Information Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="material-icons section-icon">info</span>
+            Basic Information
+          </h2>
+          <p class="section-description">Essential details about your exercise</p>
         </div>
-      } @else {
-        {{ isEditing ? 'Edit' : 'New' }} Exercise
-      }
-    </h1>
 
-    <form [formGroup]="exerciseForm" (ngSubmit)="onSubmit()" class="card">
-      <app-form-field
-        label="Exercise Name"
-        type="text"
-        placeholder="Enter exercise name"
-        [control]="getFormControl('name')"
-        fieldName="Name"
-        [required]="true"
-        helpText="Enter a descriptive name for your exercise (2-100 characters)"
-        formControlName="name">
-      </app-form-field>
+        <!-- Exercise Name Field -->
+        <div class="field-wrapper">
+          <label class="visible-field-label">
+            <span class="material-icons label-icon">fitness_center</span>
+            Exercise Name *
+          </label>
+          <mat-form-field appearance="fill" class="enhanced-form-field">
+            <mat-label class="enhanced-mat-label">Exercise Name *</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="name"
+              placeholder="Enter exercise name"
+              required
+              class="enhanced-input"
+            />
+            <mat-icon matSuffix>fitness_center</mat-icon>
+            <mat-hint>Enter a descriptive name for your exercise (1-100 characters)</mat-hint>
+            @if (showError('name')) {
+              <mat-error>{{ getFieldError('Name') }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
 
-      <app-form-field
-        label="Duration (minutes)"
-        type="number"
-        placeholder="Enter duration in minutes"
-        [control]="getFormControl('duration')"
-        fieldName="Duration"
-        [required]="true"
-        helpText="Exercise duration between 1-300 minutes"
-        formControlName="duration">
-      </app-form-field>
+        <!-- Description Field -->
+        <div class="field-wrapper">
+          <label class="visible-field-label">
+            <span class="material-icons label-icon">description</span>
+            Description
+          </label>
+          <mat-form-field appearance="fill" class="enhanced-form-field">
+            <mat-label class="enhanced-mat-label">Description</mat-label>
+            <textarea
+              matInput
+              formControlName="description"
+              placeholder="Describe the exercise..."
+              rows="4"
+              class="enhanced-textarea"
+            ></textarea>
+            <mat-icon matSuffix>description</mat-icon>
+            <mat-hint>Optional description of the exercise (max 1000 characters)</mat-hint>
+            @if (showError('description')) {
+              <mat-error>{{ getFieldError('Description') }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
 
-      <div class="form-group">
-        <label class="form-label">
-          MET Value
-          <span
-            class="ml-2 text-sm text-blue-600 cursor-pointer"
-            (click)="showMetInfo = !showMetInfo"
-          >
-            ℹ️ What's this?
-          </span>
-        </label>
-        <app-form-field
-          type="number"
-          placeholder="Enter MET value (e.g., 4.0)"
-          [control]="getFormControl('met_value')"
-          fieldName="MET Value"
-          [required]="true"
-          helpText="Metabolic Equivalent of Task (0.1-20.0)"
-          formControlName="met_value">
-        </app-form-field>
+        <!-- Category Field -->
+        <mat-form-field appearance="fill" class="enhanced-form-field">
+          <mat-label class="enhanced-mat-label">Category *</mat-label>
+          <mat-select formControlName="category" required class="enhanced-select">
+            <mat-option value="">Select category</mat-option>
+            <mat-option value="cardio">
+              <span class="material-icons option-icon">directions_run</span>
+              Cardio
+            </mat-option>
+            <mat-option value="strength">
+              <span class="material-icons option-icon">fitness_center</span>
+              Strength
+            </mat-option>
+            <mat-option value="flexibility">
+              <span class="material-icons option-icon">self_improvement</span>
+              Flexibility
+            </mat-option>
+            <mat-option value="balance">
+              <span class="material-icons option-icon">balance</span>
+              Balance
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix>category</mat-icon>
+          @if (showError('category')) {
+            <mat-error>{{ getFieldError('Category') }}</mat-error>
+          }
+        </mat-form-field>
       </div>
 
-      @if (showMetInfo) {
-        <div class="bg-blue-50 p-4 rounded-lg mb-4">
-          <h3 class="font-semibold mb-2">About MET Values</h3>
-          <p class="mb-2">
-            MET (Metabolic Equivalent of Task) represents the energy cost of physical activities.
-            Common values:
-          </p>
-          <ul class="list-disc list-inside mb-2">
-            <li>Light activity (walking slowly): 2-3 METs</li>
-            <li>Moderate activity (brisk walking): 3-6 METs</li>
-            <li>Vigorous activity (running): 6+ METs</li>
-          </ul>
-          <p>
-            Your calories burned will be calculated based on your weight and the MET value.
-          </p>
+      <!-- Exercise Metrics Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="material-icons section-icon">analytics</span>
+            Exercise Metrics
+          </h2>
+          <p class="section-description">Duration and calorie information</p>
         </div>
-      }
 
-      <div class="form-group">
-        <label class="form-label">Difficulty</label>
-        <div class="flex gap-4">
-          <label class="flex items-center">
-            <input
-              type="radio"
-              formControlName="difficulty"
-              value="easy"
-              class="mr-2"
-            />
-            Easy
-          </label>
-          <label class="flex items-center">
-            <input
-              type="radio"
-              formControlName="difficulty"
-              value="medium"
-              class="mr-2"
-            />
-            Medium
-          </label>
-          <label class="flex items-center">
-            <input
-              type="radio"
-              formControlName="difficulty"
-              value="hard"
-              class="mr-2"
-            />
-            Hard
-          </label>
+        <div class="metrics-grid">
+          <!-- Duration Field -->
+          <div class="field-wrapper">
+            <label class="visible-field-label">
+              <span class="material-icons label-icon">schedule</span>
+              Duration (minutes) *
+            </label>
+            <mat-form-field appearance="fill" class="enhanced-form-field">
+              <mat-label class="enhanced-mat-label">Duration (minutes) *</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="duration_minutes"
+                placeholder="Enter duration in minutes"
+                required
+                class="enhanced-input"
+              />
+              <mat-icon matSuffix>schedule</mat-icon>
+              <mat-hint>Exercise duration between 1-300 minutes</mat-hint>
+              @if (showError('duration_minutes')) {
+                <mat-error>{{ getFieldError('Duration') }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <!-- Calories per minute Field -->
+          <div class="field-wrapper">
+            <label class="visible-field-label">
+              <span class="material-icons label-icon">local_fire_department</span>
+              Calories per minute *
+            </label>
+            <mat-form-field appearance="fill" class="enhanced-form-field">
+              <mat-label class="enhanced-mat-label">Calories per minute *</mat-label>
+              <input
+                matInput
+                type="number"
+                step="0.1"
+                formControlName="calories_per_minute"
+                placeholder="Enter calories burned per minute"
+                required
+                class="enhanced-input"
+              />
+              <mat-icon matSuffix>local_fire_department</mat-icon>
+              <mat-hint>Calories burned per minute (0.1-50)</mat-hint>
+              @if (showError('calories_per_minute')) {
+                <mat-error>{{ getFieldError('Calories per minute') }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
         </div>
-        @if (showError('difficulty')) {
-          <p class="text-red-500 text-sm mt-1">{{ getFieldError('Difficulty') }}</p>
+      </div>
+
+      <!-- MET Value Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="material-icons section-icon">science</span>
+            MET Value
+          </h2>
+          <div class="section-description-with-info">
+            <p class="section-description">Metabolic Equivalent of Task</p>
+            <button
+              type="button"
+              class="info-toggle-btn"
+              (click)="showMetInfo = !showMetInfo"
+            >
+              <span class="material-icons">{{ showMetInfo ? 'expand_less' : 'info' }}</span>
+              <span class="info-text">{{ showMetInfo ? 'Hide info' : 'What\'s this?' }}</span>
+            </button>
+          </div>
+        </div>
+
+        @if (showMetInfo) {
+          <div class="info-card">
+            <div class="info-header">
+              <span class="material-icons info-icon">lightbulb</span>
+              <h3 class="info-title">About MET Values</h3>
+            </div>
+            <p class="info-description">
+              MET (Metabolic Equivalent of Task) represents the energy cost of physical activities.
+              Common values:
+            </p>
+            <div class="met-examples">
+              <div class="met-example">
+                <span class="met-range">2-3 METs</span>
+                <span class="met-activity">Light activity (walking slowly)</span>
+              </div>
+              <div class="met-example">
+                <span class="met-range">3-6 METs</span>
+                <span class="met-activity">Moderate activity (brisk walking)</span>
+              </div>
+              <div class="met-example">
+                <span class="met-range">6+ METs</span>
+                <span class="met-activity">Vigorous activity (running)</span>
+              </div>
+            </div>
+            <p class="info-note">
+              Your calories burned will be calculated based on your weight and the MET value.
+            </p>
+          </div>
+        }
+
+        <div class="field-wrapper">
+          <label class="visible-field-label">
+            <span class="material-icons label-icon">science</span>
+            MET Value *
+          </label>
+          <mat-form-field appearance="fill" class="enhanced-form-field">
+            <mat-label class="enhanced-mat-label">MET Value *</mat-label>
+            <input
+              matInput
+              type="number"
+              step="0.1"
+              formControlName="met_value"
+              placeholder="Enter MET value (e.g., 4.0)"
+              required
+              class="enhanced-input"
+            />
+            <mat-icon matSuffix>science</mat-icon>
+            <mat-hint>Metabolic Equivalent of Task (0.1-20.0)</mat-hint>
+            @if (showError('met_value')) {
+              <mat-error>{{ getFieldError('MET Value') }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Exercise Properties Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="material-icons section-icon">tune</span>
+            Exercise Properties
+          </h2>
+          <p class="section-description">Difficulty level and equipment requirements</p>
+        </div>
+
+        <!-- Difficulty Field -->
+        <div class="enhanced-form-group">
+          <label class="enhanced-form-label">
+            <span class="material-icons label-icon">trending_up</span>
+            <span class="label-text">Difficulty Level *</span>
+          </label>
+          <mat-radio-group formControlName="difficulty" class="enhanced-radio-group" required>
+            <mat-radio-button value="beginner" class="enhanced-difficulty-option beginner">
+              <div class="difficulty-content">
+                <span class="material-icons difficulty-icon difficulty-beginner">star_border</span>
+                <div class="difficulty-text">
+                  <span class="difficulty-name">Beginner</span>
+                  <span class="difficulty-desc">Easy to perform</span>
+                </div>
+              </div>
+            </mat-radio-button>
+            <mat-radio-button value="intermediate" class="enhanced-difficulty-option intermediate">
+              <div class="difficulty-content">
+                <span class="material-icons difficulty-icon difficulty-intermediate">star_half</span>
+                <div class="difficulty-text">
+                  <span class="difficulty-name">Intermediate</span>
+                  <span class="difficulty-desc">Moderate challenge</span>
+                </div>
+              </div>
+            </mat-radio-button>
+            <mat-radio-button value="advanced" class="enhanced-difficulty-option advanced">
+              <div class="difficulty-content">
+                <span class="material-icons difficulty-icon difficulty-advanced">star</span>
+                <div class="difficulty-text">
+                  <span class="difficulty-name">Advanced</span>
+                  <span class="difficulty-desc">High intensity</span>
+                </div>
+              </div>
+            </mat-radio-button>
+          </mat-radio-group>
+          @if (showError('difficulty')) {
+            <p class="enhanced-error-text">{{ getFieldError('Difficulty') }}</p>
+          }
+        </div>
+
+        <!-- Equipment Needed Field -->
+        <mat-form-field appearance="fill" class="enhanced-form-field">
+          <mat-label class="enhanced-mat-label">Necessary Equipment</mat-label>
+          <mat-select
+            formControlName="equipment_needed"
+            class="enhanced-select"
+            placeholder="Choose necessary equipment"
+            (selectionChange)="onEquipmentChange($event)"
+          >
+            <mat-option value="none">
+              <span class="material-icons option-icon"></span>
+              None
+            </mat-option>
+            <mat-option value="dumbbells">
+              <span class="material-icons option-icon">fitness_center</span>
+              Dumbbells
+            </mat-option>
+            <mat-option value="barbell">
+              <span class="material-icons option-icon">fitness_center</span>
+              Barbell
+            </mat-option>
+            <mat-option value="resistance_bands">
+              <span class="material-icons option-icon">linear_scale</span>
+              Resistance Bands
+            </mat-option>
+            <mat-option value="yoga_mat">
+              <span class="material-icons option-icon">self_improvement</span>
+              Yoga Mat
+            </mat-option>
+            <mat-option value="cardio_machine">
+              <span class="material-icons option-icon">directions_run</span>
+              Cardio Machine
+            </mat-option>
+            <mat-option value="pull_up_bar">
+              <span class="material-icons option-icon">fitness_center</span>
+              Pull-up Bar
+            </mat-option>
+            <mat-option value="kettlebell">
+              <span class="material-icons option-icon">fitness_center</span>
+              Kettlebell
+            </mat-option>
+            <mat-option value="medicine_ball">
+              <span class="material-icons option-icon">sports_basketball</span>
+              Medicine Ball
+            </mat-option>
+            <mat-option value="custom">
+              <span class="material-icons option-icon">edit</span>
+              Custom Equipment
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix>build</mat-icon>
+          <mat-hint>Select the equipment required for this exercise</mat-hint>
+          @if (showError('equipment_needed')) {
+            <mat-error>{{ getFieldError('Equipment') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Custom Equipment Field (conditional) -->
+        @if (isCustomEquipmentSelected()) {
+          <mat-form-field appearance="fill" class="enhanced-form-field custom-equipment-field">
+            <mat-label class="enhanced-mat-label">Custom Equipment Name *</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="custom_equipment"
+              placeholder="Enter custom equipment name"
+              required
+              class="enhanced-input"
+            />
+            <mat-icon matSuffix>edit</mat-icon>
+            <mat-hint>Specify the custom equipment needed (1-50 characters)</mat-hint>
+            @if (showError('custom_equipment')) {
+              <mat-error>{{ getFieldError('Custom Equipment') }}</mat-error>
+            }
+          </mat-form-field>
         }
       </div>
 
+      <!-- Muscle Groups Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="material-icons section-icon">accessibility</span>
+            Target Muscle Groups
+          </h2>
+          <p class="section-description">Select the muscle groups this exercise targets</p>
+        </div>
+
+        <div class="enhanced-form-group">
+          <div class="enhanced-muscle-grid">
+            @for (option of muscleGroupOptions; track option.value) {
+              <mat-checkbox
+                [checked]="isMuscleGroupSelected(option.value)"
+                (change)="onMuscleGroupChange(option.value, $event)"
+                class="enhanced-muscle-checkbox"
+              >
+                <div class="muscle-option-content">
+                  <span class="material-icons muscle-icon">{{ getMuscleGroupIcon(option.value) }}</span>
+                  <span class="muscle-label">{{ option.label }}</span>
+                </div>
+              </mat-checkbox>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Details Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="material-icons section-icon">description</span>
+            Additional Details
+          </h2>
+          <p class="section-description">Instructions and sharing preferences</p>
+        </div>
+
+        <!-- Instructions Field -->
+        <div class="field-wrapper">
+          <label class="visible-field-label">
+            <span class="material-icons label-icon">list</span>
+            Instructions
+          </label>
+          <mat-form-field appearance="fill" class="enhanced-form-field">
+            <mat-label class="enhanced-mat-label">Instructions</mat-label>
+            <textarea
+              matInput
+              formControlName="instructions"
+              placeholder="Step-by-step instructions for the exercise..."
+              rows="5"
+              class="enhanced-textarea"
+            ></textarea>
+            <mat-icon matSuffix>list</mat-icon>
+            <mat-hint>Detailed instructions on how to perform the exercise</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Public Exercise Checkbox -->
+        <div class="enhanced-form-group">
+          <mat-checkbox formControlName="is_public" class="enhanced-public-checkbox">
+            <div class="public-option-content">
+              <span class="material-icons public-icon">public</span>
+              <div class="public-text">
+                <span class="public-title">Make this exercise public</span>
+                <span class="public-description">Other users can see and use this exercise</span>
+              </div>
+            </div>
+          </mat-checkbox>
+        </div>
+      </div>
+
+      <!-- Calorie Estimation Display -->
       @if (estimatedCalories > 0) {
-        <div class="bg-green-50 p-4 rounded-lg mb-4">
-          <p class="font-semibold">
-            Estimated Calories: {{ estimatedCalories }} kcal
-          </p>
-          <p class="text-sm text-gray-600">
-            Based on your current weight and the exercise parameters
-          </p>
+        <div class="calorie-estimation-card">
+          <div class="estimation-header">
+            <span class="material-icons estimation-icon">local_fire_department</span>
+            <h3 class="estimation-title">Estimated Calories</h3>
+          </div>
+          <div class="estimation-content">
+            <span class="calorie-value">{{ estimatedCalories }} kcal</span>
+            <p class="estimation-note">
+              Based on your current weight and the exercise parameters
+            </p>
+          </div>
         </div>
       }
 
-      <div class="flex gap-4 mt-6">
-        <button
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <app-material-button
           type="submit"
-          class="btn btn-primary"
-          [disabled]="exerciseForm.invalid || (isSavingExercise$ | async)"
-        >
-          @if (isSavingExercise$ | async) {
-            <app-loading-spinner size="small" color="white" class="mr-2"></app-loading-spinner>
-            Saving...
-          } @else {
-            {{ isEditing ? 'Update' : 'Create' }} Exercise
-          }
-        </button>
-        <button
+          variant="primary"
+          size="large"
+          [disabled]="exerciseForm.invalid || !!(isSavingExercise$ | async)"
+          [loading]="!!(isSavingExercise$ | async)"
+          [icon]="isEditing ? 'update' : 'add'"
+          [label]="(isSavingExercise$ | async) ? 'Saving...' : (isEditing ? 'Update Exercise' : 'Create Exercise')"
+          class="primary-action-btn"
+        ></app-material-button>
+
+        <app-material-button
           type="button"
-          class="btn btn-secondary"
-          (click)="goBack()"
-          [disabled]="isSavingExercise$ | async"
-        >
-          Cancel
-        </button>
+          variant="outlined"
+          size="large"
+          icon="arrow_back"
+          label="Cancel"
+          (clicked)="goBack()"
+          [disabled]="!!(isSavingExercise$ | async)"
+          class="secondary-action-btn"
+        ></app-material-button>
       </div>
     </form>
   </div>

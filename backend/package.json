@@ -1,7 +1,7 @@
 {
   "name": "fitness-tracker-backend",
   "version": "1.0.0",
-  "description": "REST API for Fitness Tracker Application - UF3/UF4 Curriculum Project",
+  "description": "Professional REST API for Fitness Tracker Application",
   "type": "module",
   "main": "src/server.js",
   "scripts": {
@@ -18,6 +18,9 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:init": "npm run docker:up && sleep 10 && npm run init-db && npm run seed-db",
+    "seed": "node src/db/seed.js",
+    "setup:teacher": "npm install && npm run docker:init && echo '🎉 Setup complete! Run npm start to begin evaluation.'",
+    "reset:data": "npm run init-db && npm run seed-db && echo '🔄 Database reset with fresh sample data!'",
     "lint": "eslint src/**/*.js",
     "lint:fix": "eslint src/**/*.js --fix",
     "validate": "npm run lint && npm run test:ci",
@@ -30,11 +33,11 @@
     "express",
     "mysql",
     "jwt",
-    "curriculum",
-    "uf3",
-    "uf4"
+    "health",
+    "workout",
+    "exercise"
   ],
-  "author": "Student - UF3/UF4 Curriculum Project",
+  "author": "Fitness Tracker Development Team",
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.1.1",

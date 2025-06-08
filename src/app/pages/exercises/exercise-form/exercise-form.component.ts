@@ -3,21 +3,45 @@ import { CommonModule } from '@angular/common';
 import { AppError } from '../../../shared/models/error.model';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatCardModule } from '@angular/material/card';
 import { ExerciseService } from '../../../services/exercise.service';
 import { UserProfileService } from '../../../services/user-profile.service';
 import { Exercise } from '../../../models/exercise.model';
 import { Subscription } from 'rxjs';
 import { ValidationService } from '../../../shared/services/validation.service';
 import { LoadingService } from '../../../shared/services/loading.service';
-import { FormFieldComponent } from '../../../shared/components/form-field/form-field.component';
+
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { MaterialButtonComponent } from '../../../shared/components/material-button/material-button.component';
 
 @Component({
   selector: 'app-exercise-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormFieldComponent, LoadingSpinnerComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatCheckboxModule,
+    MatRadioModule,
+    MatCardModule,
+    LoadingSpinnerComponent,
+    MaterialButtonComponent
+  ],
   templateUrl: './exercise-form.component.html',
-  styles: []
+  styleUrls: ['./exercise-form.component.css']
 })
 export class ExerciseFormComponent implements OnInit, OnDestroy {
   exerciseForm: FormGroup;
@@ -26,6 +50,17 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
   error: string | null = null;
   showMetInfo = false;
   estimatedCalories = 0;
+
+  muscleGroupOptions = [
+    { value: 'chest', label: 'Chest' },
+    { value: 'back', label: 'Back' },
+    { value: 'shoulders', label: 'Shoulders' },
+    { value: 'arms', label: 'Arms' },
+    { value: 'core', label: 'Core' },
+    { value: 'legs', label: 'Legs' },
+    { value: 'glutes', label: 'Glutes' },
+    { value: 'full_body', label: 'Full Body' }
+  ];
   private profileSubscription: Subscription;
   private formSubscription: Subscription;
 
@@ -44,23 +79,43 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
     this.exerciseForm = this.fb.group({
       name: ['', [
         Validators.required,
-        ValidationService.minLengthValidator(2),
+        ValidationService.minLengthValidator(1),
         ValidationService.maxLengthValidator(100)
       ]],
-      duration: ['', [
+      description: ['', [
+        ValidationService.maxLengthValidator(1000)
+      ]],
+      category: ['', [
+        Validators.required,
+        ValidationService.optionsValidator(['cardio', 'strength', 'flexibility', 'balance'])
+      ]],
+      duration_minutes: ['', [
         Validators.required,
         ValidationService.positiveNumberValidator(),
         ValidationService.rangeValidator(1, 300)
+      ]],
+      calories_per_minute: ['', [
+        Validators.required,
+        ValidationService.positiveNumberValidator(),
+        ValidationService.rangeValidator(0.1, 50)
+      ]],
+      difficulty: ['', [
+        Validators.required,
+        ValidationService.optionsValidator(['beginner', 'intermediate', 'advanced'])
       ]],
       met_value: [4.0, [
         Validators.required,
         ValidationService.positiveNumberValidator(),
         ValidationService.rangeValidator(0.1, 20)
       ]],
-      difficulty: ['', [
-        Validators.required,
-        ValidationService.optionsValidator(['easy', 'medium', 'hard'])
-      ]]
+      equipment_needed: [''],
+      custom_equipment: ['', [
+        ValidationService.minLengthValidator(1),
+        ValidationService.maxLengthValidator(50)
+      ]],
+      muscle_groups: [[]],
+      instructions: [''],
+      is_public: [true]
     });
 
     // Subscribe to profile changes to update calories when weight changes
@@ -95,7 +150,23 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
     this.exerciseService.getExercise(id).subscribe({
       next: (exercise) => {
         if (exercise) {
-          this.exerciseForm.patchValue(exercise);
+          // Convert API response to form format
+          const apiData = exercise as any; // Cast to any to access both camelCase and snake_case properties
+          const formData = {
+            name: apiData.name,
+            description: apiData.description || '',
+            category: apiData.category,
+            duration_minutes: apiData.durationMinutes || apiData.duration_minutes,
+            calories_per_minute: apiData.caloriesPerMinute || apiData.calories_per_minute,
+            difficulty: apiData.difficulty,
+            met_value: apiData.metValue || apiData.met_value,
+            equipment_needed: apiData.equipmentNeeded || apiData.equipment_needed || '',
+            custom_equipment: apiData.customEquipment || apiData.custom_equipment || '',
+            muscle_groups: apiData.muscleGroups || apiData.muscle_groups || [],
+            instructions: apiData.instructions || '',
+            is_public: apiData.isPublic !== undefined ? apiData.isPublic : (apiData.is_public !== false)
+          };
+          this.exerciseForm.patchValue(formData);
           this.updateCalories();
           this.error = null;
         }
@@ -122,8 +193,67 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
     return this.exerciseForm.get(fieldName);
   }
 
+  onMuscleGroupChange(muscleGroup: string, event: any) {
+    const currentGroups = this.exerciseForm.get('muscle_groups')?.value || [];
+    if (event.target.checked) {
+      if (!currentGroups.includes(muscleGroup)) {
+        this.exerciseForm.patchValue({
+          muscle_groups: [...currentGroups, muscleGroup]
+        });
+      }
+    } else {
+      this.exerciseForm.patchValue({
+        muscle_groups: currentGroups.filter((group: string) => group !== muscleGroup)
+      });
+    }
+  }
+
+  isMuscleGroupSelected(muscleGroup: string): boolean {
+    const currentGroups = this.exerciseForm.get('muscle_groups')?.value || [];
+    return currentGroups.includes(muscleGroup);
+  }
+
+  onEquipmentChange(event: any) {
+    const selectedValue = event.value;
+    const customEquipmentControl = this.exerciseForm.get('custom_equipment');
+
+    if (selectedValue === 'custom') {
+      // Enable and require custom equipment field
+      customEquipmentControl?.setValidators([
+        Validators.required,
+        ValidationService.minLengthValidator(1),
+        ValidationService.maxLengthValidator(50)
+      ]);
+      customEquipmentControl?.enable();
+    } else {
+      // Disable and clear custom equipment field
+      customEquipmentControl?.clearValidators();
+      customEquipmentControl?.setValue('');
+      customEquipmentControl?.disable();
+    }
+    customEquipmentControl?.updateValueAndValidity();
+  }
+
+  isCustomEquipmentSelected(): boolean {
+    return this.exerciseForm.get('equipment_needed')?.value === 'custom';
+  }
+
+  getMuscleGroupIcon(muscleGroup: string): string {
+    const iconMap: { [key: string]: string } = {
+      'chest': 'fitness_center',
+      'back': 'fitness_center',
+      'shoulders': 'fitness_center',
+      'arms': 'fitness_center',
+      'core': 'center_focus_strong',
+      'legs': 'directions_walk',
+      'glutes': 'fitness_center',
+      'full_body': 'accessibility'
+    };
+    return iconMap[muscleGroup] || 'fitness_center';
+  }
+
   updateCalories() {
-    const duration = this.exerciseForm.get('duration')?.value;
+    const duration = this.exerciseForm.get('duration_minutes')?.value;
     const metValue = this.exerciseForm.get('met_value')?.value;
 
     // Make sure we call calculateCalories even with default values
@@ -144,8 +274,7 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('ExerciseFormComponent - Form submitted');
-    console.log('ExerciseFormComponent - Form values:', this.exerciseForm.value);
+
 
     this.loadingService.start('saveExercise');
     this.isSubmitting = true;
@@ -153,37 +282,51 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
       this.updateCalories();
 
       const formValues = this.exerciseForm.value;
+
+      // Handle equipment logic
+      let finalEquipment = formValues.equipment_needed || 'none';
+      if (formValues.equipment_needed === 'custom' && formValues.custom_equipment) {
+        finalEquipment = formValues.custom_equipment.trim();
+      } else if (!formValues.equipment_needed) {
+        finalEquipment = 'none';
+      }
+
       const exercise = new Exercise({
         name: formValues.name,
-        duration: Number(formValues.duration),
-        met_value: Number(formValues.met_value),
+        description: formValues.description || '',
+        category: formValues.category,
+        duration_minutes: Number(formValues.duration_minutes),
+        calories_per_minute: Number(formValues.calories_per_minute),
         difficulty: formValues.difficulty,
-        calories: this.estimatedCalories
+        met_value: Number(formValues.met_value),
+        equipment_needed: finalEquipment,
+        muscle_groups: formValues.muscle_groups || [],
+        instructions: formValues.instructions || '',
+        is_public: formValues.is_public !== false
       });
-
-      console.log('ExerciseFormComponent - Exercise object:', exercise);
 
       if (this.isEditing) {
         const exerciseId = this.route.snapshot.params['id'];
-        console.log('ExerciseFormComponent - Updating exercise with ID:', exerciseId);
         const updateData = {
           name: exercise.name,
-          duration: exercise.duration,
-          met_value: exercise.met_value,
+          description: exercise.description,
+          category: exercise.category,
+          duration_minutes: exercise.duration_minutes,
+          calories_per_minute: exercise.calories_per_minute,
           difficulty: exercise.difficulty,
-          calories: exercise.calories
+          met_value: exercise.met_value,
+          equipment_needed: exercise.equipment_needed,
+          muscle_groups: exercise.muscle_groups,
+          instructions: exercise.instructions,
+          is_public: exercise.is_public
         };
         await this.exerciseService.updateExercise(exerciseId, updateData);
-        console.log('ExerciseFormComponent - Exercise updated successfully');
       } else {
-        console.log('ExerciseFormComponent - Creating new exercise');
-        await this.exerciseService.createExercise(exercise);
-        console.log('ExerciseFormComponent - Exercise created successfully');
+        await this.exerciseService.createExercise(exercise.toJSON());
       }
       this.router.navigate(['/exercises']);
       this.error = null;
     } catch (error) {
-      console.error('ExerciseFormComponent - Error saving exercise:', error);
       this.error = error instanceof AppError ? error.message : 'Failed to save exercise';
     } finally {
       this.isSubmitting = false;

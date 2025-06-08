@@ -70,17 +70,17 @@ export class ExerciseService {
           console.log('ExerciseService - HttpClient response:', response);
 
           // Process the response and update the BehaviorSubjects
-          if (response && response.status === 'success' && response.data && Array.isArray(response.data.exercises)) {
+          if (response && response.status === 'success' && response.data && Array.isArray(response.data)) {
             // Convert raw data to Exercise objects
-            const exercises = response.data.exercises.map((e: any) => new Exercise(e));
+            const exercises = response.data.map((e: any) => new Exercise(e));
             console.log('ExerciseService - Parsed exercises:', exercises);
 
             // Update the exercises subject with new data
             this.exercisesSubject.next(exercises);
 
             // Update the total count for pagination
-            if (response.data.pagination && typeof response.data.pagination.total === 'number') {
-              this.totalCountSubject.next(response.data.pagination.total);
+            if (response.pagination && typeof response.pagination.totalCount === 'number') {
+              this.totalCountSubject.next(response.pagination.totalCount);
             } else {
               this.totalCountSubject.next(exercises.length);
             }
@@ -120,7 +120,7 @@ export class ExerciseService {
    * @param exercise - Exercise data without ID, created_at, and created_by fields
    * @returns Observable of the created Exercise
    */
-  createExercise(exercise: Omit<Exercise, 'id' | 'created_at' | 'created_by'>): Observable<Exercise> {
+  createExercise(exercise: any): Observable<Exercise> {
     console.log('ExerciseService - Creating exercise:', exercise);
 
     this.loadingService.start('createExercise');
@@ -278,17 +278,17 @@ export class ExerciseService {
           console.log('ExerciseService - Search response:', response);
 
           // Validate and process response
-          if (response && response.status === 'success' && response.data && Array.isArray(response.data.exercises)) {
+          if (response && response.status === 'success' && response.data && Array.isArray(response.data)) {
             // Convert raw data to Exercise objects
-            const exercises = response.data.exercises.map((e: any) => new Exercise(e));
+            const exercises = response.data.map((e: any) => new Exercise(e));
             console.log('ExerciseService - Search found exercises:', exercises.length);
 
             // Update the exercises subject with search results
             this.exercisesSubject.next(exercises);
 
             // Update the total count for pagination
-            if (response.data.pagination && typeof response.data.pagination.total === 'number') {
-              this.totalCountSubject.next(response.data.pagination.total);
+            if (response.pagination && typeof response.pagination.totalCount === 'number') {
+              this.totalCountSubject.next(response.pagination.totalCount);
             } else {
               this.totalCountSubject.next(exercises.length);
             }

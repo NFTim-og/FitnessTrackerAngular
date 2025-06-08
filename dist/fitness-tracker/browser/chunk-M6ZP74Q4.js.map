@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/pages/workout-plans/workout-plan.routes.ts"],
-  "sourcesContent": ["import { Routes } from '@angular/router';\n\nexport const WORKOUT_PLAN_ROUTES: Routes = [\n  {\n    path: '',\n    loadComponent: () =>\n      import('./workout-plan-list/workout-plan-list.component')\n        .then(m => m.WorkoutPlanListComponent)\n  },\n  {\n    path: 'new',\n    loadComponent: () =>\n      import('./workout-plan-form/workout-plan-form.component')\n        .then(m => m.WorkoutPlanFormComponent)\n  },\n  {\n    path: ':id/edit',\n    loadComponent: () =>\n      import('./workout-plan-form/workout-plan-form.component')\n        .then(m => m.WorkoutPlanFormComponent)\n  }\n];"],
-  "mappings": ";;;AAEO,IAAM,sBAA8B;EACzC;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAiD,EACrD,KAAK,OAAK,EAAE,wBAAwB;;EAE3C;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAiD,EACrD,KAAK,OAAK,EAAE,wBAAwB;;EAE3C;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAiD,EACrD,KAAK,OAAK,EAAE,wBAAwB;;;",
-  "names": []
-}

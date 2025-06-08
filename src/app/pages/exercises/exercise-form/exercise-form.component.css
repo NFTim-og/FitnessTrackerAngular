@@ -1,0 +1,1303 @@
+/* Enhanced Exercise Form Component Styles */
+
+/* Form Container */
+.form-container {
+  width: 100%;
+  max-width: 56rem; /* Increased from 32rem (max-w-lg) to 56rem (max-w-4xl) */
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+@media (min-width: 768px) {
+  .form-container {
+    padding: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .form-container {
+    max-width: 64rem; /* Even wider on large screens */
+    padding: 4rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  .form-container {
+    max-width: 72rem; /* Maximum width for very large screens */
+    padding: 5rem;
+  }
+}
+
+/* Form Header */
+.form-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.form-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.form-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .form-title {
+    font-size: 2rem;
+  }
+
+  .form-subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* Enhanced Form Card */
+.enhanced-form-card {
+  background-color: var(--card-background);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 3rem;
+  border: 1px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+  .enhanced-form-card {
+    padding: 2rem;
+  }
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* Section Headers */
+.section-header {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.section-icon {
+  font-size: 1.75rem !important;
+  color: var(--primary-color);
+}
+
+.section-description {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.section-description-with-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Enhanced Form Fields */
+.enhanced-form-field {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.enhanced-input,
+.enhanced-textarea,
+.enhanced-select {
+  font-size: 1.125rem !important;
+  line-height: 1.5 !important;
+  padding: 1rem !important;
+}
+
+.enhanced-textarea {
+  min-height: 120px !important;
+  resize: vertical;
+}
+
+/* CRITICAL: Enhanced Mat-Label Styling for Maximum Visibility */
+.enhanced-mat-label {
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
+  letter-spacing: 0.025em !important;
+  opacity: 1 !important;
+}
+
+/* CRITICAL: Force visibility for all Material Design floating labels */
+::ng-deep .mat-mdc-form-field .mat-mdc-floating-label {
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
+  letter-spacing: 0.025em !important;
+  opacity: 1 !important;
+  z-index: 10 !important;
+  background-color: transparent !important;
+}
+
+::ng-deep .enhanced-form-field .mat-mdc-floating-label {
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
+  letter-spacing: 0.025em !important;
+  opacity: 1 !important;
+  z-index: 10 !important;
+  background-color: transparent !important;
+}
+
+/* Focus and float states */
+::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-floating-label,
+::ng-deep .enhanced-form-field.mat-focused .mat-mdc-floating-label {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: var(--primary-color) !important;
+  opacity: 1 !important;
+  z-index: 10 !important;
+}
+
+::ng-deep .mat-mdc-form-field .mat-mdc-floating-label.mdc-floating-label--float-above,
+::ng-deep .enhanced-form-field .mat-mdc-floating-label.mdc-floating-label--float-above {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: var(--primary-color) !important;
+  opacity: 1 !important;
+  z-index: 10 !important;
+}
+
+/* CRITICAL: Override any Material Design defaults that hide labels */
+::ng-deep .mat-mdc-form-field .mdc-floating-label {
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
+  opacity: 1 !important;
+  z-index: 10 !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+::ng-deep .mat-mdc-form-field .mdc-floating-label--float-above {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: var(--primary-color) !important;
+  opacity: 1 !important;
+  z-index: 10 !important;
+}
+
+/* Dark mode enhanced label visibility */
+:root.dark-mode ::ng-deep .mat-mdc-form-field .mat-mdc-floating-label,
+:root.dark-mode ::ng-deep .enhanced-form-field .mat-mdc-floating-label,
+:root.dark-mode ::ng-deep .mat-mdc-form-field .mdc-floating-label {
+  color: var(--text-color) !important;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.3) !important;
+  opacity: 1 !important;
+}
+
+:root.dark-mode ::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-floating-label,
+:root.dark-mode ::ng-deep .enhanced-form-field.mat-focused .mat-mdc-floating-label,
+:root.dark-mode ::ng-deep .mat-mdc-form-field .mat-mdc-floating-label.mdc-floating-label--float-above,
+:root.dark-mode ::ng-deep .enhanced-form-field .mat-mdc-floating-label.mdc-floating-label--float-above {
+  color: var(--primary-color) !important;
+  text-shadow: 0 0 3px rgba(96, 165, 250, 0.5) !important;
+  opacity: 1 !important;
+}
+
+/* Custom Equipment Field Styling */
+.custom-equipment-field {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--radius-lg);
+  animation: slideIn 0.3s ease-out;
+}
+
+:root.dark-mode .custom-equipment-field {
+  background-color: rgba(96, 165, 250, 0.1);
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* CRITICAL: Visible Field Labels - Always Visible Fallback */
+.field-wrapper {
+  margin-bottom: 2rem;
+}
+
+.visible-field-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0;
+  background-color: transparent;
+  border: none;
+  cursor: default;
+  z-index: 1000;
+  position: relative;
+}
+
+.visible-field-label .label-icon {
+  font-size: 1.5rem !important;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+/* Enhanced Form Groups */
+.enhanced-form-group {
+  margin-bottom: 2rem;
+}
+
+.enhanced-form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+}
+
+.label-icon {
+  font-size: 1.25rem !important;
+  color: var(--primary-color);
+}
+
+.label-text {
+  font-size: 1rem;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* Info Toggle Button */
+.info-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+}
+
+.info-toggle-btn:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.info-text {
+  font-size: 0.875rem;
+}
+
+/* Info Card */
+.info-card {
+  background-color: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+:root.dark-mode .info-card {
+  background-color: rgba(96, 165, 250, 0.1);
+  border-color: rgba(96, 165, 250, 0.2);
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.info-icon {
+  font-size: 1.5rem !important;
+  color: var(--primary-color);
+}
+
+.info-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.info-description {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.met-examples {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.met-example {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-md);
+}
+
+:root.dark-mode .met-example {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.met-range {
+  font-weight: 600;
+  color: var(--primary-color);
+  min-width: 4rem;
+}
+
+.met-activity {
+  color: var(--text-color);
+}
+
+.info-note {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-style: italic;
+  margin: 0;
+}
+
+/* CRITICAL: Hide Material Design floating labels since we have visible labels */
+::ng-deep .field-wrapper .mat-mdc-form-field .mat-mdc-floating-label,
+::ng-deep .field-wrapper .mat-mdc-form-field .mdc-floating-label,
+::ng-deep .field-wrapper .enhanced-form-field .mat-mdc-floating-label,
+::ng-deep .field-wrapper .enhanced-form-field .mdc-floating-label {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Keep Material Design labels visible for fields without visible labels */
+::ng-deep .mat-mdc-form-field:not(.field-wrapper *) .mat-mdc-floating-label,
+::ng-deep .mat-mdc-form-field:not(.field-wrapper *) .mdc-floating-label,
+::ng-deep .enhanced-form-field:not(.field-wrapper *) .mat-mdc-floating-label,
+::ng-deep .enhanced-form-field:not(.field-wrapper *) .mdc-floating-label {
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  z-index: 100 !important;
+  letter-spacing: 0.025em !important;
+  text-shadow: none !important;
+  background-color: transparent !important;
+  position: relative !important;
+}
+
+/* Material form field customization */
+::ng-deep .mat-mdc-form-field {
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+::ng-deep .enhanced-form-field .mat-mdc-text-field-wrapper {
+  min-height: 60px;
+}
+
+::ng-deep .enhanced-form-field .mdc-text-field--filled {
+  border-radius: var(--radius-lg);
+  background-color: var(--card-background) !important;
+}
+
+/* Enhanced form field background and border styling */
+::ng-deep .enhanced-form-field .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: var(--card-background) !important;
+  border: 2px solid var(--border-color) !important;
+  transition: all 0.2s ease !important;
+}
+
+::ng-deep .enhanced-form-field .mdc-text-field--filled:hover:not(.mdc-text-field--disabled) {
+  border-color: var(--primary-color) !important;
+  background-color: var(--card-background) !important;
+}
+
+::ng-deep .enhanced-form-field.mat-focused .mdc-text-field--filled {
+  border-color: var(--primary-color) !important;
+  background-color: var(--card-background) !important;
+  box-shadow: 0 0 0 1px var(--primary-color) !important;
+}
+
+/* Enhanced input and textarea styling */
+::ng-deep .enhanced-form-field .mat-mdc-form-field-input-control {
+  color: var(--text-color) !important;
+  font-size: 1.125rem !important;
+  font-weight: 500 !important;
+}
+
+::ng-deep .enhanced-form-field .mat-mdc-form-field-input-control::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.8 !important;
+}
+
+/* Enhanced hint and error text */
+::ng-deep .enhanced-form-field .mat-mdc-form-field-hint {
+  color: var(--text-secondary) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+::ng-deep .enhanced-form-field .mat-mdc-form-field-error {
+  color: var(--danger-color) !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+}
+
+/* Enhanced suffix icon styling */
+::ng-deep .enhanced-form-field .mat-mdc-form-field-icon-suffix {
+  color: var(--text-secondary) !important;
+  font-size: 1.5rem !important;
+}
+
+::ng-deep .enhanced-form-field.mat-focused .mat-mdc-form-field-icon-suffix {
+  color: var(--primary-color) !important;
+}
+
+/* CRITICAL: Additional aggressive targeting for Material Design label visibility */
+::ng-deep .mat-mdc-form-field .mat-mdc-form-field-label-wrapper,
+::ng-deep .enhanced-form-field .mat-mdc-form-field-label-wrapper {
+  position: relative !important;
+  z-index: 100 !important;
+}
+
+::ng-deep .mat-mdc-form-field .mat-mdc-form-field-label,
+::ng-deep .enhanced-form-field .mat-mdc-form-field-label {
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  z-index: 100 !important;
+}
+
+/* Target specific Material Design classes that might be hiding labels */
+::ng-deep .mdc-text-field__label,
+::ng-deep .mdc-floating-label,
+::ng-deep .mat-mdc-floating-label {
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  color: var(--text-color) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  z-index: 100 !important;
+  position: relative !important;
+  background: transparent !important;
+}
+
+/* Force visibility for focused and floating states */
+::ng-deep .mdc-text-field--focused .mdc-floating-label,
+::ng-deep .mdc-text-field--filled .mdc-floating-label--float-above,
+::ng-deep .mat-mdc-form-field.mat-focused .mdc-floating-label,
+::ng-deep .mat-mdc-form-field .mdc-floating-label--float-above {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: var(--primary-color) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  z-index: 100 !important;
+}
+
+/* Dark mode specific overrides */
+:root.dark-mode ::ng-deep .mdc-text-field__label,
+:root.dark-mode ::ng-deep .mdc-floating-label,
+:root.dark-mode ::ng-deep .mat-mdc-floating-label {
+  color: var(--text-color) !important;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.3) !important;
+}
+
+:root.dark-mode ::ng-deep .mdc-text-field--focused .mdc-floating-label,
+:root.dark-mode ::ng-deep .mdc-text-field--filled .mdc-floating-label--float-above,
+:root.dark-mode ::ng-deep .mat-mdc-form-field.mat-focused .mdc-floating-label,
+:root.dark-mode ::ng-deep .mat-mdc-form-field .mdc-floating-label--float-above {
+  color: var(--primary-color) !important;
+  text-shadow: 0 0 3px rgba(96, 165, 250, 0.5) !important;
+}
+
+::ng-deep .mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  background-color: var(--card-background);
+}
+
+::ng-deep .mat-mdc-form-field .mdc-text-field--filled {
+  background-color: var(--card-background);
+  border-radius: var(--radius-md);
+}
+
+::ng-deep .mat-mdc-form-field .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+  background-color: var(--card-background);
+}
+
+::ng-deep .mat-mdc-form-field .mat-mdc-floating-label {
+  color: var(--text-secondary);
+}
+
+::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+  color: var(--primary-color);
+}
+
+::ng-deep .mat-mdc-form-field .mat-mdc-form-field-input-control {
+  color: var(--text-color);
+}
+
+::ng-deep .mat-mdc-form-field .mat-mdc-text-field-wrapper .mat-mdc-form-field-input-control {
+  color: var(--text-color);
+}
+
+/* Input and textarea styling */
+::ng-deep .mat-mdc-form-field input,
+::ng-deep .mat-mdc-form-field textarea {
+  color: var(--text-color);
+  background-color: transparent;
+}
+
+/* Placeholder styling */
+::ng-deep .mat-mdc-form-field input::placeholder,
+::ng-deep .mat-mdc-form-field textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+/* Hint text styling */
+::ng-deep .mat-mdc-form-field .mat-mdc-form-field-hint {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+/* Error text styling */
+::ng-deep .mat-mdc-form-field .mat-mdc-form-field-error {
+  color: var(--danger-color);
+  font-size: 0.75rem;
+}
+
+/* Icon styling */
+::ng-deep .mat-mdc-form-field .mat-mdc-form-field-icon-suffix {
+  color: var(--text-secondary);
+}
+
+::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-form-field-icon-suffix {
+  color: var(--primary-color);
+}
+
+/* Select dropdown styling - Fix for dropdown display issues */
+::ng-deep .mat-mdc-select-panel {
+  background-color: var(--card-background) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+  max-height: 256px !important;
+  overflow-y: auto !important;
+  position: absolute !important;
+  z-index: 1000 !important;
+  min-width: 100% !important;
+}
+
+::ng-deep .mat-mdc-option {
+  color: var(--text-color) !important;
+  padding: 0 16px !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  position: relative !important;
+}
+
+::ng-deep .mat-mdc-option:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+::ng-deep .mat-mdc-option.mat-mdc-option-active {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  color: var(--primary-color) !important;
+}
+
+::ng-deep .mat-mdc-option.mdc-list-item--selected {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  color: var(--primary-color) !important;
+}
+
+/* Fix select trigger to prevent inline expansion */
+::ng-deep .mat-mdc-select {
+  display: block !important;
+  width: 100% !important;
+}
+
+::ng-deep .mat-mdc-select .mat-mdc-select-trigger {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+}
+
+::ng-deep .mat-mdc-select-value {
+  width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Ensure overlay positioning */
+::ng-deep .cdk-overlay-container {
+  position: fixed !important;
+  z-index: 1000 !important;
+  pointer-events: none !important;
+}
+
+::ng-deep .cdk-overlay-pane {
+  position: absolute !important;
+  pointer-events: auto !important;
+  box-sizing: border-box !important;
+  z-index: 1000 !important;
+}
+
+/* Enhanced Radio Button Styling */
+.enhanced-radio-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .enhanced-radio-group {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.enhanced-difficulty-option {
+  margin: 0 !important;
+  width: 100%;
+}
+
+::ng-deep .enhanced-difficulty-option .mdc-radio {
+  --mdc-radio-selected-focus-icon-color: var(--primary-color);
+  --mdc-radio-selected-hover-icon-color: var(--primary-color);
+  --mdc-radio-selected-icon-color: var(--primary-color);
+  --mdc-radio-selected-pressed-icon-color: var(--primary-color);
+}
+
+::ng-deep .enhanced-difficulty-option .mdc-form-field {
+  width: 100%;
+}
+
+.difficulty-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background-color: var(--card-background);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-height: 80px;
+}
+
+.difficulty-content:hover {
+  border-color: var(--primary-color);
+  background-color: rgba(59, 130, 246, 0.05);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+::ng-deep .enhanced-difficulty-option.mat-mdc-radio-checked .difficulty-content {
+  border-color: var(--primary-color);
+  background-color: rgba(59, 130, 246, 0.1);
+  box-shadow: var(--shadow-md);
+}
+
+.difficulty-icon {
+  font-size: 2rem !important;
+  flex-shrink: 0;
+}
+
+.difficulty-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.difficulty-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.difficulty-desc {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.enhanced-error-text {
+  color: var(--danger-color);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.enhanced-error-text::before {
+  content: 'error';
+  font-family: 'Material Icons';
+  font-size: 1rem;
+}
+
+/* Enhanced Muscle Groups */
+.enhanced-muscle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .enhanced-muscle-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .enhanced-muscle-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.enhanced-muscle-checkbox {
+  margin: 0 !important;
+  width: 100%;
+}
+
+::ng-deep .enhanced-muscle-checkbox .mdc-checkbox {
+  --mdc-checkbox-selected-checkmark-color: white;
+  --mdc-checkbox-selected-focus-icon-color: var(--primary-color);
+  --mdc-checkbox-selected-hover-icon-color: var(--primary-color);
+  --mdc-checkbox-selected-icon-color: var(--primary-color);
+  --mdc-checkbox-selected-pressed-icon-color: var(--primary-color);
+}
+
+::ng-deep .enhanced-muscle-checkbox .mdc-form-field {
+  width: 100%;
+}
+
+.muscle-option-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background-color: var(--card-background);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-height: 60px;
+}
+
+.muscle-option-content:hover {
+  border-color: var(--primary-color);
+  background-color: rgba(59, 130, 246, 0.05);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+::ng-deep .enhanced-muscle-checkbox.mat-mdc-checkbox-checked .muscle-option-content {
+  border-color: var(--primary-color);
+  background-color: rgba(59, 130, 246, 0.1);
+  box-shadow: var(--shadow-sm);
+}
+
+.muscle-icon {
+  font-size: 1.5rem !important;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.muscle-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+/* Enhanced Public Checkbox */
+.enhanced-public-checkbox {
+  margin: 0 !important;
+  width: 100%;
+}
+
+::ng-deep .enhanced-public-checkbox .mdc-checkbox {
+  --mdc-checkbox-selected-checkmark-color: white;
+  --mdc-checkbox-selected-focus-icon-color: var(--primary-color);
+  --mdc-checkbox-selected-hover-icon-color: var(--primary-color);
+  --mdc-checkbox-selected-icon-color: var(--primary-color);
+  --mdc-checkbox-selected-pressed-icon-color: var(--primary-color);
+}
+
+::ng-deep .enhanced-public-checkbox .mdc-form-field {
+  width: 100%;
+}
+
+.public-option-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background-color: var(--card-background);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.public-option-content:hover {
+  border-color: var(--primary-color);
+  background-color: rgba(59, 130, 246, 0.05);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+::ng-deep .enhanced-public-checkbox.mat-mdc-checkbox-checked .public-option-content {
+  border-color: var(--primary-color);
+  background-color: rgba(59, 130, 246, 0.1);
+  box-shadow: var(--shadow-sm);
+}
+
+.public-icon {
+  font-size: 1.75rem !important;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.public-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.public-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.public-description {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* Icon styling */
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+.text-primary-color {
+  color: var(--primary-color);
+}
+
+/* Color utilities for difficulty icons */
+.text-green-500 {
+  color: var(--success-color);
+}
+
+.text-yellow-500 {
+  color: var(--warning-color);
+}
+
+.text-red-500 {
+  color: var(--danger-color);
+}
+
+/* Enhanced Select Options */
+.option-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+/* Calorie Estimation Card */
+.calorie-estimation-card {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+  border: 2px solid rgba(34, 197, 94, 0.2);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+:root.dark-mode .calorie-estimation-card {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.08));
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.estimation-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.estimation-icon {
+  font-size: 2rem !important;
+  color: var(--success-color);
+}
+
+.estimation-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.estimation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.calorie-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--success-color);
+  line-height: 1;
+}
+
+.estimation-note {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Enhanced Form Actions */
+.form-actions {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--border-light);
+}
+
+@media (max-width: 768px) {
+  .form-actions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+.primary-action-btn,
+.secondary-action-btn {
+  flex: 1;
+  min-height: 56px;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .primary-action-btn,
+  .secondary-action-btn {
+    width: 100%;
+    min-height: 60px;
+  }
+}
+
+/* Grid layout for muscle groups */
+.grid {
+  display: grid;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.gap-3 {
+  gap: 0.75rem;
+}
+
+/* Enhanced Responsive Design */
+@media (max-width: 640px) {
+  .form-container {
+    padding: 1.5rem;
+  }
+
+  .enhanced-form-card {
+    padding: 1.5rem;
+  }
+
+  .form-title {
+    font-size: 1.75rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+
+  .enhanced-muscle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .enhanced-radio-group {
+    grid-template-columns: 1fr;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .difficulty-content,
+  .muscle-option-content,
+  .public-option-content {
+    padding: 1rem;
+    min-height: 56px;
+  }
+
+  .calorie-value {
+    font-size: 2rem;
+  }
+
+  .visible-field-label {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .visible-field-label .label-icon {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Enhanced Utility Classes */
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-3 {
+  gap: 0.75rem;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+/* Enhanced Typography */
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+/* Enhanced Color Utilities */
+.text-green-500 {
+  color: var(--success-color);
+}
+
+.text-yellow-500 {
+  color: var(--warning-color);
+}
+
+.text-red-500 {
+  color: var(--danger-color);
+}
+
+/* Dark mode specific styling */
+:root.dark-mode ::ng-deep .mat-mdc-form-field .mdc-text-field--filled {
+  background-color: var(--card-background);
+}
+
+:root.dark-mode ::ng-deep .mat-mdc-form-field .mat-mdc-floating-label {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode ::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+  color: var(--primary-color);
+}
+
+:root.dark-mode ::ng-deep .mat-mdc-form-field input,
+:root.dark-mode ::ng-deep .mat-mdc-form-field textarea {
+  color: var(--text-color);
+}
+
+:root.dark-mode ::ng-deep .mat-mdc-form-field input::placeholder,
+:root.dark-mode ::ng-deep .mat-mdc-form-field textarea::placeholder {
+  color: var(--text-muted);
+}
+
+:root.dark-mode ::ng-deep .mat-mdc-form-field .mat-mdc-form-field-hint {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode ::ng-deep .mat-mdc-form-field .mat-mdc-form-field-icon-suffix {
+  color: var(--text-secondary);
+}
+
+:root.dark-mode ::ng-deep .mat-mdc-form-field.mat-focused .mat-mdc-form-field-icon-suffix {
+  color: var(--primary-color);
+}
+
+/* Focus and active states */
+::ng-deep .mat-mdc-form-field.mat-focused .mdc-line-ripple::before,
+::ng-deep .mat-mdc-form-field.mat-focused .mdc-line-ripple::after {
+  border-bottom-color: var(--primary-color);
+}
+
+::ng-deep .mat-mdc-form-field .mdc-line-ripple::before,
+::ng-deep .mat-mdc-form-field .mdc-line-ripple::after {
+  border-bottom-color: var(--border-color);
+  transition: border-bottom-color 0.2s ease;
+}
+
+/* ===== ADDITIONAL FORM STYLES ===== */
+
+/* Form error styling */
+.form-error {
+  margin-bottom: 1.5rem;
+}
+
+.error-close-btn {
+  margin-left: 0.5rem;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+}
+
+/* Loading header */
+.loading-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.loading-spinner {
+  margin-right: 0.75rem;
+}
+
+/* Select option styling */
+.select-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.option-icon {
+  font-size: 1.125rem;
+  margin-right: 0.5rem;
+}
+
+/* Material Select Option styling */
+::ng-deep .mat-mdc-option .option-icon {
+  font-size: 1.125rem !important;
+  margin-right: 0.5rem !important;
+  vertical-align: middle !important;
+}
+
+/* Difficulty level colors */
+.difficulty-beginner {
+  color: #22c55e;
+}
+
+.difficulty-intermediate {
+  color: #f59e0b;
+}
+
+.difficulty-advanced {
+  color: #ef4444;
+}

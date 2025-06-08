@@ -27,24 +27,53 @@ export class WorkoutPlan {
   id: string = '';
   name: string = '';
   description: string = '';
+  category: string = '';
+  difficulty: string = '';
+  estimatedDurationMinutes: number = 0;
+  targetCalories: number = 0;
   created_by: string = '';
+  createdBy: string = '';
+  creatorName: string = '';
+  isPublic: boolean = true;
   created_at: string = new Date().toISOString();
   updated_at: string = new Date().toISOString();
+  createdAt: string = new Date().toISOString();
+  updatedAt: string = new Date().toISOString();
   exercises?: WorkoutExercise[];
 
   constructor(data: Partial<WorkoutPlan> = {}) {
     this.id = data.id || '';
     this.name = data.name || '';
     this.description = data.description || '';
-    this.created_by = data.created_by || '';
-    this.created_at = data.created_at || new Date().toISOString();
-    this.updated_at = data.updated_at || new Date().toISOString();
+    this.category = data.category || '';
+    this.difficulty = data.difficulty || '';
+    this.estimatedDurationMinutes = data.estimatedDurationMinutes || 0;
+    this.targetCalories = data.targetCalories || 0;
+    this.created_by = data.created_by || data.createdBy || '';
+    this.createdBy = data.createdBy || data.created_by || '';
+    this.creatorName = data.creatorName || '';
+    this.isPublic = data.isPublic !== undefined ? data.isPublic : true;
+    this.created_at = data.created_at || data.createdAt || new Date().toISOString();
+    this.updated_at = data.updated_at || data.updatedAt || new Date().toISOString();
+    this.createdAt = data.createdAt || data.created_at || new Date().toISOString();
+    this.updatedAt = data.updatedAt || data.updated_at || new Date().toISOString();
     this.exercises = data.exercises?.map(e => new WorkoutExercise(e));
   }
 
   static fromJSON(json: any): WorkoutPlan {
     return new WorkoutPlan({
-      ...json,
+      id: json.id,
+      name: json.name,
+      description: json.description,
+      category: json.category,
+      difficulty: json.difficulty,
+      estimatedDurationMinutes: json.estimatedDurationMinutes,
+      targetCalories: json.targetCalories,
+      createdBy: json.createdBy,
+      creatorName: json.creatorName,
+      isPublic: json.isPublic,
+      createdAt: json.createdAt,
+      updatedAt: json.updatedAt,
       exercises: json.exercises?.map((e: any) => WorkoutExercise.fromJSON(e))
     });
   }

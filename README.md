@@ -1,6 +1,87 @@
-# 🏋️ Fitness Tracker API - UF3/UF4 Curriculum Project
+# 🏋️ Fitness Tracker API
 
-A comprehensive REST API for fitness tracking built with Express.js, MySQL, and modern web technologies. This project demonstrates professional-level backend development skills required for UF3 and UF4 curriculum standards.
+A comprehensive REST API for fitness tracking built with Express.js, MySQL, and modern web technologies. This project demonstrates professional-level backend development skills and modern API design patterns.
+
+**🚀 Production Ready** | **📊 Comprehensive Sample Data** | **🔒 Secure & Scalable**
+
+---
+
+## 🎯 QUICK START GUIDE
+
+### ⚡ One-Command Setup (Recommended)
+
+```bash
+# Clone and setup everything automatically
+git clone https://github.com/NFTim-og/FitnessTrackerAngular.git
+cd FitnessTrackerAngular/backend
+npm install
+npm run docker:init
+npm run seed
+npm start
+```
+
+**✅ That's it! Your API is now running with complete sample data at `http://localhost:3000`**
+
+### 🔑 Default Login Credentials
+
+| Role | Email | Password | Purpose |
+|------|-------|----------|---------|
+| **Admin** | `admin@example.com` | `admin123` | Full system access, user management |
+| **User** | `user@example.com` | `user123` | Regular user with workout data |
+| **User** | `jane.smith@example.com` | `user123` | Strength training focused |
+| **User** | `mike.wilson@example.com` | `user123` | Sports performance data |
+| **User** | `sarah.johnson@example.com` | `user123` | Endurance training data |
+
+### 📋 Essential URLs for Evaluation
+
+| Resource | URL | Description |
+|----------|-----|-------------|
+| **API Root** | `http://localhost:3000` | HTML presentation page |
+| **API Documentation** | `http://localhost:3000/api-docs` | Interactive Swagger UI |
+| **Health Check** | `http://localhost:3000/health` | System status |
+| **Database Admin** | `http://localhost:8080` | phpMyAdmin (admin/admin123) |
+
+### 🧪 Quick API Test
+
+```bash
+# Test authentication
+curl -X POST http://localhost:3000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"user123"}'
+
+# Test protected endpoint (use token from login)
+curl -X GET http://localhost:3000/api/v1/exercises \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"
+```
+
+### 📊 Sample Data Overview
+
+The database is automatically populated with:
+- **5 Users** with varied profiles and fitness goals
+- **20 Exercises** across all categories (cardio, strength, flexibility, balance, sports)
+- **8 Workout Plans** with different difficulty levels and purposes
+- **30+ Weight History** entries showing user progress
+- **15+ Exercise Logs** demonstrating user activity
+- **Complex Relationships** showcasing many-to-many database design
+
+### 🎓 Curriculum Compliance Verification
+
+| Requirement | Status | Evidence |
+|-------------|--------|----------|
+| **ES Modules** | ✅ | `"type": "module"` in package.json |
+| **API Versioning** | ✅ | All routes use `/api/v1` prefix |
+| **CRUD Operations** | ✅ | GET, POST, PUT, DELETE for all resources |
+| **JWT Authentication** | ✅ | Token-based auth with role-based access |
+| **Input Validation** | ✅ | express-validator with comprehensive schemas |
+| **Rate Limiting** | ✅ | Multiple rate limiters for different endpoints |
+| **Many-to-Many Relationships** | ✅ | `workout_plan_exercises`, `user_workout_plans` |
+| **UUIDs** | ✅ | All tables use UUID primary keys |
+| **SQL Injection Prevention** | ✅ | Parameterized queries throughout |
+| **Error Handling** | ✅ | Centralized error middleware |
+| **Pagination & Sorting** | ✅ | Advanced pagination with metadata |
+| **HTML Presentation** | ✅ | Professional landing page at root URL |
+
+---
 
 ## 📋 Table of Contents
 

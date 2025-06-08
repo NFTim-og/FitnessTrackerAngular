@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["angular:styles/component:css;c43cbd274295e6078d1c39d4cf02539512e130c56e11a984fed95f0225ae800f;/Users/TimOliver/Desktop/AngularWorkspaces/fitness-tracker-app/src/app/shared/components/form-field/form-field.component.ts"],
-  "sourcesContent": ["\n    .form-field {\n      margin-bottom: 1rem;\n    }\n    \n    .animate-spin {\n      animation: spin 1s linear infinite;\n    }\n    \n    @keyframes spin {\n      from {\n        transform: rotate(0deg);\n      }\n      to {\n        transform: rotate(360deg);\n      }\n    }\n  "],
-  "mappings": ";AACI,CAAC;AACC,iBAAe;AACjB;AAEA,CAAC;AACC,aAAW,KAAK,GAAG,OAAO;AAC5B;AAEA,WAHa;AAIX;AACE,eAAW,OAAO;AACpB;AACA;AACE,eAAW,OAAO;AACpB;AACF;",
-  "names": []
-}

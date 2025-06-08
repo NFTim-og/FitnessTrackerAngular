@@ -104,7 +104,26 @@ export const getAllExercises = catchAsync(async (req, res, next) => {
     difficulty: exercise.difficulty,
     metValue: exercise.met_value,
     equipmentNeeded: exercise.equipment_needed,
-    muscleGroups: exercise.muscle_groups ? JSON.parse(exercise.muscle_groups) : [],
+    muscleGroups: (() => {
+      // MySQL2 automatically parses JSON columns, so check if it's already an array
+      if (Array.isArray(exercise.muscle_groups)) {
+        return exercise.muscle_groups;
+      }
+
+      // If it's a string, try to parse as JSON first
+      if (typeof exercise.muscle_groups === 'string') {
+        try {
+          const parsed = JSON.parse(exercise.muscle_groups);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          // If JSON parsing fails, treat as comma-separated string
+          return exercise.muscle_groups.split(',').map(s => s.trim()).filter(s => s);
+        }
+      }
+
+      // Default to empty array
+      return [];
+    })(),
     instructions: exercise.instructions,
     createdBy: exercise.created_by,
     creatorName: exercise.creator_first_name && exercise.creator_last_name
@@ -158,7 +177,26 @@ export const getExercise = catchAsync(async (req, res, next) => {
     difficulty: exercise.difficulty,
     metValue: exercise.met_value,
     equipmentNeeded: exercise.equipment_needed,
-    muscleGroups: exercise.muscle_groups ? JSON.parse(exercise.muscle_groups) : [],
+    muscleGroups: (() => {
+      // MySQL2 automatically parses JSON columns, so check if it's already an array
+      if (Array.isArray(exercise.muscle_groups)) {
+        return exercise.muscle_groups;
+      }
+
+      // If it's a string, try to parse as JSON first
+      if (typeof exercise.muscle_groups === 'string') {
+        try {
+          const parsed = JSON.parse(exercise.muscle_groups);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          // If JSON parsing fails, treat as comma-separated string
+          return exercise.muscle_groups.split(',').map(s => s.trim()).filter(s => s);
+        }
+      }
+
+      // Default to empty array
+      return [];
+    })(),
     instructions: exercise.instructions,
     createdBy: exercise.created_by,
     creatorName: exercise.creator_first_name && exercise.creator_last_name
@@ -255,7 +293,26 @@ export const createExercise = catchAsync(async (req, res, next) => {
     difficulty: newExercise.difficulty,
     metValue: newExercise.met_value,
     equipmentNeeded: newExercise.equipment_needed,
-    muscleGroups: newExercise.muscle_groups ? JSON.parse(newExercise.muscle_groups) : [],
+    muscleGroups: (() => {
+      // MySQL2 automatically parses JSON columns, so check if it's already an array
+      if (Array.isArray(newExercise.muscle_groups)) {
+        return newExercise.muscle_groups;
+      }
+
+      // If it's a string, try to parse as JSON first
+      if (typeof newExercise.muscle_groups === 'string') {
+        try {
+          const parsed = JSON.parse(newExercise.muscle_groups);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          // If JSON parsing fails, treat as comma-separated string
+          return newExercise.muscle_groups.split(',').map(s => s.trim()).filter(s => s);
+        }
+      }
+
+      // Default to empty array
+      return [];
+    })(),
     instructions: newExercise.instructions,
     createdBy: newExercise.created_by,
     creatorName: newExercise.creator_first_name && newExercise.creator_last_name
@@ -358,7 +415,26 @@ export const updateExercise = catchAsync(async (req, res, next) => {
     difficulty: updatedExercise.difficulty,
     metValue: updatedExercise.met_value,
     equipmentNeeded: updatedExercise.equipment_needed,
-    muscleGroups: updatedExercise.muscle_groups ? JSON.parse(updatedExercise.muscle_groups) : [],
+    muscleGroups: (() => {
+      // MySQL2 automatically parses JSON columns, so check if it's already an array
+      if (Array.isArray(updatedExercise.muscle_groups)) {
+        return updatedExercise.muscle_groups;
+      }
+
+      // If it's a string, try to parse as JSON first
+      if (typeof updatedExercise.muscle_groups === 'string') {
+        try {
+          const parsed = JSON.parse(updatedExercise.muscle_groups);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          // If JSON parsing fails, treat as comma-separated string
+          return updatedExercise.muscle_groups.split(',').map(s => s.trim()).filter(s => s);
+        }
+      }
+
+      // Default to empty array
+      return [];
+    })(),
     instructions: updatedExercise.instructions,
     createdBy: updatedExercise.created_by,
     creatorName: updatedExercise.creator_first_name && updatedExercise.creator_last_name

@@ -1,46 +1,63 @@
-<div class="min-h-[80vh] flex items-center justify-center">
-    <div class="max-w-md w-full">
-      <h1 class="text-3xl font-bold text-center mb-8">Sign In</h1>
-      
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="card">
-        <div class="form-group">
-          <label for="email" class="form-label">Email</label>
+<div class="auth-container">
+    <div class="auth-form-wrapper">
+      <h1 class="auth-title">Sign In</h1>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="auth-form-group">
+          <label for="email" class="auth-form-label">Email Address</label>
           <input
             type="email"
             id="email"
             formControlName="email"
-            class="form-control"
-            [class.border-red-500]="showError('email')"
+            class="auth-form-control"
+            [class.error]="showError('email')"
+            placeholder="Enter your email address"
           />
           @if (showError('email')) {
-            <p class="text-red-500 text-sm mt-1">Please enter a valid email</p>
+            <p class="auth-error">
+              <span class="material-icons text-sm">error</span>
+              Please enter a valid email address
+            </p>
           }
         </div>
-  
-        <div class="form-group">
-          <label for="password" class="form-label">Password</label>
+
+        <div class="auth-form-group">
+          <label for="password" class="auth-form-label">Password</label>
           <input
             type="password"
             id="password"
             formControlName="password"
-            class="form-control"
-            [class.border-red-500]="showError('password')"
+            class="auth-form-control"
+            [class.error]="showError('password')"
+            placeholder="Enter your password"
           />
           @if (showError('password')) {
-            <p class="text-red-500 text-sm mt-1">Password is required</p>
+            <p class="auth-error">
+              <span class="material-icons text-sm">error</span>
+              Password is required
+            </p>
           }
         </div>
-  
+
         @if (error) {
-          <div class="text-red-500 text-sm mb-4">{{ error }}</div>
+          <div class="auth-error-global">
+            <span class="material-icons text-sm">error</span>
+            {{ error }}
+          </div>
         }
-  
+
         <button
           type="submit"
-          class="btn btn-primary w-full"
+          class="auth-btn auth-btn-primary"
+          [class.loading]="isLoading"
           [disabled]="loginForm.invalid || isLoading"
         >
-          {{ isLoading ? 'Signing in...' : 'Sign In' }}
+          @if (isLoading) {
+            Signing in...
+          } @else {
+            <span class="material-icons text-sm">login</span>
+            Sign In
+          }
         </button>
       </form>
     </div>

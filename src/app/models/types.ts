@@ -1,12 +1,23 @@
 export interface Exercise {
   id: string;
   name: string;
-  duration: number;
-  calories: number;
-  difficulty: 'easy' | 'medium' | 'hard';
+  description: string;
+  category: 'cardio' | 'strength' | 'flexibility' | 'balance';
+  duration_minutes: number;
+  calories_per_minute: number;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
   met_value: number;
+  equipment_needed: string;
+  muscle_groups: string[];
+  instructions: string;
+  is_public: boolean;
   created_by: string;
   created_at: string;
+  updated_at: string;
+
+  // Legacy fields for backward compatibility
+  duration: number;
+  calories: number;
 }
 
 export interface WorkoutExercise {

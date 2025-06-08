@@ -8,69 +8,157 @@ export type SkeletonType = 'text' | 'title' | 'card' | 'avatar' | 'button' | 'im
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="animate-pulse" [ngClass]="containerClasses">
+    <div class="skeleton-container animate-pulse" [ngClass]="containerClasses">
       <!-- Text skeleton -->
-      <div 
-        *ngIf="type === 'text'" 
-        class="bg-gray-300 rounded"
-        [ngClass]="textClasses"
+      <div
+        *ngIf="type === 'text'"
+        class="skeleton-element skeleton-text"
+        [style.width]="width || '100%'"
+        [style.height]="height || '1rem'"
       ></div>
-      
+
       <!-- Title skeleton -->
-      <div 
-        *ngIf="type === 'title'" 
-        class="bg-gray-300 rounded"
-        [ngClass]="titleClasses"
+      <div
+        *ngIf="type === 'title'"
+        class="skeleton-element skeleton-title"
+        [style.width]="width || '75%'"
+        [style.height]="height || '1.5rem'"
       ></div>
-      
+
       <!-- Avatar skeleton -->
-      <div 
-        *ngIf="type === 'avatar'" 
-        class="bg-gray-300 rounded-full"
-        [ngClass]="avatarClasses"
+      <div
+        *ngIf="type === 'avatar'"
+        class="skeleton-element skeleton-avatar"
+        [style.width]="width || '2.5rem'"
+        [style.height]="height || '2.5rem'"
       ></div>
-      
+
       <!-- Button skeleton -->
-      <div 
-        *ngIf="type === 'button'" 
-        class="bg-gray-300 rounded"
-        [ngClass]="buttonClasses"
+      <div
+        *ngIf="type === 'button'"
+        class="skeleton-element skeleton-button"
+        [style.width]="width || '6rem'"
+        [style.height]="height || '2.5rem'"
       ></div>
-      
+
       <!-- Image skeleton -->
-      <div 
-        *ngIf="type === 'image'" 
-        class="bg-gray-300 rounded"
-        [ngClass]="imageClasses"
+      <div
+        *ngIf="type === 'image'"
+        class="skeleton-element skeleton-image"
+        [style.width]="width || '100%'"
+        [style.height]="height || '12rem'"
       ></div>
-      
+
       <!-- Card skeleton -->
-      <div *ngIf="type === 'card'" class="bg-white rounded-lg shadow p-4 space-y-3">
-        <div class="bg-gray-300 rounded h-4 w-3/4"></div>
-        <div class="space-y-2">
-          <div class="bg-gray-300 rounded h-3 w-full"></div>
-          <div class="bg-gray-300 rounded h-3 w-5/6"></div>
-          <div class="bg-gray-300 rounded h-3 w-4/6"></div>
+      <div *ngIf="type === 'card'" class="skeleton-card">
+        <div class="skeleton-element skeleton-card-title"></div>
+        <div class="skeleton-card-content">
+          <div class="skeleton-element skeleton-card-line"></div>
+          <div class="skeleton-element skeleton-card-line skeleton-card-line-short"></div>
+          <div class="skeleton-element skeleton-card-line skeleton-card-line-shorter"></div>
         </div>
-        <div class="flex space-x-2">
-          <div class="bg-gray-300 rounded h-8 w-16"></div>
-          <div class="bg-gray-300 rounded h-8 w-16"></div>
+        <div class="skeleton-card-actions">
+          <div class="skeleton-element skeleton-card-button"></div>
+          <div class="skeleton-element skeleton-card-button"></div>
         </div>
       </div>
     </div>
   `,
   styles: [`
+    .skeleton-container {
+      display: block;
+    }
+
+    .skeleton-element {
+      background-color: var(--border-color);
+      border-radius: var(--radius-md);
+      display: block;
+    }
+
+    .skeleton-text {
+      height: 1rem;
+      width: 100%;
+    }
+
+    .skeleton-title {
+      height: 1.5rem;
+      width: 75%;
+    }
+
+    .skeleton-avatar {
+      border-radius: 50%;
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    .skeleton-button {
+      height: 2.5rem;
+      width: 6rem;
+    }
+
+    .skeleton-image {
+      height: 12rem;
+      width: 100%;
+    }
+
+    .skeleton-card {
+      background: var(--card-background);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .skeleton-card-title {
+      height: 1rem;
+      width: 75%;
+      margin-bottom: 0.75rem;
+    }
+
+    .skeleton-card-content {
+      margin-bottom: 0.75rem;
+    }
+
+    .skeleton-card-line {
+      height: 0.75rem;
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+
+    .skeleton-card-line-short {
+      width: 83.333333%;
+    }
+
+    .skeleton-card-line-shorter {
+      width: 66.666667%;
+    }
+
+    .skeleton-card-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .skeleton-card-button {
+      height: 2rem;
+      width: 4rem;
+    }
+
     .animate-pulse {
       animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
-    
+
     @keyframes pulse {
       0%, 100% {
         opacity: 1;
       }
       50% {
-        opacity: .5;
+        opacity: 0.5;
       }
+    }
+
+    /* Dark mode support */
+    :root.dark-mode .skeleton-element {
+      background-color: var(--border-light);
     }
   `]
 })
@@ -83,83 +171,11 @@ export class SkeletonLoaderComponent {
 
   get containerClasses(): string {
     const classes = [];
-    
+
     if (this.className) {
       classes.push(this.className);
     }
-    
-    return classes.join(' ');
-  }
 
-  get textClasses(): string {
-    const classes = ['h-4'];
-    
-    if (this.width) {
-      classes.push(`w-${this.width}`);
-    } else {
-      classes.push('w-full');
-    }
-    
-    if (this.height) {
-      classes.push(`h-${this.height}`);
-    }
-    
-    return classes.join(' ');
-  }
-
-  get titleClasses(): string {
-    const classes = ['h-6'];
-    
-    if (this.width) {
-      classes.push(`w-${this.width}`);
-    } else {
-      classes.push('w-3/4');
-    }
-    
-    if (this.height) {
-      classes.push(`h-${this.height}`);
-    }
-    
-    return classes.join(' ');
-  }
-
-  get avatarClasses(): string {
-    const classes = [];
-    
-    if (this.width && this.height) {
-      classes.push(`w-${this.width}`, `h-${this.height}`);
-    } else {
-      classes.push('w-10', 'h-10');
-    }
-    
-    return classes.join(' ');
-  }
-
-  get buttonClasses(): string {
-    const classes = ['h-10'];
-    
-    if (this.width) {
-      classes.push(`w-${this.width}`);
-    } else {
-      classes.push('w-24');
-    }
-    
-    if (this.height) {
-      classes.push(`h-${this.height}`);
-    }
-    
-    return classes.join(' ');
-  }
-
-  get imageClasses(): string {
-    const classes = [];
-    
-    if (this.width && this.height) {
-      classes.push(`w-${this.width}`, `h-${this.height}`);
-    } else {
-      classes.push('w-full', 'h-48');
-    }
-    
     return classes.join(' ');
   }
 

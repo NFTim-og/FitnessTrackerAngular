@@ -1,83 +1,127 @@
-<div class="max-w-lg mx-auto">
-    <h1 class="text-3xl font-bold mb-6">
-      {{ isEditing ? 'Edit' : 'New' }} Workout Plan
-    </h1>
-  
-    <form [formGroup]="workoutForm" (ngSubmit)="onSubmit()" class="card">
-      <div class="form-group">
-        <label for="name" class="form-label">Plan Name</label>
+<div class="workout-plan-form-container">
+    <div class="form-header">
+      <h1 class="form-title">
+        <span class="material-icons title-icon">event</span>
+        {{ isEditing ? 'Edit' : 'New' }} Workout Plan
+      </h1>
+    </div>
+
+    <form [formGroup]="workoutForm" (ngSubmit)="onSubmit()" class="workout-plan-form">
+      <!-- Plan Name Field -->
+      <mat-form-field appearance="fill" class="form-field">
+        <mat-label>Plan Name</mat-label>
         <input
-          type="text"
-          id="name"
+          matInput
           formControlName="name"
-          class="form-control"
-          [class.border-red-500]="showError('name')"
+          placeholder="Enter workout plan name"
+          required
         />
+        <mat-icon matSuffix>fitness_center</mat-icon>
         @if (showError('name')) {
-          <p class="text-red-500 text-sm mt-1">Plan name is required</p>
+          <mat-error>Plan name is required</mat-error>
         }
-      </div>
-  
-      <div class="form-group">
-        <label for="description" class="form-label">Description</label>
+      </mat-form-field>
+
+      <!-- Description Field -->
+      <mat-form-field appearance="fill" class="form-field">
+        <mat-label>Description</mat-label>
         <textarea
-          id="description"
+          matInput
           formControlName="description"
-          class="form-control"
+          placeholder="Describe your workout plan..."
           rows="3"
-          [class.border-red-500]="showError('description')"
+          required
         ></textarea>
+        <mat-icon matSuffix>description</mat-icon>
         @if (showError('description')) {
-          <p class="text-red-500 text-sm mt-1">Description is required</p>
+          <mat-error>Description is required</mat-error>
         }
-      </div>
-  
-      <div class="form-group">
-        <label class="form-label">Exercises</label>
-        <div class="space-y-2">
-          @for (exercise of selectedExercises; track exercise.id) {
-            <div class="flex items-center gap-2 p-2 bg-gray-50 rounded">
-              <span>{{ exercise.name }}</span>
-              <button
-                type="button"
-                class="ml-auto text-red-500"
-                (click)="removeExercise(exercise)"
-              >
-                Remove
-              </button>
-            </div>
-          }
-        </div>
-  
-        <div class="mt-2">
-          <select
-            (change)="addExercise($event)"
-            class="form-control"
-            [value]="''"
-          >
-            <option value="" disabled>Add an exercise</option>
-            @for (exercise of availableExercises(); track exercise.id) {
-              <option [value]="exercise.id">{{ exercise.name }}</option>
+      </mat-form-field>
+      <!-- Exercises Section -->
+      <div class="exercises-section">
+        <h3 class="exercises-title">
+          <span class="material-icons">fitness_center</span>
+          Exercises ({{ selectedExercises.length }})
+        </h3>
+
+        <!-- Selected Exercises -->
+        @if (selectedExercises.length > 0) {
+          <div class="selected-exercises">
+            @for (exercise of selectedExercises; track exercise.id) {
+              <div class="exercise-item">
+                <div class="exercise-info">
+                  <span class="material-icons exercise-icon">fitness_center</span>
+                  <span class="exercise-name">{{ exercise.name }}</span>
+                  @if (exercise.category) {
+                    <span class="exercise-category">
+                      {{ exercise.category }}
+                    </span>
+                  }
+                </div>
+
+                <app-material-button
+                  variant="danger"
+                  size="small"
+                  icon="remove"
+                  label="Remove"
+                  (clicked)="removeExercise(exercise)"
+                  class="remove-btn"
+                ></app-material-button>
+              </div>
             }
-          </select>
-        </div>
+          </div>
+        } @else {
+          <div class="no-exercises">
+            <span class="material-icons no-exercises-icon">fitness_center</span>
+            <p class="no-exercises-text">No exercises selected yet</p>
+            <p class="no-exercises-subtext">Add exercises to your workout plan below</p>
+          </div>
+        }
+
+        <!-- Add Exercise Dropdown -->
+        <mat-form-field appearance="fill" class="form-field">
+          <mat-label>Add Exercise</mat-label>
+          <mat-select (selectionChange)="addExercise($event)" [value]="''">
+            <mat-option value="" disabled>Select an exercise to add</mat-option>
+            @for (exercise of availableExercises(); track exercise.id) {
+              <mat-option [value]="exercise.id">
+                <div class="exercise-option">
+                  <span class="material-icons text-sm">fitness_center</span>
+                  <span>{{ exercise.name }}</span>
+                  @if (exercise.category) {
+                    <span class="exercise-option-category">({{ exercise.category }})</span>
+                  }
+                </div>
+              </mat-option>
+            }
+          </mat-select>
+          <mat-icon matSuffix>add</mat-icon>
+        </mat-form-field>
       </div>
-  
-      <div class="flex gap-4 mt-6">
-        <button
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <app-material-button
           type="submit"
-          class="btn btn-primary"
+          variant="primary"
+          size="medium"
           [disabled]="workoutForm.invalid || isSubmitting"
-        >
-          {{ isSubmitting ? 'Saving...' : (isEditing ? 'Update' : 'Create') }}
-        </button>
-        <button
+          [loading]="isSubmitting"
+          [icon]="isEditing ? 'update' : 'add'"
+          [label]="isSubmitting ? 'Saving...' : (isEditing ? 'Update Plan' : 'Create Plan')"
+          class="action-btn"
+        ></app-material-button>
+
+        <app-material-button
           type="button"
-          class="btn btn-secondary"
-          (click)="goBack()"
-        >
-          Cancel
-        </button>
+          variant="outlined"
+          size="medium"
+          icon="arrow_back"
+          label="Cancel"
+          (clicked)="goBack()"
+          [disabled]="isSubmitting"
+          class="action-btn"
+        ></app-material-button>
       </div>
     </form>
   </div>

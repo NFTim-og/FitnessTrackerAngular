@@ -15,8 +15,10 @@ export class ApiTestService {
    * Test the API health endpoint
    */
   testHealth(): Observable<boolean> {
-    console.log('Testing health endpoint:', `${this.apiUrl}/health`);
-    return this.http.get<any>(`${this.apiUrl}/health`)
+    // Health endpoint is at /health, not /api/v1/health
+    const healthUrl = `${environment.apiUrl.replace('/api/v1', '')}/health`;
+    console.log('Testing health endpoint:', healthUrl);
+    return this.http.get<any>(healthUrl)
       .pipe(
         map(response => {
           console.log('API Health Response:', response);
@@ -33,10 +35,17 @@ export class ApiTestService {
    * Test user registration
    */
   testRegistration(): Observable<boolean> {
+    // Password must meet complexity requirements: uppercase, lowercase, number, special character
+    const password = 'TestPass123!';
     const testUser = {
       email: `test-${Date.now()}@example.com`,
-      password: 'password123'
+      password: password,
+      passwordConfirm: password,
+      firstName: 'Test',
+      lastName: 'User'
     };
+
+    console.log('Testing registration with user:', { ...testUser, password: '[HIDDEN]', passwordConfirm: '[HIDDEN]' });
 
     return this.http.post<any>(`${this.apiUrl}/auth/register`, testUser)
       .pipe(

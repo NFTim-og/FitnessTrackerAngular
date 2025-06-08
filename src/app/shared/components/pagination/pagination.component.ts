@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     @if (totalPages > 1) {
-      <div class="flex justify-center gap-2 mb-6">
+      <div class="pagination-container">
         <button
           class="btn btn-secondary"
           [disabled]="currentPage === 1"
@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
         >
           Previous
         </button>
-        
+
         @for (page of pages; track page) {
           <button
             class="btn"
@@ -36,7 +36,27 @@ import { CommonModule } from '@angular/common';
         </button>
       </div>
     }
-  `
+  `,
+  styles: [`
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .pagination-container {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+      }
+
+      .pagination-container .btn {
+        min-width: 44px;
+        padding: 0.5rem 0.75rem;
+      }
+    }
+  `]
 })
 export class PaginationComponent {
   @Input() currentPage = 1;

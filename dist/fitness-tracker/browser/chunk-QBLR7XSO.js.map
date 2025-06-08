@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/pages/exercises/exercise.routes.ts"],
-  "sourcesContent": ["import { Routes } from '@angular/router';\n\nexport const EXERCISE_ROUTES: Routes = [\n  {\n    path: '',\n    loadComponent: () =>\n      import('./exercise-list/exercise-list.component').then(m => m.ExerciseListComponent)\n  },\n  {\n    path: 'new',\n    loadComponent: () =>\n      import('./exercise-form/exercise-form.component').then(m => m.ExerciseFormComponent)\n  },\n  {\n    path: ':id/edit',\n    loadComponent: () =>\n      import('./exercise-form/exercise-form.component').then(m => m.ExerciseFormComponent)\n  }\n];"],
-  "mappings": ";;;AAEO,IAAM,kBAA0B;EACrC;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAyC,EAAE,KAAK,OAAK,EAAE,qBAAqB;;EAEvF;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAyC,EAAE,KAAK,OAAK,EAAE,qBAAqB;;EAEvF;IACE,MAAM;IACN,eAAe,MACb,OAAO,qBAAyC,EAAE,KAAK,OAAK,EAAE,qBAAqB;;;",
-  "names": []
-}

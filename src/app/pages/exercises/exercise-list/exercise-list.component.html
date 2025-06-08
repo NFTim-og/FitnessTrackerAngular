@@ -1,4 +1,4 @@
-<div class="mb-6">
+<div class="page-header">
     @if (error) {
       <div class="alert alert-error mb-4">
         {{ error }}
@@ -6,38 +6,54 @@
       </div>
     }
 
-    <h1 class="text-3xl font-bold mb-4">My Exercises</h1>
-    <div class="flex gap-4 mb-4">
-      <input
-        type="text"
-        [(ngModel)]="searchQuery"
-        (input)="onSearch()"
-        placeholder="Search exercises..."
-        class="form-control"
-      />
-      <select
-        [(ngModel)]="selectedDifficulty"
-        (change)="onSearch()"
-        class="form-control"
+    <div class="header-content">
+      <div class="header-text">
+        <h1 class="page-title">My Exercises</h1>
+        <p class="page-subtitle">Manage your personal exercise library</p>
+      </div>
+      <button
+        [routerLink]="['/exercises/new']"
+        class="btn btn-primary header-action-btn"
+        [disabled]="isLoadingExercises$ | async"
       >
-        <option value="">All Difficulties</option>
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-      </select>
+        @if (isCreatingExercise$ | async) {
+          <app-loading-spinner size="small" color="white" class="mr-2"></app-loading-spinner>
+          Creating...
+        } @else {
+          <span class="material-icons mr-2">add</span>
+          Add New Exercise
+        }
+      </button>
     </div>
-    <button
-      [routerLink]="['/exercises/new']"
-      class="btn btn-primary"
-      [disabled]="isLoadingExercises$ | async"
-    >
-      @if (isCreatingExercise$ | async) {
-        <app-loading-spinner size="small" color="white" class="mr-2"></app-loading-spinner>
-        Creating...
-      } @else {
-        Add New Exercise
-      }
-    </button>
+
+    <!-- Search and Filter Controls -->
+    <div class="search-controls-card">
+      <div class="search-controls">
+        <div class="search-input-container">
+          <span class="search-icon material-icons">search</span>
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (input)="onSearch()"
+            placeholder="Search exercises by name, category, or muscle group..."
+            class="search-input"
+          />
+        </div>
+        <div class="filter-container">
+          <span class="filter-icon material-icons">filter_list</span>
+          <select
+            [(ngModel)]="selectedDifficulty"
+            (change)="onSearch()"
+            class="filter-select"
+          >
+            <option value="">All Difficulty Levels</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+        </div>
+      </div>
+    </div>
   </div>
 
   <app-pagination
@@ -49,54 +65,117 @@
 
   <!-- Loading state -->
   @if (isLoadingExercises$ | async) {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      @for (item of [1,2,3,4,5,6]; track item) {
+    <div class="exercises-grid">
+      @for (item of [1,2,3,4,5,6,7,8,9,10]; track item) {
         <app-skeleton-loader type="card"></app-skeleton-loader>
       }
     </div>
   } @else {
     <!-- Exercise grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="exercises-grid">
       @for (exercise of exercises; track exercise.id) {
-        <div class="card">
-          <h3 class="text-xl font-semibold mb-2">{{ exercise.name }}</h3>
-          <div class="mb-4">
-            <p>Duration: {{ exercise.duration }} minutes</p>
-            <p>
-              Calories: {{ calculateCalories(exercise) }}
-              @if (!(userProfile$ | async)) {
-                <span class="text-sm text-gray-500">
-                  (Set your weight in profile for accurate calculation)
+        <div class="card exercise-card" style="opacity: 1 !important; visibility: visible !important; background: var(--card-background) !important; color: var(--text-color) !important; border: 1px solid var(--border-color) !important;">
+          <!-- Card Header -->
+          <div class="exercise-card-header" style="display: flex !important; justify-content: space-between !important; align-items: flex-start !important; margin-bottom: 0.75rem !important;">
+            <h3 class="exercise-card-title" style="color: var(--text-color) !important; font-weight: 600 !important; margin: 0 !important;">{{ exercise.name }}</h3>
+            <div class="exercise-card-category">
+              <span class="badge {{ iconService.getCategoryColor(exercise.category) }}">
+                {{ exercise.category }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Description -->
+          @if (exercise.description) {
+            <div class="exercise-card-content" style="display: block !important;">
+              <p class="text-secondary">{{ exercise.description }}</p>
+            </div>
+          }
+
+          <!-- Exercise Meta Information -->
+          <div class="exercise-card-meta">
+            <div class="exercise-card-meta-item">
+              <span class="material-icons text-sm">schedule</span>
+              <span>{{ exercise.duration_minutes }} minutes</span>
+            </div>
+
+            <div class="exercise-card-meta-item">
+              <span class="material-icons text-sm">local_fire_department</span>
+              <span>
+                {{ calculateCalories(exercise) }} calories
+                @if (!(userProfile$ | async)) {
+                  <span class="calorie-estimate-note">(estimate)</span>
+                }
+              </span>
+            </div>
+
+            <div class="exercise-card-meta-item flex items-center gap-2">
+              <span class="material-icons text-sm">{{ iconService.getDifficultyMaterialIcon(exercise.difficulty) }}</span>
+              <span class="capitalize">{{ exercise.difficulty }}</span>
+            </div>
+
+            <div class="exercise-card-meta-item flex items-center gap-2">
+              <span class="material-icons text-sm">{{ iconService.getCategoryMaterialIcon(exercise.category) }}</span>
+              <span class="capitalize">{{ exercise.category }}</span>
+            </div>
+            @if (exercise.equipment_needed && exercise.equipment_needed !== 'none') {
+              <div class="exercise-card-meta-item flex items-center gap-2">
+                <span class="material-icons text-sm">{{ iconService.getEquipmentMaterialIcon(exercise.equipment_needed) }}</span>
+                <span class="capitalize">{{ exercise.equipment_needed.replace('_', ' ') }}</span>
+              </div>
+            }
+
+            <div class="exercise-card-meta-item flex items-center gap-2">
+              <span class="material-icons text-sm">analytics</span>
+              <span>MET: {{ exercise.met_value }}</span>
+            </div>
+          </div>
+
+          <!-- Muscle Groups Tags -->
+          @if (exercise.muscle_groups && exercise.muscle_groups.length > 0) {
+            <div class="exercise-card-tags flex flex-wrap gap-2 mb-4">
+              <span class="text-sm text-secondary">Muscle Groups:</span>
+              @for (group of exercise.muscle_groups; track group) {
+                <span class="badge badge-sm {{ iconService.getMuscleGroupColor(group) }} flex items-center gap-1">
+                  <span class="material-icons text-xs">{{ iconService.getMuscleGroupMaterialIcon(group) }}</span>
+                  {{ group.replace('_', ' ') }}
                 </span>
               }
-            </p>
-            <p class="capitalize">Difficulty: {{ exercise.difficulty }}</p>
-            <p class="text-sm text-gray-600">MET: {{ exercise.met_value }}</p>
-          </div>
-          <div class="flex gap-2">
+            </div>
+          }
+
+          <!-- Action Buttons -->
+          <div class="exercise-card-actions">
             <button
               [routerLink]="['/exercises', exercise.id, 'edit']"
-              class="btn btn-primary"
+              class="btn btn-primary exercise-action-btn"
             >
+              <span class="material-icons">edit</span>
               Edit
             </button>
             <button
               (click)="deleteExercise(exercise.id)"
-              class="btn btn-danger"
+              class="btn btn-danger exercise-action-btn"
             >
+              <span class="material-icons">delete</span>
               Delete
             </button>
           </div>
         </div>
       } @empty {
-        <div class="col-span-full text-center py-8">
-          <p class="text-gray-500 text-lg">No exercises found</p>
-          <button
-            [routerLink]="['/exercises/new']"
-            class="btn btn-primary mt-4"
-          >
-            Create your first exercise
-          </button>
+        <div class="empty-state">
+          <div class="empty-state-content">
+            <span class="empty-state-icon material-icons">fitness_center</span>
+            <h3 class="empty-state-title">No exercises found</h3>
+            <p class="empty-state-description">Start building your exercise library by creating your first exercise.</p>
+            <button
+              [routerLink]="['/exercises/new']"
+              class="btn btn-primary empty-state-btn"
+            >
+              <span class="material-icons">add</span>
+              Create your first exercise
+            </button>
+          </div>
         </div>
       }
     </div>
