@@ -1,8 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AppError } from '../../../shared/models/error.model';
 import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -28,7 +29,7 @@ import { PaginationState } from '../../../shared/interfaces/pagination.interface
   templateUrl: './exercise-list.component.html',
   styleUrls: ['./exercise-list.component.css']
 })
-export class ExerciseListComponent implements OnInit {
+export class ExerciseListComponent implements OnInit, OnDestroy {
   exercises: Exercise[] = [];
   searchQuery = '';
   selectedDifficulty = '';
@@ -44,41 +45,41 @@ export class ExerciseListComponent implements OnInit {
   isLoadingExercises$ = this.loadingService.isLoading('loadExercises');
   isCreatingExercise$ = this.loadingService.isLoading('createExercise');
 
+  // Subject for managing subscriptions
+  private destroy$ = new Subject<void>();
+
   constructor(
     private exerciseService: ExerciseService,
     private userProfileService: UserProfileService,
     private loadingService: LoadingService,
-    public iconService: IconService,
-    private cdr: ChangeDetectorRef
-  ) {
-    this.exerciseService.totalCount$.subscribe(count => {
-      this.pagination = { ...this.pagination, totalCount: count };
-      console.log('ExerciseList - Total count updated:', count);
-      this.cdr.detectChanges();
-    });
-  }
+    public iconService: IconService
+  ) {}
 
   ngOnInit() {
     // Subscribe to exercises data
-    this.exerciseService.data$.subscribe(
-      (exercises: any[]) => {
+    this.exerciseService.data$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((exercises: any[]) => {
         this.exercises = exercises;
         console.log('ExerciseList - Exercises updated:', exercises.length);
-        this.cdr.detectChanges();
-      }
-    );
+      });
 
     // Subscribe to total count for pagination
-    this.exerciseService.totalCount$.subscribe(
-      (totalCount: number) => {
-        this.pagination.totalCount = totalCount;
+    this.exerciseService.totalCount$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((totalCount: number) => {
+        this.pagination = { ...this.pagination, totalCount };
         console.log('ExerciseList - Pagination updated:', this.pagination);
-      }
-    );
+      });
 
     // Reset to page 1 and load exercises
     this.pagination.currentPage = 1;
     this.loadExercises();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadExercises() {

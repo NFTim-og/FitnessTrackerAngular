@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 
 import { AppError } from '../../../shared/models/error.model';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { WorkoutPlan } from '../../../models/workout-plan.model';
-import { Exercise } from '../../../models/exercise.model';
 import { PaginationState } from '../../../shared/models/pagination.model';
 import { WorkoutPlanService } from '../../../services/workout-plan.service';
 import { IconService } from '../../../shared/services/icon.service';
@@ -18,7 +18,7 @@ import { IconService } from '../../../shared/services/icon.service';
   templateUrl: './workout-plan-list.component.html',
   styleUrls: ['./workout-plan-list.component.css']
 })
-export class WorkoutPlanListComponent implements OnInit {
+export class WorkoutPlanListComponent implements OnInit, OnDestroy {
   workoutPlans: WorkoutPlan[] = [];
   searchQuery = '';
   error: string | null = null;
@@ -28,27 +28,42 @@ export class WorkoutPlanListComponent implements OnInit {
     perPage: 6  // Increased from 1 to 6 to show more workout plans per page
   });
 
+  // Subject for managing subscriptions
+  private destroy$ = new Subject<void>();
+
   constructor(
     private workoutPlanService: WorkoutPlanService,
     public iconService: IconService,
     private router: Router
-  ) {
-    this.workoutPlanService.totalCount$.subscribe(count => {
-      this.pagination = new PaginationState({
-        currentPage: this.pagination.currentPage,
-        totalCount: count,
-        perPage: this.pagination.perPage
-      });
-    });
-  }
+  ) {}
 
   ngOnInit() {
-    this.workoutPlanService.workoutPlans$.subscribe(
-      plans => {
+    // Subscribe to workout plans data
+    this.workoutPlanService.workoutPlans$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(plans => {
         this.workoutPlans = plans;
-      }
-    );
+        console.log('WorkoutPlanList - Workout plans updated:', plans.length);
+      });
+
+    // Subscribe to total count for pagination
+    this.workoutPlanService.totalCount$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(count => {
+        this.pagination = new PaginationState({
+          currentPage: this.pagination.currentPage,
+          totalCount: count,
+          perPage: this.pagination.perPage
+        });
+        console.log('WorkoutPlanList - Pagination updated:', this.pagination);
+      });
+
     this.loadWorkoutPlans();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadWorkoutPlans() {

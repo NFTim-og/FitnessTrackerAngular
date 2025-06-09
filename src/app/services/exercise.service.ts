@@ -79,10 +79,15 @@ export class ExerciseService {
             this.exercisesSubject.next(exercises);
 
             // Update the total count for pagination
-            if (response.pagination && typeof response.pagination.totalCount === 'number') {
-              this.totalCountSubject.next(response.pagination.totalCount);
+            if (response.pagination && response.pagination.totalCount) {
+              const totalCount = typeof response.pagination.totalCount === 'number'
+                ? response.pagination.totalCount
+                : parseInt(response.pagination.totalCount, 10);
+              this.totalCountSubject.next(totalCount);
+              console.log('ExerciseService - Total count updated:', totalCount);
             } else {
               this.totalCountSubject.next(exercises.length);
+              console.log('ExerciseService - Using exercises length as total count:', exercises.length);
             }
           }
         }),
@@ -287,10 +292,15 @@ export class ExerciseService {
             this.exercisesSubject.next(exercises);
 
             // Update the total count for pagination
-            if (response.pagination && typeof response.pagination.totalCount === 'number') {
-              this.totalCountSubject.next(response.pagination.totalCount);
+            if (response.pagination && response.pagination.totalCount) {
+              const totalCount = typeof response.pagination.totalCount === 'number'
+                ? response.pagination.totalCount
+                : parseInt(response.pagination.totalCount, 10);
+              this.totalCountSubject.next(totalCount);
+              console.log('ExerciseService - Search total count updated:', totalCount);
             } else {
               this.totalCountSubject.next(exercises.length);
+              console.log('ExerciseService - Using search exercises length as total count:', exercises.length);
             }
           } else {
             // Handle invalid response format
