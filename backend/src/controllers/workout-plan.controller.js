@@ -78,13 +78,30 @@ export const getAllWorkoutPlans = catchAsync(async (req, res, next) => {
     ${whereClause}
   `, allParams);
 
-  // Get workout plans with pagination
+  // Get workout plans with pagination and calculated calories/duration
   const workoutPlans = await query(`
     SELECT
       wp.id, wp.name, wp.description, wp.category, wp.difficulty,
       wp.estimated_duration_minutes, wp.target_calories, wp.created_by, wp.is_public,
       wp.created_at, wp.updated_at,
-      u.first_name as creator_first_name, u.last_name as creator_last_name
+      u.first_name as creator_first_name, u.last_name as creator_last_name,
+      (SELECT COUNT(*)
+       FROM workout_plan_exercises wpe
+       WHERE wpe.workout_plan_id = wp.id) as exercise_count,
+      COALESCE(
+        (SELECT SUM(COALESCE(wpe.duration_minutes, e.duration_minutes))
+         FROM workout_plan_exercises wpe
+         JOIN exercises e ON wpe.exercise_id = e.id
+         WHERE wpe.workout_plan_id = wp.id),
+        wp.estimated_duration_minutes
+      ) as calculated_duration_minutes,
+      COALESCE(
+        (SELECT SUM(e.calories_per_minute * COALESCE(wpe.duration_minutes, e.duration_minutes))
+         FROM workout_plan_exercises wpe
+         JOIN exercises e ON wpe.exercise_id = e.id
+         WHERE wpe.workout_plan_id = wp.id),
+        wp.target_calories
+      ) as calculated_calories
     FROM workout_plans wp
     LEFT JOIN users u ON wp.created_by = u.id
     ${whereClause}
@@ -95,15 +112,16 @@ export const getAllWorkoutPlans = catchAsync(async (req, res, next) => {
   // Calculate pagination metadata
   const paginationMeta = calculatePaginationMeta(totalCount, page, limit);
 
-  // Format response data
+  // Format response data with calculated values
   const formattedData = workoutPlans.map(workoutPlan => ({
     id: workoutPlan.id,
     name: workoutPlan.name,
     description: workoutPlan.description,
     category: workoutPlan.category,
     difficulty: workoutPlan.difficulty,
-    estimatedDurationMinutes: workoutPlan.estimated_duration_minutes,
-    targetCalories: workoutPlan.target_calories,
+    estimatedDurationMinutes: workoutPlan.calculated_duration_minutes || workoutPlan.estimated_duration_minutes,
+    targetCalories: workoutPlan.calculated_calories || workoutPlan.target_calories,
+    exerciseCount: workoutPlan.exercise_count, // Debug field
     createdBy: workoutPlan.created_by,
     creatorName: workoutPlan.creator_first_name && workoutPlan.creator_last_name
       ? `${workoutPlan.creator_first_name} ${workoutPlan.creator_last_name}`

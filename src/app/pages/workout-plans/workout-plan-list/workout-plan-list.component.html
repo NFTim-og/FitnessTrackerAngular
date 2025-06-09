@@ -76,12 +76,12 @@
           <div class="workout-plan-meta">
             <div class="workout-plan-meta-item">
               <span class="material-icons text-sm">schedule</span>
-              <span>{{ plan.estimatedDurationMinutes || 0 }} minutes</span>
+              <span>{{ getTotalDuration(plan) }} minutes</span>
             </div>
 
             <div class="workout-plan-meta-item">
               <span class="material-icons text-sm">local_fire_department</span>
-              <span>{{ plan.targetCalories || 0 }} calories</span>
+              <span>{{ getTotalCalories(plan) }} calories</span>
             </div>
 
             <div class="workout-plan-meta-item">
