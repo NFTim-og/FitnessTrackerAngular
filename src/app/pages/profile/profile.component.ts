@@ -243,10 +243,17 @@ export class ProfileComponent implements OnInit {
   ngOnInit() {
     console.log('ProfileComponent - Initializing');
     this.loadWeightHistory();
+
+    // Subscribe to profile changes and update form accordingly
     this.profile$.subscribe(profile => {
       console.log('ProfileComponent - Profile loaded:', profile);
-      if (profile) {
+      if (profile && profile.weight_kg && profile.height_cm) {
+        // Only update form if we have valid weight and height data
         this.profileForm.patchValue({
+          weight: profile.weight_kg,
+          height: profile.height_cm
+        }, { emitEvent: false }); // Don't emit events to avoid infinite loops
+        console.log('ProfileComponent - Form updated with profile data:', {
           weight: profile.weight_kg,
           height: profile.height_cm
         });
@@ -302,11 +309,19 @@ export class ProfileComponent implements OnInit {
       const profile = await firstValueFrom(this.userProfileService.profile$);
       const { weight, height } = this.profileForm.value;
 
+      let updatedProfile;
       if (profile) {
-        await firstValueFrom(this.userProfileService.updateProfile(weight, height));
+        updatedProfile = await firstValueFrom(this.userProfileService.updateProfile(weight, height));
       } else {
-        await firstValueFrom(this.userProfileService.createProfile(weight, height));
+        updatedProfile = await firstValueFrom(this.userProfileService.createProfile(weight, height));
       }
+
+      // Update the form with the saved values to ensure they persist
+      this.profileForm.patchValue({
+        weight: updatedProfile.weight_kg,
+        height: updatedProfile.height_cm
+      });
+
       this.error = null;
       await this.loadWeightHistory();
     } catch (error) {
