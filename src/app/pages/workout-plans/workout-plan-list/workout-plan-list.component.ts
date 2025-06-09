@@ -52,15 +52,20 @@ export class WorkoutPlanListComponent implements OnInit {
   }
 
   loadWorkoutPlans() {
+    console.log('WorkoutPlanList - Loading workout plans for page:', this.pagination.currentPage);
     this.workoutPlanService.loadWorkoutPlans({
       page: this.pagination.currentPage,
-      perPage: this.pagination.perPage
+      perPage: this.pagination.perPage,
+      sortBy: 'created_at',
+      sortOrder: 'DESC'
     }).subscribe({
       next: () => {
         this.error = null;
+        console.log('WorkoutPlanList - Workout plans loaded successfully');
       },
       error: (error) => {
         this.error = error instanceof AppError ? error.message : 'Failed to load workout plans';
+        console.error('WorkoutPlanList - Error loading workout plans:', error);
       }
     });
   }
@@ -76,7 +81,9 @@ export class WorkoutPlanListComponent implements OnInit {
       this.searchQuery,
       {
         page: this.pagination.currentPage,
-        perPage: this.pagination.perPage
+        perPage: this.pagination.perPage,
+        sortBy: 'created_at',
+        sortOrder: 'DESC'
       }
     ).subscribe({
       next: () => {
@@ -89,6 +96,7 @@ export class WorkoutPlanListComponent implements OnInit {
   }
 
   changePage(page: number) {
+    console.log('WorkoutPlanList - Changing to page:', page);
     this.pagination = new PaginationState({
       ...this.pagination,
       currentPage: page
@@ -98,7 +106,9 @@ export class WorkoutPlanListComponent implements OnInit {
         this.searchQuery,
         {
           page: this.pagination.currentPage,
-          perPage: this.pagination.perPage
+          perPage: this.pagination.perPage,
+          sortBy: 'created_at',
+          sortOrder: 'DESC'
         }
       ).subscribe({
         error: (error) => {

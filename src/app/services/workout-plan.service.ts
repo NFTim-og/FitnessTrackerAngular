@@ -30,8 +30,8 @@ export class WorkoutPlanService {
     const httpParams = new HttpParams()
       .set('page', params.page.toString())
       .set('limit', params.perPage.toString())
-      .set('sortBy', params.sortBy || 'name')
-      .set('sortOrder', params.sortOrder || 'ASC');
+      .set('sortBy', params.sortBy || 'created_at')
+      .set('sortOrder', params.sortOrder || 'DESC');
 
     console.log('WorkoutPlanService - Loading workout plans from:', `${this.apiUrl}`);
     console.log('WorkoutPlanService - With params:', params);
@@ -93,7 +93,8 @@ export class WorkoutPlanService {
     return this.http.post<any>(`${this.apiUrl}`, payload)
       .pipe(
         map(response => {
-          this.loadWorkoutPlans(this.currentParams).subscribe();
+          // Reload workout plans with newest first to show the new plan
+          this.loadWorkoutPlans({ page: 1, perPage: 6, sortBy: 'created_at', sortOrder: 'DESC' }).subscribe();
           return WorkoutPlan.fromJSON(response.data.workoutPlan);
         }),
         catchError(error => {
@@ -151,8 +152,8 @@ export class WorkoutPlanService {
     const httpParams = new HttpParams()
       .set('page', params.page.toString())
       .set('limit', params.perPage.toString())
-      .set('sortBy', params.sortBy || 'name')
-      .set('sortOrder', params.sortOrder || 'ASC')
+      .set('sortBy', params.sortBy || 'created_at')
+      .set('sortOrder', params.sortOrder || 'DESC')
       .set('search', query);
 
     return this.http.get<any>(`${this.apiUrl}`, { params: httpParams })

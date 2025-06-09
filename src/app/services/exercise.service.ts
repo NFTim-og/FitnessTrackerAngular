@@ -56,8 +56,8 @@ export class ExerciseService {
     const httpParams = new HttpParams()
       .set('page', params.page.toString())
       .set('limit', params.perPage.toString())
-      .set('sortBy', params.sortBy || 'name')
-      .set('sortOrder', params.sortOrder || 'ASC');
+      .set('sortBy', params.sortBy || 'created_at')
+      .set('sortOrder', params.sortOrder || 'DESC');
 
     console.log('ExerciseService - Loading exercises from:', `${this.apiUrl}`);
     console.log('ExerciseService - With params:', params);
@@ -137,8 +137,8 @@ export class ExerciseService {
             const createdExercise = new Exercise(response.data.exercise);
             console.log('ExerciseService - Created exercise:', createdExercise);
 
-            // Reload the exercises list to update the UI
-            this.loadExercises({ page: 1, perPage: 6 }).subscribe({
+            // Reload the exercises list to update the UI - go to page 1 to see the new exercise
+            this.loadExercises({ page: 1, perPage: 6, sortBy: 'created_at', sortOrder: 'DESC' }).subscribe({
               next: () => console.log('ExerciseService - Exercises reloaded after creation'),
               error: (err) => console.error('ExerciseService - Error reloading exercises:', err)
             });
@@ -255,8 +255,8 @@ export class ExerciseService {
     let httpParams = new HttpParams()
       .set('page', params.page.toString())
       .set('limit', params.perPage.toString())
-      .set('sortBy', params.sortBy || 'name')
-      .set('sortOrder', params.sortOrder || 'ASC');
+      .set('sortBy', params.sortBy || 'created_at')
+      .set('sortOrder', params.sortOrder || 'DESC');
 
     // Add search term if provided
     if (query) {

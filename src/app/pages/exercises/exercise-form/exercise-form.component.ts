@@ -9,13 +9,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCheckboxModule, MatCheckboxChange } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatCardModule } from '@angular/material/card';
 import { ExerciseService } from '../../../services/exercise.service';
 import { UserProfileService } from '../../../services/user-profile.service';
 import { Exercise } from '../../../models/exercise.model';
-import { Subscription } from 'rxjs';
+import { Subscription, firstValueFrom } from 'rxjs';
 import { ValidationService } from '../../../shared/services/validation.service';
 import { LoadingService } from '../../../shared/services/loading.service';
 
@@ -193,9 +193,10 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
     return this.exerciseForm.get(fieldName);
   }
 
-  onMuscleGroupChange(muscleGroup: string, event: any) {
+  onMuscleGroupChange(muscleGroup: string, event: MatCheckboxChange) {
     const currentGroups = this.exerciseForm.get('muscle_groups')?.value || [];
-    if (event.target.checked) {
+
+    if (event.checked) {
       if (!currentGroups.includes(muscleGroup)) {
         this.exerciseForm.patchValue({
           muscle_groups: [...currentGroups, muscleGroup]
@@ -320,9 +321,9 @@ export class ExerciseFormComponent implements OnInit, OnDestroy {
           instructions: exercise.instructions,
           is_public: exercise.is_public
         };
-        await this.exerciseService.updateExercise(exerciseId, updateData);
+        await firstValueFrom(this.exerciseService.updateExercise(exerciseId, updateData));
       } else {
-        await this.exerciseService.createExercise(exercise.toJSON());
+        await firstValueFrom(this.exerciseService.createExercise(exercise.toJSON()));
       }
       this.router.navigate(['/exercises']);
       this.error = null;

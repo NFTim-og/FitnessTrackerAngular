@@ -221,6 +221,9 @@ export const getExercise = catchAsync(async (req, res, next) => {
  * @access Private
  */
 export const createExercise = catchAsync(async (req, res, next) => {
+  console.log('🏋️ CreateExercise - Request body:', req.body);
+  console.log('🏋️ CreateExercise - User:', req.user.id);
+
   const {
     name,
     description,
@@ -242,12 +245,15 @@ export const createExercise = catchAsync(async (req, res, next) => {
   );
 
   if (existingExercise) {
+    console.log('🏋️ CreateExercise - Exercise already exists:', existingExercise);
     return next(new AppError('You already have an exercise with this name', 409));
   }
 
   // Create new exercise
   const exerciseId = uuidv4();
-  await query(`
+  console.log('🏋️ CreateExercise - Creating exercise with ID:', exerciseId);
+
+  const insertResult = await query(`
     INSERT INTO exercises (
       id, name, description, category, duration_minutes, calories_per_minute,
       difficulty, met_value, equipment_needed, muscle_groups, instructions,
@@ -269,6 +275,8 @@ export const createExercise = catchAsync(async (req, res, next) => {
     is_public
   ]);
 
+  console.log('🏋️ CreateExercise - Insert result:', insertResult);
+
   // Get the created exercise with creator information
   const [newExercise] = await query(`
     SELECT
@@ -281,6 +289,8 @@ export const createExercise = catchAsync(async (req, res, next) => {
     LEFT JOIN users u ON e.created_by = u.id
     WHERE e.id = ?
   `, [exerciseId]);
+
+  console.log('🏋️ CreateExercise - Retrieved exercise:', newExercise);
 
   // Format response data
   const formattedExercise = {
@@ -323,13 +333,17 @@ export const createExercise = catchAsync(async (req, res, next) => {
     updatedAt: newExercise.updated_at
   };
 
-  res.status(201).json({
+  const response = {
     status: 'success',
     message: 'Exercise created successfully',
     data: {
       exercise: formattedExercise
     }
-  });
+  };
+
+  console.log('🏋️ CreateExercise - Sending response:', response);
+
+  res.status(201).json(response);
 });
 
 /**

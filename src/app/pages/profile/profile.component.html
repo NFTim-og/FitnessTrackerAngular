@@ -1,0 +1,346 @@
+<div class="profile-container">
+  @if (error) {
+    <div class="alert alert-error">
+      {{ error }}
+      <button class="error-close-btn" (click)="error = null">&times;</button>
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="alert alert-success">
+      {{ successMessage }}
+      <button class="success-close-btn" (click)="successMessage = null">&times;</button>
+    </div>
+  }
+
+  <div class="profile-header">
+    <h1 class="profile-title">
+      <span class="material-icons title-icon">person</span>
+      Profile Settings
+    </h1>
+    <p class="profile-subtitle">Manage your personal information and preferences</p>
+  </div>
+
+  @if (currentUser$ | async; as user) {
+    <div class="profile-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="material-icons card-icon">account_circle</span>
+          Account Information
+        </h2>
+      </div>
+      <div class="account-info">
+        <div class="info-item">
+          <span class="info-label">User ID:</span>
+          <span class="info-value">{{ user.id }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Email:</span>
+          <span class="info-value">{{ user.email }}</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (profile$ | async; as profile) {
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="material-icons card-icon">fitness_center</span>
+          Physical Information
+        </h2>
+        <p class="card-subtitle">Update your measurements for accurate calorie calculations</p>
+      </div>
+
+      <div class="form-grid">
+        <!-- Weight Field -->
+        <div class="form-field-wrapper">
+          <mat-form-field appearance="fill" class="enhanced-form-field">
+            <mat-label>Weight (kg)</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="weight"
+              placeholder="Enter your weight"
+              step="0.1"
+              min="30"
+              max="300"
+            />
+            <mat-icon matSuffix>monitor_weight</mat-icon>
+            <mat-hint>Weight between 30-300 kg</mat-hint>
+            @if (showError('weight')) {
+              <mat-error>Weight must be between 30kg and 300kg</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <!-- Height Field -->
+        <div class="form-field-wrapper">
+          <mat-form-field appearance="fill" class="enhanced-form-field">
+            <mat-label>Height (cm)</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="height"
+              placeholder="Enter your height"
+              step="0.1"
+              min="100"
+              max="250"
+            />
+            <mat-icon matSuffix>height</mat-icon>
+            <mat-hint>Height between 100-250 cm</mat-hint>
+            @if (showError('height')) {
+              <mat-error>Height must be between 100cm and 250cm</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <!-- Width Field -->
+        <div class="form-field-wrapper">
+          <mat-form-field appearance="fill" class="enhanced-form-field">
+            <mat-label>Width (cm)</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="width"
+              placeholder="Enter your width"
+              step="0.1"
+              min="30"
+              max="300"
+            />
+            <mat-icon matSuffix>straighten</mat-icon>
+            <mat-hint>Width between 30-300 cm</mat-hint>
+            @if (showError('width')) {
+              <mat-error>Width must be between 30cm and 300cm</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="profileForm.invalid || isSubmitting"
+          class="save-btn"
+        >
+          <mat-icon>save</mat-icon>
+          {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+    </form>
+
+    @if (weightHistory.length > 0) {
+      <div class="profile-card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <span class="material-icons card-icon">trending_up</span>
+            Weight History
+          </h2>
+        </div>
+        <div class="weight-history">
+          @for (entry of weightHistory; track entry.id) {
+            <div class="history-item">
+              <span class="weight-value">{{ entry.weight_kg }} kg</span>
+              <span class="weight-date">{{ entry.recorded_at | date:'medium' }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  } @else {
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="material-icons card-icon">person_add</span>
+          Complete Your Profile
+        </h2>
+        <p class="card-subtitle">
+          Please enter your weight and height to enable personalized calorie calculations.
+        </p>
+      </div>
+
+      <div class="form-grid">
+        <!-- Weight Field -->
+        <div class="form-field-wrapper">
+          <mat-form-field appearance="fill" class="enhanced-form-field">
+            <mat-label>Weight (kg)</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="weight"
+              placeholder="Enter your weight"
+              step="0.1"
+              min="30"
+              max="300"
+            />
+            <mat-icon matSuffix>monitor_weight</mat-icon>
+            <mat-hint>Weight between 30-300 kg</mat-hint>
+            @if (showError('weight')) {
+              <mat-error>Weight must be between 30kg and 300kg</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <!-- Height Field -->
+        <div class="form-field-wrapper">
+          <mat-form-field appearance="fill" class="enhanced-form-field">
+            <mat-label>Height (cm)</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="height"
+              placeholder="Enter your height"
+              step="0.1"
+              min="100"
+              max="250"
+            />
+            <mat-icon matSuffix>height</mat-icon>
+            <mat-hint>Height between 100-250 cm</mat-hint>
+            @if (showError('height')) {
+              <mat-error>Height must be between 100cm and 250cm</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <!-- Width Field -->
+        <div class="form-field-wrapper">
+          <mat-form-field appearance="fill" class="enhanced-form-field">
+            <mat-label>Width (cm)</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="width"
+              placeholder="Enter your width"
+              step="0.1"
+              min="30"
+              max="300"
+            />
+            <mat-icon matSuffix>straighten</mat-icon>
+            <mat-hint>Width between 30-300 cm</mat-hint>
+            @if (showError('width')) {
+              <mat-error>Width must be between 30cm and 300cm</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="profileForm.invalid || isSubmitting"
+          class="save-btn"
+        >
+          <mat-icon>person_add</mat-icon>
+          {{ isSubmitting ? 'Creating Profile...' : 'Create Profile' }}
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (isAdmin$ | async) {
+    <div class="profile-card admin-card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="material-icons card-icon">admin_panel_settings</span>
+          Admin Controls
+        </h2>
+        <p class="card-subtitle">You have administrative privileges</p>
+      </div>
+
+      <div class="admin-form">
+        <mat-form-field appearance="fill" class="enhanced-form-field">
+          <mat-label>User Email</mat-label>
+          <input
+            matInput
+            type="email"
+            [(ngModel)]="userEmail"
+            placeholder="Enter user email"
+            [ngModelOptions]="{standalone: true}"
+          />
+          <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="enhanced-form-field">
+          <mat-label>Role</mat-label>
+          <mat-select [(ngModel)]="selectedRole" [ngModelOptions]="{standalone: true}">
+            <mat-option value="user">User</mat-option>
+            <mat-option value="admin">Admin</mat-option>
+          </mat-select>
+          <mat-icon matSuffix>security</mat-icon>
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="accent"
+          (click)="updateUserRole()"
+          [disabled]="!userEmail"
+          class="admin-btn"
+        >
+          <mat-icon>update</mat-icon>
+          Update User Role
+        </button>
+
+        @if (roleUpdateMessage) {
+          <div class="role-update-message" [class.success]="!roleUpdateError" [class.error]="roleUpdateError">
+            {{ roleUpdateMessage }}
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="password-section">
+    <app-update-password></app-update-password>
+  </div>
+
+  <div class="profile-card info-card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <span class="material-icons card-icon">info</span>
+        About MET Values
+      </h2>
+    </div>
+    <div class="met-info">
+      <p class="met-description">
+        MET (Metabolic Equivalent of Task) is a measure of energy used by the body during
+        an activity. A MET of 1 represents resting energy expenditure, while higher MET
+        values indicate more intense exercises.
+      </p>
+      
+      <h3 class="met-subtitle">Common MET Values:</h3>
+      <ul class="met-list">
+        <li class="met-item">
+          <span class="material-icons">directions_walk</span>
+          Walking (3.5 mph) - MET 3.5
+        </li>
+        <li class="met-item">
+          <span class="material-icons">directions_bike</span>
+          Cycling (12-14 mph) - MET 8.0
+        </li>
+        <li class="met-item">
+          <span class="material-icons">directions_run</span>
+          Running (6 mph) - MET 10.0
+        </li>
+        <li class="met-item">
+          <span class="material-icons">pool</span>
+          Swimming laps - MET 6.0
+        </li>
+        <li class="met-item">
+          <span class="material-icons">fitness_center</span>
+          Weight training - MET 3.5
+        </li>
+      </ul>
+      
+      <div class="formula-section">
+        <p class="formula-text">Your calories burned are calculated using the formula:</p>
+        <div class="formula-box">
+          <code class="formula">Calories = MET × Weight (kg) × Duration (hours)</code>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

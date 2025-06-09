@@ -42,6 +42,7 @@ CREATE TABLE user_profiles (
   user_id VARCHAR(36) NOT NULL UNIQUE,
   weight_kg DECIMAL(5,2) CHECK (weight_kg >= 30 AND weight_kg <= 300),
   height_cm DECIMAL(5,2) CHECK (height_cm >= 100 AND height_cm <= 250),
+  width_cm DECIMAL(5,2) CHECK (width_cm >= 30 AND width_cm <= 300),
   date_of_birth DATE,
   gender ENUM('male', 'female', 'other'),
   activity_level ENUM('sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extremely_active') DEFAULT 'moderately_active',

@@ -53,6 +53,8 @@ export class ExerciseListComponent implements OnInit {
   ) {
     this.exerciseService.totalCount$.subscribe(count => {
       this.pagination = { ...this.pagination, totalCount: count };
+      console.log('ExerciseList - Total count updated:', count);
+      this.cdr.detectChanges();
     });
   }
 
@@ -61,6 +63,7 @@ export class ExerciseListComponent implements OnInit {
     this.exerciseService.data$.subscribe(
       (exercises: any[]) => {
         this.exercises = exercises;
+        console.log('ExerciseList - Exercises updated:', exercises.length);
         this.cdr.detectChanges();
       }
     );
@@ -69,23 +72,30 @@ export class ExerciseListComponent implements OnInit {
     this.exerciseService.totalCount$.subscribe(
       (totalCount: number) => {
         this.pagination.totalCount = totalCount;
+        console.log('ExerciseList - Pagination updated:', this.pagination);
       }
     );
 
-    // Load exercises
+    // Reset to page 1 and load exercises
+    this.pagination.currentPage = 1;
     this.loadExercises();
   }
 
   loadExercises() {
+    console.log('ExerciseList - Loading exercises for page:', this.pagination.currentPage);
     this.exerciseService.loadExercises({
       page: this.pagination.currentPage,
-      perPage: this.pagination.perPage
+      perPage: this.pagination.perPage,
+      sortBy: 'created_at',
+      sortOrder: 'DESC'
     }).subscribe({
       next: () => {
         this.error = null;
+        console.log('ExerciseList - Exercises loaded successfully');
       },
       error: (error) => {
         this.error = error instanceof AppError ? error.message : 'Failed to load exercises';
+        console.error('ExerciseList - Error loading exercises:', error);
       }
     });
   }
@@ -97,7 +107,9 @@ export class ExerciseListComponent implements OnInit {
       this.selectedDifficulty,
       {
         page: this.pagination.currentPage,
-        perPage: this.pagination.perPage
+        perPage: this.pagination.perPage,
+        sortBy: 'created_at',
+        sortOrder: 'DESC'
       }
     ).subscribe({
       next: () => {
@@ -110,6 +122,7 @@ export class ExerciseListComponent implements OnInit {
   }
 
   changePage(page: number) {
+    console.log('ExerciseList - Changing to page:', page);
     this.pagination.currentPage = page;
     if (this.searchQuery || this.selectedDifficulty) {
       this.exerciseService.searchExercises(
@@ -117,7 +130,9 @@ export class ExerciseListComponent implements OnInit {
         this.selectedDifficulty,
         {
           page: this.pagination.currentPage,
-          perPage: this.pagination.perPage
+          perPage: this.pagination.perPage,
+          sortBy: 'created_at',
+          sortOrder: 'DESC'
         }
       ).subscribe({
         error: (error) => {

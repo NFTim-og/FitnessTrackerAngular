@@ -30,7 +30,7 @@ export const getProfile = catchAsync(async (req, res, next) => {
   // Get user profile with joined user data
   const [profile] = await query(`
     SELECT
-      up.id, up.user_id, up.weight_kg, up.height_cm, up.date_of_birth,
+      up.id, up.user_id, up.weight_kg, up.height_cm, up.width_cm, up.date_of_birth,
       up.gender, up.activity_level, up.fitness_goal, up.created_at, up.updated_at,
       u.email, u.first_name, u.last_name, u.role
     FROM user_profiles up
@@ -49,7 +49,7 @@ export const getProfile = catchAsync(async (req, res, next) => {
     // Get the newly created profile
     const [newProfile] = await query(`
       SELECT
-        up.id, up.user_id, up.weight_kg, up.height_cm, up.date_of_birth,
+        up.id, up.user_id, up.weight_kg, up.height_cm, up.width_cm, up.date_of_birth,
         up.gender, up.activity_level, up.fitness_goal, up.created_at, up.updated_at,
         u.email, u.first_name, u.last_name, u.role
       FROM user_profiles up
@@ -75,6 +75,7 @@ export const getProfile = catchAsync(async (req, res, next) => {
           role: decryptedProfile.role,
           weightKg: decryptedProfile.weight_kg,
           heightCm: decryptedProfile.height_cm,
+          widthCm: decryptedProfile.width_cm,
           dateOfBirth: decryptedProfile.date_of_birth,
           gender: decryptedProfile.gender,
           activityLevel: decryptedProfile.activity_level,
@@ -101,6 +102,7 @@ export const getProfile = catchAsync(async (req, res, next) => {
         role: decryptedProfile.role,
         weightKg: decryptedProfile.weight_kg,
         heightCm: decryptedProfile.height_cm,
+        widthCm: decryptedProfile.width_cm,
         dateOfBirth: decryptedProfile.date_of_birth,
         gender: decryptedProfile.gender,
         activityLevel: decryptedProfile.activity_level,
@@ -119,7 +121,7 @@ export const getProfile = catchAsync(async (req, res, next) => {
  */
 export const updateProfile = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
-  const { weight_kg, height_cm, date_of_birth, gender, activity_level, fitness_goal } = req.body;
+  const { weight_kg, height_cm, width_cm, date_of_birth, gender, activity_level, fitness_goal } = req.body;
 
   // Check if profile exists
   const [existingProfile] = await query(
@@ -131,21 +133,21 @@ export const updateProfile = catchAsync(async (req, res, next) => {
     // Create profile if it doesn't exist
     const profileId = uuidv4();
     await query(
-      'INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, date_of_birth, gender, activity_level, fitness_goal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [profileId, userId, weight_kg, height_cm, date_of_birth, gender, activity_level, fitness_goal]
+      'INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, width_cm, date_of_birth, gender, activity_level, fitness_goal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [profileId, userId, weight_kg, height_cm, width_cm, date_of_birth, gender, activity_level, fitness_goal]
     );
   } else {
     // Update existing profile
     await query(
-      'UPDATE user_profiles SET weight_kg = ?, height_cm = ?, date_of_birth = ?, gender = ?, activity_level = ?, fitness_goal = ?, updated_at = NOW() WHERE user_id = ?',
-      [weight_kg, height_cm, date_of_birth, gender, activity_level, fitness_goal, userId]
+      'UPDATE user_profiles SET weight_kg = ?, height_cm = ?, width_cm = ?, date_of_birth = ?, gender = ?, activity_level = ?, fitness_goal = ?, updated_at = NOW() WHERE user_id = ?',
+      [weight_kg, height_cm, width_cm, date_of_birth, gender, activity_level, fitness_goal, userId]
     );
   }
 
   // Get updated profile
   const [updatedProfile] = await query(`
     SELECT
-      up.id, up.user_id, up.weight_kg, up.height_cm, up.date_of_birth,
+      up.id, up.user_id, up.weight_kg, up.height_cm, up.width_cm, up.date_of_birth,
       up.gender, up.activity_level, up.fitness_goal, up.created_at, up.updated_at,
       u.email, u.first_name, u.last_name, u.role
     FROM user_profiles up
@@ -169,6 +171,7 @@ export const updateProfile = catchAsync(async (req, res, next) => {
         role: decryptedProfile.role,
         weightKg: decryptedProfile.weight_kg,
         heightCm: decryptedProfile.height_cm,
+        widthCm: decryptedProfile.width_cm,
         dateOfBirth: decryptedProfile.date_of_birth,
         gender: decryptedProfile.gender,
         activityLevel: decryptedProfile.activity_level,

@@ -102,12 +102,13 @@ SET @mike_id = '550e8400-e29b-41d4-a716-446655440004';
 SET @sarah_id = '550e8400-e29b-41d4-a716-446655440005';
 
 -- Insert comprehensive user profiles with health data
-INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, date_of_birth, gender, activity_level, fitness_goal, created_at, updated_at)
+INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, width_cm, date_of_birth, gender, activity_level, fitness_goal, created_at, updated_at)
 VALUES (
   '650e8400-e29b-41d4-a716-446655440001',
   @admin_id,
   75.5,
   180.0,
+  60.0,
   '1985-03-15',
   'male',
   'very_active',
@@ -116,12 +117,13 @@ VALUES (
   NOW()
 );
 
-INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, date_of_birth, gender, activity_level, fitness_goal, created_at, updated_at)
+INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, width_cm, date_of_birth, gender, activity_level, fitness_goal, created_at, updated_at)
 VALUES (
   '650e8400-e29b-41d4-a716-446655440002',
   @user_id,
   68.2,
   175.0,
+  60.0,
   '1990-07-22',
   'male',
   'moderately_active',
@@ -130,12 +132,13 @@ VALUES (
   NOW()
 );
 
-INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, date_of_birth, gender, activity_level, fitness_goal, created_at, updated_at)
+  INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, width_cm, date_of_birth, gender, activity_level, fitness_goal, created_at, updated_at)
 VALUES (
   '650e8400-e29b-41d4-a716-446655440003',
   @jane_id,
   62.5,
   165.0,
+  60.0,
   '1992-11-08',
   'female',
   'lightly_active',
@@ -144,12 +147,13 @@ VALUES (
   NOW()
 );
 
-INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, date_of_birth, gender, activity_level, fitness_goal, created_at, updated_at)
+INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, width_cm, date_of_birth, gender, activity_level, fitness_goal, created_at, updated_at)
 VALUES (
   '650e8400-e29b-41d4-a716-446655440004',
   @mike_id,
   85.0,
   185.0,
+  60.0,
   '1988-01-30',
   'male',
   'extremely_active',
@@ -158,12 +162,13 @@ VALUES (
   NOW()
 );
 
-INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, date_of_birth, gender, activity_level, fitness_goal, created_at, updated_at)
+INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, width_cm, date_of_birth, gender, activity_level, fitness_goal, created_at, updated_at)
 VALUES (
   '650e8400-e29b-41d4-a716-446655440005',
   @sarah_id,
   58.0,
   160.0,
+  60.0,
   '1995-05-12',
   'female',
   'moderately_active',

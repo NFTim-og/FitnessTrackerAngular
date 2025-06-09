@@ -3,6 +3,7 @@ export class UserProfile {
   user_id: string;
   weight_kg: number | null;
   height_cm: number | null;
+  width_cm: number | null;
   created_at: Date;
   updated_at: Date;
 
@@ -12,6 +13,7 @@ export class UserProfile {
     // Handle both snake_case and camelCase from API
     this.weight_kg = data.weight_kg || data.weightKg;
     this.height_cm = data.height_cm || data.heightCm;
+    this.width_cm = data.width_cm || data.widthCm;
     this.created_at = new Date(data.created_at || data.createdAt);
     this.updated_at = new Date(data.updated_at || data.updatedAt);
   }
@@ -25,7 +27,6 @@ export class UserProfile {
   get bmiCategory(): string {
     const bmi = this.bmi;
     if (!bmi) return 'Unknown';
-    
     if (bmi < 18.5) return 'Underweight';
     if (bmi < 25) return 'Normal weight';
     if (bmi < 30) return 'Overweight';

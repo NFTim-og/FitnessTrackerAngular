@@ -12,10 +12,10 @@ VALUES
 ('00000000-0000-0000-0000-000000000001', 'user@example.com', '$2b$10$X/hX1z6y8RRlJFT.1WBmLO2xQ5DSdGlQOPRCBE0BLsHsKNV0K0BK.', 'user');
 
 -- Insert user profiles
-INSERT INTO user_profiles (id, user_id, weight_kg, height_cm)
+INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, width_cm)
 VALUES
-('00000000-0000-0000-0000-000000000099', '00000000-0000-0000-0000-000000000099', 75.5, 180.0),
-('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 70.0, 175.0);
+('00000000-0000-0000-0000-000000000099', '00000000-0000-0000-0000-000000000099', 75.5, 180.0, 60.0),
+('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 70.0, 175.0, 70.0);
 
 -- Insert exercises
 INSERT INTO exercises (id, name, duration, calories, difficulty, met_value, created_by)

@@ -10,21 +10,22 @@ import { handleRateLimitError } from './error.middleware.js';
 /**
  * General API rate limiter
  * Limits requests per IP address
+ * More lenient in development mode
  */
 const apiLimiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX) || 100, // Limit each IP to 100 requests per windowMs
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || (process.env.NODE_ENV === 'development' ? 60 * 1000 : 15 * 60 * 1000), // 1 minute in dev, 15 minutes in prod
+  max: parseInt(process.env.RATE_LIMIT_MAX) || (process.env.NODE_ENV === 'development' ? 1000 : 100), // 1000 in dev, 100 in prod
   message: {
     status: 'error',
     message: 'Too many requests from this IP, please try again later.',
-    retryAfter: Math.ceil((parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000) / 1000)
+    retryAfter: Math.ceil((parseInt(process.env.RATE_LIMIT_WINDOW_MS) || (process.env.NODE_ENV === 'development' ? 60 * 1000 : 15 * 60 * 1000)) / 1000)
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   handler: handleRateLimitError,
   skip: (req) => {
-    // Skip rate limiting for health checks
-    return req.path === '/health' || req.path === '/api/v1/health';
+    // Skip rate limiting for health checks and in test environment
+    return req.path === '/health' || req.path === '/api/v1/health' || process.env.NODE_ENV === 'test';
   }
 });
 

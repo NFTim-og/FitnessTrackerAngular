@@ -98,6 +98,11 @@ const validateUserProfile = [
     .isFloat({ min: 100, max: 250 })
     .withMessage('Height must be between 100 and 250 cm'),
 
+  body('width_cm')
+    .optional()
+    .isFloat({ min: 30, max: 300 })
+    .withMessage('Width must be between 30 and 300 cm'),
+
   body('date_of_birth')
     .optional()
     .isISO8601()
@@ -329,8 +334,8 @@ const validatePagination = [
 
   query('sortBy')
     .optional()
-    .isAlpha()
-    .withMessage('Sort field must contain only letters'),
+    .matches(/^[a-zA-Z_]+$/)
+    .withMessage('Sort field must contain only letters and underscores'),
 
   query('sortOrder')
     .optional()

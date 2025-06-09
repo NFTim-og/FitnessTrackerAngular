@@ -53,8 +53,8 @@ export class UserProfileService {
       );
   }
 
-  updateProfile(weight_kg: number, height_cm: number): Observable<UserProfile> {
-    return this.http.put<any>(`${this.apiUrl}`, { weight_kg, height_cm })
+  updateProfile(weight_kg: number, height_cm: number, width_cm: number): Observable<UserProfile> {
+    return this.http.put<any>(`${this.apiUrl}`, { weight_kg, height_cm, width_cm })
       .pipe(
         map(response => {
           const profile = new UserProfile(response.data.profile);
@@ -67,8 +67,8 @@ export class UserProfileService {
       );
   }
 
-  createProfile(weight_kg: number, height_cm: number): Observable<UserProfile> {
-    return this.http.post<any>(`${this.apiUrl}`, { weight_kg, height_cm })
+  createProfile(weight_kg: number, height_cm: number, width_cm: number): Observable<UserProfile> {
+    return this.http.post<any>(`${this.apiUrl}`, { weight_kg, height_cm, width_cm })
       .pipe(
         map(response => {
           const profile = new UserProfile(response.data.profile);

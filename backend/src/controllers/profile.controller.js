@@ -25,7 +25,7 @@ export const getProfile = catchAsync(async (req, res, next) => {
   // Get user profile with joined user data from user_profiles table
   const [profile] = await query(`
     SELECT
-      up.id, up.user_id, up.weight_kg, up.height_cm, up.date_of_birth,
+      up.id, up.user_id, up.weight_kg, up.height_cm, up.width_cm, up.date_of_birth,
       up.gender, up.activity_level, up.fitness_goal, up.created_at, up.updated_at,
       u.email, u.first_name, u.last_name, u.role
     FROM user_profiles up
@@ -44,7 +44,7 @@ export const getProfile = catchAsync(async (req, res, next) => {
     // Get the newly created profile
     const [newProfile] = await query(`
       SELECT
-        up.id, up.user_id, up.weight_kg, up.height_cm, up.date_of_birth,
+        up.id, up.user_id, up.weight_kg, up.height_cm, up.width_cm, up.date_of_birth,
         up.gender, up.activity_level, up.fitness_goal, up.created_at, up.updated_at,
         u.email, u.first_name, u.last_name, u.role
       FROM user_profiles up
@@ -70,6 +70,7 @@ export const getProfile = catchAsync(async (req, res, next) => {
           role: decryptedProfile.role,
           weightKg: decryptedProfile.weight_kg,
           heightCm: decryptedProfile.height_cm,
+          widthCm: decryptedProfile.width_cm,
           dateOfBirth: decryptedProfile.date_of_birth,
           gender: decryptedProfile.gender,
           activityLevel: decryptedProfile.activity_level,
@@ -96,6 +97,7 @@ export const getProfile = catchAsync(async (req, res, next) => {
         role: decryptedProfile.role,
         weightKg: decryptedProfile.weight_kg,
         heightCm: decryptedProfile.height_cm,
+        widthCm: decryptedProfile.width_cm,
         dateOfBirth: decryptedProfile.date_of_birth,
         gender: decryptedProfile.gender,
         activityLevel: decryptedProfile.activity_level,
@@ -116,6 +118,7 @@ export const getProfile = catchAsync(async (req, res, next) => {
  * @param {Object} req.body - Request body
  * @param {number} [req.body.weight_kg] - User weight in kilograms
  * @param {number} [req.body.height_cm] - User height in centimeters
+ * @param {number} [req.body.width_cm] - User width in centimeters
  * @param {Object} req.user - User object from auth middleware
  * @param {string} req.user.id - User ID
  * @param {Object} res - Express response object
@@ -123,7 +126,7 @@ export const getProfile = catchAsync(async (req, res, next) => {
  */
 export const updateProfile = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
-  const { weight_kg, height_cm, date_of_birth, gender, activity_level, fitness_goal } = req.body;
+  const { weight_kg, height_cm, width_cm, date_of_birth, gender, activity_level, fitness_goal } = req.body;
 
   // Validate weight if provided (must be between 30 and 300 kg)
   if (weight_kg !== undefined && (weight_kg < 30 || weight_kg > 300)) {
@@ -133,6 +136,11 @@ export const updateProfile = catchAsync(async (req, res, next) => {
   // Validate height if provided (must be between 100 and 250 cm)
   if (height_cm !== undefined && (height_cm < 100 || height_cm > 250)) {
     return next(new AppError('Height must be between 100 and 250 cm', 400));
+  }
+
+  // Validate width if provided (must be between 30 and 300 cm)
+  if (width_cm !== undefined && (width_cm < 30 || width_cm > 300)) {
+    return next(new AppError('Width must be between 30 and 300 cm', 400));
   }
 
   // Check if profile exists
@@ -145,8 +153,8 @@ export const updateProfile = catchAsync(async (req, res, next) => {
     // Create profile if it doesn't exist
     const profileId = uuidv4();
     await query(
-      'INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, date_of_birth, gender, activity_level, fitness_goal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-      [profileId, userId, weight_kg, height_cm, date_of_birth, gender, activity_level, fitness_goal]
+      'INSERT INTO user_profiles (id, user_id, weight_kg, height_cm, width_cm, date_of_birth, gender, activity_level, fitness_goal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [profileId, userId, weight_kg, height_cm, width_cm, date_of_birth, gender, activity_level, fitness_goal]
     );
   } else {
     // Update existing profile
@@ -160,6 +168,10 @@ export const updateProfile = catchAsync(async (req, res, next) => {
     if (height_cm !== undefined) {
       updateFields.push('height_cm = ?');
       updateValues.push(height_cm);
+    }
+    if (width_cm !== undefined) {
+      updateFields.push('width_cm = ?');
+      updateValues.push(width_cm);
     }
     if (date_of_birth !== undefined) {
       updateFields.push('date_of_birth = ?');
@@ -192,7 +204,7 @@ export const updateProfile = catchAsync(async (req, res, next) => {
   // Get the updated profile
   const [updatedProfile] = await query(`
     SELECT
-      up.id, up.user_id, up.weight_kg, up.height_cm, up.date_of_birth,
+      up.id, up.user_id, up.weight_kg, up.height_cm, up.width_cm, up.date_of_birth,
       up.gender, up.activity_level, up.fitness_goal, up.created_at, up.updated_at,
       u.email, u.first_name, u.last_name, u.role
     FROM user_profiles up
@@ -215,6 +227,7 @@ export const updateProfile = catchAsync(async (req, res, next) => {
         role: decryptedProfile.role,
         weightKg: decryptedProfile.weight_kg,
         heightCm: decryptedProfile.height_cm,
+        widthCm: decryptedProfile.width_cm,
         dateOfBirth: decryptedProfile.date_of_birth,
         gender: decryptedProfile.gender,
         activityLevel: decryptedProfile.activity_level,

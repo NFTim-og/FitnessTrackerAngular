@@ -6,222 +6,30 @@ import { firstValueFrom, map } from 'rxjs';
 import { UserProfileService } from '../../services/user-profile.service';
 import { AuthService } from '../../services/auth.service';
 import { UpdatePasswordComponent } from './update-password/update-password.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, UpdatePasswordComponent],
-  template: `
-    <div class="max-w-lg mx-auto">
-      @if (error) {
-        <div class="alert alert-error mb-4">
-          {{ error }}
-          <button class="ml-2" (click)="error = null">&times;</button>
-        </div>
-      }
-
-      @if (successMessage) {
-        <div class="alert alert-success mb-4">
-          {{ successMessage }}
-          <button class="ml-2" (click)="successMessage = null">&times;</button>
-        </div>
-      }
-
-      <h1 class="text-3xl font-bold mb-6">Profile Settings</h1>
-
-      @if (currentUser$ | async; as user) {
-        <div class="card mb-6">
-          <h2 class="text-xl font-semibold mb-2">Account Information</h2>
-          <p class="text-sm text-gray-600">User ID: {{ user.id }}</p>
-          <p class="text-sm text-gray-600">Email: {{ user.email }}</p>
-        </div>
-      }
-
-      @if (profile$ | async; as profile) {
-        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="card">
-          <div class="form-group">
-            <label for="weight" class="form-label">Weight (kg)</label>
-            <input
-              type="number"
-              id="weight"
-              formControlName="weight"
-              class="form-control"
-              [class.border-red-500]="showError('weight')"
-              step="0.1"
-            />
-            @if (showError('weight')) {
-              <p class="text-red-500 text-sm mt-1">
-                Weight must be between 30kg and 300kg
-              </p>
-            }
-          </div>
-
-          <div class="form-group">
-            <label for="height" class="form-label">Height (cm)</label>
-            <input
-              type="number"
-              id="height"
-              formControlName="height"
-              class="form-control"
-              [class.border-red-500]="showError('height')"
-              step="0.1"
-            />
-            @if (showError('height')) {
-              <p class="text-red-500 text-sm mt-1">
-                Height must be between 100cm and 250cm
-              </p>
-            }
-          </div>
-
-          <button
-            type="submit"
-            class="btn btn-primary"
-            [disabled]="profileForm.invalid || isSubmitting"
-          >
-            {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
-          </button>
-        </form>
-
-        @if (weightHistory.length > 0) {
-          <div class="card mt-6">
-            <h2 class="text-xl font-semibold mb-4">Weight History</h2>
-            <div class="space-y-2">
-              @for (entry of weightHistory; track entry.id) {
-                <div class="flex justify-between items-center">
-                  <span>{{ entry.weight_kg }} kg</span>
-                  <span class="text-sm text-gray-600">
-                    {{ entry.recorded_at | date:'medium' }}
-                  </span>
-                </div>
-              }
-            </div>
-          </div>
-        }
-      } @else {
-        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="card">
-          <h2 class="text-xl font-semibold mb-4">Complete Your Profile</h2>
-          <p class="mb-4">
-            Please enter your weight and height to enable personalized calorie calculations.
-          </p>
-
-          <div class="form-group">
-            <label for="weight" class="form-label">Weight (kg)</label>
-            <input
-              type="number"
-              id="weight"
-              formControlName="weight"
-              class="form-control"
-              [class.border-red-500]="showError('weight')"
-              step="0.1"
-            />
-            @if (showError('weight')) {
-              <p class="text-red-500 text-sm mt-1">
-                Weight must be between 30kg and 300kg
-              </p>
-            }
-          </div>
-
-          <div class="form-group">
-            <label for="height" class="form-label">Height (cm)</label>
-            <input
-              type="number"
-              id="height"
-              formControlName="height"
-              class="form-control"
-              [class.border-red-500]="showError('height')"
-              step="0.1"
-            />
-            @if (showError('height')) {
-              <p class="text-red-500 text-sm mt-1">
-                Height must be between 100cm and 250cm
-              </p>
-            }
-          </div>
-
-          <button
-            type="submit"
-            class="btn btn-primary"
-            [disabled]="profileForm.invalid || isSubmitting"
-          >
-            {{ isSubmitting ? 'Creating Profile...' : 'Create Profile' }}
-          </button>
-        </form>
-      }
-
-      @if (isAdmin$ | async) {
-        <div class="card mt-6">
-          <h2 class="text-xl font-semibold mb-4">Admin Controls</h2>
-          <p class="mb-4">You have administrative privileges.</p>
-
-          <div class="form-group">
-            <label for="userEmail" class="form-label">User Email</label>
-            <input
-              type="email"
-              id="userEmail"
-              [(ngModel)]="userEmail"
-              class="form-control"
-              [ngModelOptions]="{standalone: true}"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="userRole" class="form-label">Role</label>
-            <select
-              id="userRole"
-              [(ngModel)]="selectedRole"
-              class="form-control"
-              [ngModelOptions]="{standalone: true}"
-            >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-
-          <button
-            (click)="updateUserRole()"
-            class="btn btn-primary"
-            [disabled]="!userEmail"
-          >
-            Update User Role
-          </button>
-
-          @if (roleUpdateMessage) {
-            <p class="mt-4" [class.text-green-500]="!roleUpdateError" [class.text-red-500]="roleUpdateError">
-              {{ roleUpdateMessage }}
-            </p>
-          }
-        </div>
-      }
-
-      <div class="mt-6">
-        <app-update-password></app-update-password>
-      </div>
-
-      <div class="card mt-6">
-        <h2 class="text-xl font-semibold mb-4">About MET Values</h2>
-        <p class="mb-4">
-          MET (Metabolic Equivalent of Task) is a measure of energy used by the body during
-          an activity. A MET of 1 represents resting energy expenditure, while higher MET
-          values indicate more intense exercises.
-        </p>
-        <h3 class="font-semibold mb-2">Common MET Values:</h3>
-        <ul class="list-disc list-inside space-y-1">
-          <li>Walking (3.5 mph) - MET 3.5</li>
-          <li>Cycling (12-14 mph) - MET 8.0</li>
-          <li>Running (6 mph) - MET 10.0</li>
-          <li>Swimming laps - MET 6.0</li>
-          <li>Weight training - MET 3.5</li>
-        </ul>
-        <p class="mt-4">
-          Your calories burned are calculated using the formula:
-          <br>
-          <code class="bg-gray-100 px-2 py-1 rounded">
-            Calories = MET × Weight (kg) × Duration (hours)
-          </code>
-        </p>
-      </div>
-    </div>
-  `
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    UpdatePasswordComponent,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSelectModule,
+    MatOptionModule
+  ],
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit {
   profile$ = this.userProfileService.profile$;
@@ -244,7 +52,8 @@ export class ProfileComponent implements OnInit {
   ) {
     this.profileForm = this.fb.group({
       weight: ['', [Validators.required, Validators.min(30), Validators.max(300)]],
-      height: ['', [Validators.required, Validators.min(100), Validators.max(250)]]
+      height: ['', [Validators.required, Validators.min(100), Validators.max(250)]],
+      width: ['', [Validators.required, Validators.min(30), Validators.max(300)]]
     });
   }
 
@@ -259,14 +68,16 @@ export class ProfileComponent implements OnInit {
         // Check for weight and height in both formats (snake_case and camelCase)
         const weight = profile.weight_kg;
         const height = profile.height_cm;
+        const width = profile.width_cm;
 
-        console.log('ProfileComponent - Extracted weight/height:', { weight, height });
+        console.log('ProfileComponent - Extracted weight/height/width:', { weight, height, width });
 
         if (weight && height) {
           // Only update form if we have valid weight and height data
           const formValues = {
             weight: weight,
-            height: height
+            height: height,
+            width: width
           };
 
           console.log('ProfileComponent - Updating form with profile data:', formValues);
@@ -323,15 +134,15 @@ export class ProfileComponent implements OnInit {
     this.isSubmitting = true;
     try {
       const profile = await firstValueFrom(this.userProfileService.profile$);
-      const { weight, height } = this.profileForm.value;
+      const { weight, height, width } = this.profileForm.value;
 
-      console.log('ProfileComponent - Submitting form with values:', { weight, height });
+      console.log('ProfileComponent - Submitting form with values:', { weight, height, width });
 
       let updatedProfile;
       if (profile) {
-        updatedProfile = await firstValueFrom(this.userProfileService.updateProfile(weight, height));
+        updatedProfile = await firstValueFrom(this.userProfileService.updateProfile(weight, height, width));
       } else {
-        updatedProfile = await firstValueFrom(this.userProfileService.createProfile(weight, height));
+        updatedProfile = await firstValueFrom(this.userProfileService.createProfile(weight, height, width));
       }
 
       console.log('ProfileComponent - Received updated profile:', updatedProfile);
@@ -339,7 +150,8 @@ export class ProfileComponent implements OnInit {
       // Update the form with the saved values to ensure they persist
       const formValues = {
         weight: updatedProfile.weight_kg,
-        height: updatedProfile.height_cm
+        height: updatedProfile.height_cm,
+        width: updatedProfile.width_cm
       };
 
       console.log('ProfileComponent - Updating form with values:', formValues);
