@@ -20,6 +20,13 @@ import { UpdatePasswordComponent } from './update-password/update-password.compo
         </div>
       }
 
+      @if (successMessage) {
+        <div class="alert alert-success mb-4">
+          {{ successMessage }}
+          <button class="ml-2" (click)="successMessage = null">&times;</button>
+        </div>
+      }
+
       <h1 class="text-3xl font-bold mb-6">Profile Settings</h1>
 
       @if (currentUser$ | async; as user) {
@@ -223,6 +230,7 @@ export class ProfileComponent implements OnInit {
   isSubmitting = false;
   weightHistory: any[] = [];
   error: string | null = null;
+  successMessage: string | null = null;
   userEmail = '';
   selectedRole: 'admin' | 'user' = 'user';
   currentUser$ = this.authService.user$;
@@ -247,16 +255,24 @@ export class ProfileComponent implements OnInit {
     // Subscribe to profile changes and update form accordingly
     this.profile$.subscribe(profile => {
       console.log('ProfileComponent - Profile loaded:', profile);
-      if (profile && profile.weight_kg && profile.height_cm) {
-        // Only update form if we have valid weight and height data
-        this.profileForm.patchValue({
-          weight: profile.weight_kg,
-          height: profile.height_cm
-        }, { emitEvent: false }); // Don't emit events to avoid infinite loops
-        console.log('ProfileComponent - Form updated with profile data:', {
-          weight: profile.weight_kg,
-          height: profile.height_cm
-        });
+      if (profile) {
+        // Check for weight and height in both formats (snake_case and camelCase)
+        const weight = profile.weight_kg;
+        const height = profile.height_cm;
+
+        console.log('ProfileComponent - Extracted weight/height:', { weight, height });
+
+        if (weight && height) {
+          // Only update form if we have valid weight and height data
+          const formValues = {
+            weight: weight,
+            height: height
+          };
+
+          console.log('ProfileComponent - Updating form with profile data:', formValues);
+
+          this.profileForm.patchValue(formValues, { emitEvent: false }); // Don't emit events to avoid infinite loops
+        }
       }
     });
 
@@ -309,6 +325,8 @@ export class ProfileComponent implements OnInit {
       const profile = await firstValueFrom(this.userProfileService.profile$);
       const { weight, height } = this.profileForm.value;
 
+      console.log('ProfileComponent - Submitting form with values:', { weight, height });
+
       let updatedProfile;
       if (profile) {
         updatedProfile = await firstValueFrom(this.userProfileService.updateProfile(weight, height));
@@ -316,15 +334,34 @@ export class ProfileComponent implements OnInit {
         updatedProfile = await firstValueFrom(this.userProfileService.createProfile(weight, height));
       }
 
+      console.log('ProfileComponent - Received updated profile:', updatedProfile);
+
       // Update the form with the saved values to ensure they persist
-      this.profileForm.patchValue({
+      const formValues = {
         weight: updatedProfile.weight_kg,
         height: updatedProfile.height_cm
-      });
+      };
+
+      console.log('ProfileComponent - Updating form with values:', formValues);
+
+      this.profileForm.patchValue(formValues, { emitEvent: false });
+
+      // Mark form as pristine to show it's saved
+      this.profileForm.markAsPristine();
 
       this.error = null;
+      this.successMessage = 'Profile updated successfully!';
+
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        this.successMessage = null;
+      }, 3000);
+
       await this.loadWeightHistory();
+
+      console.log('ProfileComponent - Form updated successfully, current values:', this.profileForm.value);
     } catch (error) {
+      console.error('ProfileComponent - Error saving profile:', error);
       this.error = error instanceof AppError ? error.message : 'Failed to save profile';
     } finally {
       this.isSubmitting = false;

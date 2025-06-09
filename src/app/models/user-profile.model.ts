@@ -8,11 +8,12 @@ export class UserProfile {
 
   constructor(data: any) {
     this.id = data.id;
-    this.user_id = data.user_id;
-    this.weight_kg = data.weight_kg;
-    this.height_cm = data.height_cm;
-    this.created_at = new Date(data.created_at);
-    this.updated_at = new Date(data.updated_at);
+    this.user_id = data.user_id || data.userId;
+    // Handle both snake_case and camelCase from API
+    this.weight_kg = data.weight_kg || data.weightKg;
+    this.height_cm = data.height_cm || data.heightCm;
+    this.created_at = new Date(data.created_at || data.createdAt);
+    this.updated_at = new Date(data.updated_at || data.updatedAt);
   }
 
   get bmi(): number | null {
