@@ -228,11 +228,16 @@ export class ExerciseService {
           if (response && response.status === 'success') {
             console.log('ExerciseService - Exercise deleted successfully');
 
-            // Reload the exercises list to update the UI
-            this.loadExercises({ page: 1, perPage: 6 }).subscribe({
-              next: () => console.log('ExerciseService - Exercises reloaded after deletion'),
-              error: (err) => console.error('ExerciseService - Error reloading exercises:', err)
-            });
+            // Remove the deleted exercise from the current list
+            const currentExercises = this.exercisesSubject.value;
+            const updatedExercises = currentExercises.filter(exercise => exercise.id !== id);
+            this.exercisesSubject.next(updatedExercises);
+
+            // Update total count
+            const currentCount = this.totalCountSubject.value;
+            this.totalCountSubject.next(Math.max(0, currentCount - 1));
+
+            console.log('ExerciseService - Exercise list updated after deletion');
           } else {
             // Handle invalid response format
             console.error('ExerciseService - Invalid delete response format:', response);

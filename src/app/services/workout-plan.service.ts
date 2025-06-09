@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { WorkoutPlan, WorkoutExercise } from '../models/workout-plan.model';
+import { WorkoutPlan } from '../models/workout-plan.model';
 import { PaginationParams } from '../shared/models/pagination.model';
 import { environment } from '../../environments/environment';
 import { ErrorHandlerService } from '../shared/services/error-handler.service';
@@ -135,12 +135,35 @@ export class WorkoutPlanService {
   }
 
   deleteWorkoutPlan(id: string): Observable<void> {
+    console.log('WorkoutPlanService - Deleting workout plan:', id);
+
     return this.http.delete<any>(`${this.apiUrl}/${id}`)
       .pipe(
-        map(() => {
-          this.loadWorkoutPlans(this.currentParams).subscribe();
+        map(response => {
+          console.log('WorkoutPlanService - Delete workout plan response:', response);
+
+          // Validate response format
+          if (response && response.status === 'success') {
+            console.log('WorkoutPlanService - Workout plan deleted successfully');
+
+            // Remove the deleted workout plan from the current list
+            const currentWorkoutPlans = this.workoutPlansSubject.value;
+            const updatedWorkoutPlans = currentWorkoutPlans.filter(plan => plan.id !== id);
+            this.workoutPlansSubject.next(updatedWorkoutPlans);
+
+            // Update total count
+            const currentCount = this.totalCountSubject.value;
+            this.totalCountSubject.next(Math.max(0, currentCount - 1));
+
+            console.log('WorkoutPlanService - Workout plan list updated after deletion');
+          } else {
+            // Handle invalid response format
+            console.error('WorkoutPlanService - Invalid delete response format:', response);
+            throw new Error('Failed to delete workout plan: Invalid response format');
+          }
         }),
         catchError(error => {
+          console.error('WorkoutPlanService - Error deleting workout plan:', error);
           return throwError(() => this.errorHandler.handleError(error, 'WorkoutPlanService.deleteWorkoutPlan', true));
         })
       );

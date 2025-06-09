@@ -543,9 +543,10 @@ export const deleteWorkoutPlan = catchAsync(async (req, res, next) => {
   // Delete the workout plan
   await query('DELETE FROM workout_plans WHERE id = ?', [id]);
 
-  res.status(204).json({
+  res.status(200).json({
     status: 'success',
-    message: 'Workout plan deleted successfully'
+    message: 'Workout plan deleted successfully',
+    data: null
   });
 });
 

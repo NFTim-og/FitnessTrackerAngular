@@ -550,8 +550,9 @@ export const deleteExercise = catchAsync(async (req, res, next) => {
   // Delete the exercise
   await query('DELETE FROM exercises WHERE id = ?', [id]);
 
-  res.status(204).json({
+  res.status(200).json({
     status: 'success',
-    message: 'Exercise deleted successfully'
+    message: 'Exercise deleted successfully',
+    data: null
   });
 });
