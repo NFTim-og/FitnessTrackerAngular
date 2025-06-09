@@ -1,8 +1,8 @@
-# 🏋️ Fitness Tracker API
+# 🏋️ Fitness Tracker Application
 
-A comprehensive REST API for fitness tracking built with Express.js, MySQL, and modern web technologies. This project demonstrates professional-level backend development skills and modern API design patterns.
+A comprehensive full-stack fitness tracking application built with Angular frontend and Express.js backend. This project demonstrates modern web development practices with professional-grade architecture, security, and user experience.
 
-**🚀 Production Ready** | **📊 Comprehensive Sample Data** | **🔒 Secure & Scalable**
+**🚀 Production Ready** | **📊 Comprehensive Sample Data** | **🔒 Secure & Scalable** | **⚡ One-Command Startup**
 
 ---
 
@@ -11,16 +11,58 @@ A comprehensive REST API for fitness tracking built with Express.js, MySQL, and 
 ### ⚡ One-Command Setup (Recommended)
 
 ```bash
-# Clone and setup everything automatically
+# Clone the repository
 git clone https://github.com/NFTim-og/FitnessTrackerAngular.git
-cd FitnessTrackerAngular/backend
+cd FitnessTrackerAngular
+
+# Install dependencies and start everything
 npm install
-npm run docker:init
-npm run seed
 npm start
 ```
 
-**✅ That's it! Your API is now running with complete sample data at `http://localhost:3000`**
+**✅ That's it! The complete application is now running:**
+- **Frontend**: http://localhost:4200
+- **Backend API**: http://localhost:3000
+- **Database**: MySQL running in Docker
+
+## 📋 Prerequisites
+
+Before starting, ensure you have the following installed:
+
+- **Node.js** 18.0 or higher ([Download](https://nodejs.org/))
+- **npm** 8.0 or higher (comes with Node.js)
+- **Docker** and **Docker Compose** ([Download](https://www.docker.com/get-started))
+- **Git** for cloning the repository
+
+## 🚀 Installation & Setup
+
+### Step 1: Clone and Install Dependencies
+
+```bash
+# Clone the repository
+git clone https://github.com/NFTim-og/FitnessTrackerAngular.git
+cd FitnessTrackerAngular
+
+# Install main dependencies
+npm install
+
+# Install backend dependencies
+cd backend
+npm install
+cd ..
+```
+
+### Step 2: Start the Application
+
+```bash
+# Start everything with one command
+npm start
+```
+
+This command automatically:
+1. 🐳 Starts MySQL database in Docker
+2. ⚡ Starts the Express.js backend server
+3. 🌐 Starts the Angular frontend development server
 
 ### 🔑 Default Login Credentials
 
@@ -32,16 +74,38 @@ npm start
 | **User** | `mike.wilson@example.com` | `user123` | Sports performance data |
 | **User** | `sarah.johnson@example.com` | `user123` | Endurance training data |
 
-### 📋 Essential URLs for Evaluation
+### 📋 Development URLs
 
 | Resource | URL | Description |
 |----------|-----|-------------|
-| **API Root** | `http://localhost:3000` | HTML presentation page |
+| **Frontend App** | `http://localhost:4200` | Angular application |
+| **Backend API** | `http://localhost:3000` | Express.js REST API |
 | **API Documentation** | `http://localhost:3000/api-docs` | Interactive Swagger UI |
 | **Health Check** | `http://localhost:3000/health` | System status |
-| **Database Admin** | `http://localhost:8080` | phpMyAdmin (admin/admin123) |
+| **Database Admin** | `http://localhost:8080` | phpMyAdmin (root/password) |
 
-### 🧪 Quick API Test
+## 📜 Available Scripts
+
+### Main Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm start` | **Start everything** (database, backend, frontend) |
+| `npm run start:frontend-only` | Start only Angular frontend |
+| `npm run stop` | Stop all services |
+| `npm run setup` | Full setup with database initialization |
+
+### Development Commands
+
+| Command | Description |
+|---------|-------------|
+| `npm run start:db` | Start only the database |
+| `npm run start:backend` | Start only the backend server |
+| `npm run start:frontend` | Start frontend (waits for backend) |
+| `npm test` | Run frontend tests |
+| `npm run build` | Build for production |
+
+## 🧪 Quick API Test
 
 ```bash
 # Test authentication
@@ -54,6 +118,129 @@ curl -X GET http://localhost:3000/api/v1/exercises \
   -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 
+## 🏗️ Project Structure
+
+```
+fitness-tracker-app/
+├── src/                          # Angular Frontend
+│   ├── app/
+│   │   ├── components/           # Reusable UI components
+│   │   ├── pages/                # Page components (login, exercises, etc.)
+│   │   ├── services/             # API services and business logic
+│   │   ├── guards/               # Route guards for authentication
+│   │   ├── models/               # TypeScript interfaces and models
+│   │   └── shared/               # Shared utilities and helpers
+│   ├── environments/             # Environment configuration
+│   └── global_styles.css         # Global styles and themes
+├── backend/                      # Express.js Backend
+│   ├── src/
+│   │   ├── controllers/          # Request handlers and business logic
+│   │   ├── routes/               # API route definitions
+│   │   ├── models/               # Database models and queries
+│   │   ├── middlewares/          # Express middlewares
+│   │   ├── db/                   # Database scripts and configuration
+│   │   ├── validations/          # Request validation schemas
+│   │   └── server.js             # Main server entry point
+│   ├── public/                   # Static files and HTML presentation
+│   ├── docker-compose.yml        # Database container configuration
+│   └── .env                      # Environment variables
+├── package.json                  # Main project dependencies and scripts
+└── README.md                     # This documentation
+```
+
+## 🛠️ Technology Stack
+
+### Frontend (Angular 18)
+- **Framework**: Angular 18 with TypeScript
+- **UI Library**: Angular Material Design
+- **State Management**: RxJS for reactive programming
+- **Routing**: Angular Router with guards
+- **Forms**: Reactive Forms with validation
+- **HTTP Client**: Angular HttpClient with interceptors
+- **Icons**: Google Material Icons
+- **Styling**: Custom CSS with Material Design theming
+
+### Backend (Express.js)
+- **Framework**: Express.js with ES Modules
+- **Database**: MySQL 8.0 with connection pooling
+- **Authentication**: JWT with bcrypt password hashing
+- **Validation**: express-validator with custom rules
+- **Documentation**: Swagger/OpenAPI 3.0
+- **Security**: Helmet, CORS, rate limiting
+- **Logging**: Morgan with custom error handling
+- **Containerization**: Docker and Docker Compose
+
+### Development Tools
+- **Package Manager**: npm
+- **Process Management**: concurrently for multi-service startup
+- **Database Admin**: phpMyAdmin
+- **API Testing**: Postman collection included
+- **Code Quality**: ESLint, TypeScript strict mode
+
+## 🔧 Troubleshooting
+
+### Common Issues and Solutions
+
+#### ❌ "ERR_CONNECTION_REFUSED" Error
+**Problem**: Frontend can't connect to backend API
+**Solution**:
+```bash
+# Check if backend is running
+curl http://localhost:3000/health
+
+# If not running, restart the application
+npm run stop
+npm start
+```
+
+#### ❌ "Port 3000 already in use"
+**Problem**: Another process is using port 3000
+**Solution**:
+```bash
+# Find and kill the process
+lsof -ti:3000 | xargs kill -9
+
+# Or use a different port
+PORT=3001 npm start
+```
+
+#### ❌ Database Connection Failed
+**Problem**: MySQL container not running or not ready
+**Solution**:
+```bash
+# Check Docker containers
+docker ps
+
+# Restart database
+cd backend
+docker-compose down
+docker-compose up -d
+
+# Wait 10-15 seconds for MySQL to initialize
+sleep 15
+npm start
+```
+
+#### ❌ "Module not found" Errors
+**Problem**: Dependencies not installed
+**Solution**:
+```bash
+# Reinstall dependencies
+npm install
+cd backend && npm install && cd ..
+npm start
+```
+
+#### ❌ Frontend Build Errors
+**Problem**: Angular compilation issues
+**Solution**:
+```bash
+# Clear cache and reinstall
+rm -rf node_modules package-lock.json
+npm install
+npm start
+```
+
 ### 📊 Sample Data Overview
 
 The database is automatically populated with:
@@ -63,6 +250,57 @@ The database is automatically populated with:
 - **30+ Weight History** entries showing user progress
 - **15+ Exercise Logs** demonstrating user activity
 - **Complex Relationships** showcasing many-to-many database design
+
+## 📚 API Documentation
+
+### Accessing the Documentation
+
+The API documentation is automatically generated and available at:
+- **Interactive Swagger UI**: http://localhost:3000/api-docs
+- **JSON Schema**: http://localhost:3000/api-docs.json
+
+### Key API Endpoints
+
+#### 🔐 Authentication
+```bash
+POST /api/v1/auth/register    # Register new user
+POST /api/v1/auth/login       # Login and get JWT token
+GET  /api/v1/auth/me          # Get current user info
+```
+
+#### 👤 User Management
+```bash
+GET    /api/v1/users          # Get all users (admin only)
+GET    /api/v1/users/:id      # Get user by ID
+PUT    /api/v1/users/:id      # Update user
+DELETE /api/v1/users/:id      # Delete user
+```
+
+#### 📊 User Profile
+```bash
+GET  /api/v1/profile          # Get current user profile
+PUT  /api/v1/profile          # Update profile
+GET  /api/v1/profile/weight   # Get weight history
+POST /api/v1/profile/weight   # Add weight record
+```
+
+#### 💪 Exercises
+```bash
+GET    /api/v1/exercises      # Get all exercises (with pagination)
+GET    /api/v1/exercises/:id  # Get exercise by ID
+POST   /api/v1/exercises      # Create new exercise
+PUT    /api/v1/exercises/:id  # Update exercise
+DELETE /api/v1/exercises/:id  # Delete exercise
+```
+
+#### 📋 Workout Plans
+```bash
+GET    /api/v1/workout-plans      # Get all workout plans
+GET    /api/v1/workout-plans/:id  # Get workout plan by ID
+POST   /api/v1/workout-plans      # Create new workout plan
+PUT    /api/v1/workout-plans/:id  # Update workout plan
+DELETE /api/v1/workout-plans/:id  # Delete workout plan
+```
 
 ### 🎓 Curriculum Compliance Verification
 
@@ -81,296 +319,76 @@ The database is automatically populated with:
 | **Pagination & Sorting** | ✅ | Advanced pagination with metadata |
 | **HTML Presentation** | ✅ | Professional landing page at root URL |
 
+## 🎯 Features
+
+### Frontend Features (Angular)
+- **🔐 Authentication**: Login/register with JWT tokens
+- **👤 User Profile**: Personal information and health metrics
+- **💪 Exercise Management**: Browse, create, and manage exercises
+- **📋 Workout Plans**: Create and follow structured workout routines
+- **📊 Progress Tracking**: Weight history and exercise logs
+- **🎨 Modern UI**: Material Design with light/dark themes
+- **📱 Responsive Design**: Works on desktop, tablet, and mobile
+- **🔍 Search & Filter**: Find exercises and workouts easily
+- **📄 Pagination**: Efficient handling of large data sets
+
+### Backend Features (Express.js)
+- **🔒 JWT Authentication**: Secure token-based authentication
+- **👥 Role-Based Access**: User and admin roles with permissions
+- **📊 RESTful API**: Complete CRUD operations for all resources
+- **🛡️ Input Validation**: Comprehensive data validation and sanitization
+- **🚦 Rate Limiting**: Protection against abuse and DDoS attacks
+- **📄 Pagination & Sorting**: Advanced data handling with metadata
+- **🗄️ Database Relations**: Complex many-to-many relationships
+- **📚 API Documentation**: Interactive Swagger/OpenAPI docs
+- **🔍 Error Handling**: Centralized error management
+- **🐳 Containerization**: Docker setup for easy deployment
+
 ---
 
 ## 📋 Table of Contents
 
-- [Project Overview](#project-overview)
-- [Technical Requirements](#technical-requirements)
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [API Documentation](#api-documentation)
-- [Database Schema](#database-schema)
-- [Data Validation](#data-validation)
-- [Pagination and Sorting](#pagination-and-sorting)
+- [Quick Start Guide](#-quick-start-guide)
+- [Prerequisites](#-prerequisites)
+- [Installation & Setup](#-installation--setup)
+- [Available Scripts](#-available-scripts)
+- [Project Structure](#️-project-structure)
+- [Technology Stack](#️-technology-stack)
+- [Troubleshooting](#-troubleshooting)
+- [API Documentation](#-api-documentation)
+- [Features](#-features)
+- [Database Schema](#️-database-schema)
+- [Data Validation](#-data-validation)
+- [Pagination and Sorting](#-pagination-and-sorting)
 
 ## 🎯 Project Overview
 
-This fitness tracker application provides a complete REST API for managing users, exercises, workout plans, and fitness progress tracking. Built with enterprise-grade patterns and security practices, it serves as a demonstration of full-stack development capabilities.
+This fitness tracker application is a comprehensive full-stack solution for managing fitness activities, workout plans, and health progress. Built with modern web technologies and enterprise-grade patterns, it demonstrates professional-level development skills across both frontend and backend technologies.
 
 ### Key Highlights
 
-- ✅ **Complete CRUD Operations** - Full Create, Read, Update, Delete functionality
-- ✅ **JWT Authentication** - Secure user authentication and authorization
-- ✅ **Input Validation** - Comprehensive data validation and sanitization
-- ✅ **Rate Limiting** - Protection against abuse and DDoS attacks
-- ✅ **Error Handling** - Centralized error management with proper HTTP codes
+- ✅ **Full-Stack Application** - Complete Angular frontend with Express.js backend
+- ✅ **One-Command Startup** - Start everything with `npm start`
+- ✅ **Modern Architecture** - Component-based frontend, RESTful backend
+- ✅ **Professional UI/UX** - Material Design with responsive layout
+- ✅ **Secure Authentication** - JWT tokens with role-based access control
+- ✅ **Real-Time Validation** - Frontend and backend data validation
 - ✅ **Database Relationships** - Complex many-to-many relationships with UUIDs
-- ✅ **Pagination & Sorting** - Efficient data handling for large datasets
 - ✅ **API Documentation** - Interactive Swagger/OpenAPI documentation
-- ✅ **Security** - Data encryption, SQL injection protection, CORS
-- ✅ **ES Modules** - Modern JavaScript module system
+- ✅ **Docker Integration** - Containerized database with easy setup
+- ✅ **Production Ready** - Comprehensive error handling and security
 
-## 🛠️ Technical Requirements
-
-### ✅ Application Setup
-- [x] `npm start` launches production application
-- [x] `npm run dev` for development mode with dev-specific packages
-- [x] ES Modules syntax throughout the application
-- [x] Proper `.gitignore` file configuration
-- [x] Environment variables using `.env` file
-- [x] CORS enabled for cross-origin requests
-
-### ✅ API Architecture
-- [x] Modular folder structure: `routes/`, `controllers/`, `models/`, `middlewares/`
-- [x] All endpoints use `/api/v1` prefix
-- [x] Routes using both `req.params` and `req.query`
-- [x] Complete CRUD operations: GET, POST, PUT, DELETE
-- [x] Centralized error handling with 500-599 error codes
-- [x] Undefined routes handled with appropriate errors
-- [x] Rate limiting for API connection control
-
-### ✅ Security & Validation
-- [x] JWT-based user authentication system
-- [x] Input validation and sanitization (express-validator)
-- [x] Sensitive data encryption in database
-- [x] SQL injection protection through parameterized queries
-
-### ✅ Database Requirements
-- [x] `db/` folder with SQL schema and table creation scripts
-- [x] Connection pooling and auto-reconnection
-- [x] Multiple tables with many-to-many (n:m) relationships
-- [x] UUIDs as primary key identifiers
-- [x] Complete joined data from related tables
-
-### ✅ Data Management
-- [x] Data sorting (ASC/DESC) on multiple fields
-- [x] Pagination for large datasets
-- [x] Comprehensive API testing in `postman_collection.json`
-
-## 🚀 Features
-
-### 👤 User Management
-- User registration and authentication
-- Profile management with health metrics
-- Weight tracking with history
-- Role-based access control (user/admin)
-
-### 💪 Exercise Management
-- Comprehensive exercise database
-- Categories: cardio, strength, flexibility, balance, sports
-- Difficulty levels and MET values
-- Equipment requirements and muscle groups
-- Detailed instructions and descriptions
-
-### 📋 Workout Planning
-- Custom workout plan creation
-- Exercise sequencing with sets, reps, and rest periods
-- Workout categories and difficulty levels
-- Progress tracking and completion status
-
-### 📊 Analytics & Tracking
-- Weight history tracking
-- Exercise session logging
-- Calorie burn calculations
-- Progress visualization data
-
-## Technology Stack
-
-### Frontend
-- Angular 18
-- RxJS for reactive programming
-- Angular Router for navigation
-- Angular Forms for data validation
-- Angular Material for UI components
-
-### Backend
-- Express.js REST API
-- MySQL database with n:m relationships
-- JWT Authentication with role-based access control
-- bcrypt for password hashing
-- express-validator for request validation
-- Swagger UI for API documentation
-- Docker for containerization
-
-## Project Structure
-
-```
-fitness-tracker-app/
-├── backend/                  # Express.js backend
-│   ├── src/
-│   │   ├── controllers/      # Request handlers
-│   │   ├── db/               # Database scripts and configuration
-│   │   ├── middlewares/      # Express middlewares
-│   │   ├── models/           # Data models
-│   │   ├── routes/           # API routes
-│   │   ├── validations/      # Request validation schemas
-│   │   └── index.js          # Entry point
-│   ├── test/                 # API tests
-│   ├── .env                  # Environment variables
-│   ├── Dockerfile            # Docker configuration for backend
-│   └── package.json          # Backend dependencies
-├── src/                      # Angular frontend
-│   ├── app/
-│   │   ├── components/       # Reusable components
-│   │   ├── guards/           # Route guards
-│   │   ├── models/           # Data models
-│   │   ├── pages/            # Page components
-│   │   ├── services/         # Services for API communication
-│   │   └── shared/           # Shared utilities
-│   ├── environments/         # Environment configuration
-│   └── index.html            # Main HTML file
-├── docker-compose.yml        # Docker Compose configuration
-└── README.md                 # Project documentation
-```
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18 or higher
-- Docker and Docker Compose (for the easiest setup)
-- MySQL (if not using Docker)
-
-### Quick Start with Docker (Recommended)
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/fitness-tracker-app.git
-   cd fitness-tracker-app
-   ```
-
-2. Start the application with Docker Compose:
-   ```bash
-   # Start MySQL database container
-   cd backend
-   docker-compose -f docker-compose.dev.yml up -d
-
-   # Wait for MySQL to initialize (about 10-15 seconds)
-   sleep 15
-
-   # Initialize the database with schema and seed data
-   docker cp src/db/schema.sql backend-mysql-1:/tmp/schema.sql
-   docker cp src/db/seed.sql backend-mysql-1:/tmp/seed.sql
-   docker exec -it backend-mysql-1 mysql -u root -ppassword -e "source /tmp/schema.sql"
-   docker exec -it backend-mysql-1 mysql -u root -ppassword -e "source /tmp/seed.sql"
-
-   # Start the backend server
-   npm start
-   ```
-
-3. In a new terminal, start the frontend:
-   ```bash
-   # Navigate to the project root
-   cd /path/to/fitness-tracker-app
-
-   # Start the Angular frontend
-   npm start
-   ```
-
-### Manual Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/fitness-tracker-app.git
-   cd fitness-tracker-app
-   ```
-
-2. Install dependencies:
-   ```bash
-   # Install frontend dependencies
-   npm install
-
-   # Install backend dependencies
-   cd backend
-   npm install
-   ```
-
-3. Set up environment variables:
-   ```bash
-   # Create a .env file in the backend directory with the following content:
-   cat > .env << EOL
-   # Server configuration
-   PORT=3000
-   NODE_ENV=development
-
-   # Database configuration
-   DB_HOST=localhost
-   DB_PORT=3306
-   DB_USER=root
-   DB_PASSWORD=password
-   DB_NAME=fitness_tracker
-
-   # JWT configuration
-   JWT_SECRET=your_jwt_secret_key_here
-   JWT_EXPIRES_IN=1d
-
-   # Rate limiting
-   RATE_LIMIT_WINDOW_MS=900000
-   RATE_LIMIT_MAX=100
-
-   # CORS configuration
-   CORS_ORIGIN=*
-   EOL
-   ```
-
-4. Set up MySQL:
-   ```bash
-   # Start MySQL with Docker
-   cd backend
-   docker-compose -f docker-compose.dev.yml up -d
-
-   # Wait for MySQL to initialize (about 10-15 seconds)
-   sleep 15
-
-   # Initialize the database
-   docker cp src/db/schema.sql backend-mysql-1:/tmp/schema.sql
-   docker cp src/db/seed.sql backend-mysql-1:/tmp/seed.sql
-   docker exec -it backend-mysql-1 mysql -u root -ppassword -e "source /tmp/schema.sql"
-   docker exec -it backend-mysql-1 mysql -u root -ppassword -e "source /tmp/seed.sql"
-   ```
-
-5. Start the backend server:
-   ```bash
-   # From the backend directory
-   npm start
-   # Or for development with auto-reload:
-   npm run dev
-   ```
-
-6. In a new terminal, start the frontend:
-   ```bash
-   # Navigate to the project root
-   cd /path/to/fitness-tracker-app
-
-   # Start the Angular frontend
-   npm start
-   ```
-
-7. Access the application:
-   - Frontend: http://localhost:4200
-   - Backend API: http://localhost:3000/api/v1
-   - API Documentation: http://localhost:3000/api-docs
-
-### Default Users
-
-The application comes with two pre-configured users:
-
-1. **Admin User**
-   - Email: admin@example.com
-   - Password: admin123
-   - Role: admin
-
-2. **Regular User**
-   - Email: user@example.com
-   - Password: user123
-   - Role: user
+## 🧪 Testing
 
 ### Running Tests
 
 ```bash
+# Run frontend tests
+npm test
+
+# Run frontend tests with coverage
+npm run test:coverage
+
 # Run backend tests
 cd backend
 npm test
@@ -378,47 +396,65 @@ npm test
 # Run backend tests with coverage
 npm run test:coverage
 
-# Run frontend tests
-cd ..
-npm test
+# Run all tests
+npm run test:all
 ```
 
-## API Documentation
+### Test Coverage
 
-The API documentation is available at http://localhost:3000/api-docs when the server is running. It provides detailed information about all available endpoints, request/response formats, and authentication requirements.
+The application includes comprehensive testing:
+- **Frontend**: Angular component and service tests
+- **Backend**: API endpoint and business logic tests
+- **Integration**: End-to-end API testing
+- **Validation**: Input validation and error handling tests
 
-### Key API Endpoints
+## 🚀 Deployment
 
-- **Authentication**
-  - POST `/api/v1/auth/register` - Register a new user
-  - POST `/api/v1/auth/login` - Login and get JWT token
-  - GET `/api/v1/auth/me` - Get current user info
+### Production Build
 
-- **Users**
-  - GET `/api/v1/users` - Get all users (admin only)
-  - GET `/api/v1/users/:id` - Get user by ID
-  - PUT `/api/v1/users/:id` - Update user
-  - DELETE `/api/v1/users/:id` - Delete user
+```bash
+# Build frontend for production
+npm run build
 
-- **User Profile**
-  - GET `/api/v1/profile` - Get current user profile
-  - PUT `/api/v1/profile` - Update profile
-  - GET `/api/v1/profile/weight` - Get weight history
-  - POST `/api/v1/profile/weight` - Add weight record
+# Start backend in production mode
+cd backend
+NODE_ENV=production npm start
+```
 
-- **Exercises**
-  - GET `/api/v1/exercises` - Get all exercises
-  - GET `/api/v1/exercises/:id` - Get exercise by ID
-  - POST `/api/v1/exercises` - Create new exercise
-  - PUT `/api/v1/exercises/:id` - Update exercise
-  - DELETE `/api/v1/exercises/:id` - Delete exercise
+### Docker Deployment
 
-- **Workout Plans**
-  - GET `/api/v1/workout-plans` - Get all workout plans
-  - GET `/api/v1/workout-plans/:id` - Get workout plan by ID
-  - POST `/api/v1/workout-plans` - Create new workout plan
-  - PUT `/api/v1/workout-plans/:id` - Update workout plan
-  - DELETE `/api/v1/workout-plans/:id` - Delete workout plan
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# Scale services
+docker-compose up -d --scale api=3
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Author
+
+**Fitness Tracker Development Team**
+- GitHub: [@NFTim-og](https://github.com/NFTim-og)
+- Project: [FitnessTrackerAngular](https://github.com/NFTim-og/FitnessTrackerAngular)
+
+## 🙏 Acknowledgments
+
+- Angular team for the excellent framework
+- Express.js community for the robust backend framework
+- Material Design team for the beautiful UI components
+- Docker team for containerization technology
 
 ## 🗄️ Database Schema
 
