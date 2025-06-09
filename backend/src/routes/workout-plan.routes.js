@@ -7,7 +7,7 @@
 import express from 'express';
 import * as workoutPlanController from '../controllers/workout-plan.controller.js';
 import { protect, restrictTo, checkOwnership, optionalAuth } from '../middlewares/auth.middleware.js';
-import { validateWorkoutPlan, validateWorkoutExercise, validateUUID, validatePagination, validate } from '../middlewares/validation.middleware.js';
+import { validateWorkoutPlan, validateWorkoutPlanUpdate, validateWorkoutExercise, validateUUID, validatePagination, validate } from '../middlewares/validation.middleware.js';
 import { paginationMiddleware } from '../utils/pagination.utils.js';
 
 const router = express.Router();
@@ -219,7 +219,7 @@ router.post('/', validateWorkoutPlan, validate, workoutPlanController.createWork
  *       403:
  *         description: Not authorized to update this workout plan
  */
-router.put('/:id', validateUUID, validateWorkoutPlan, validate, workoutPlanController.updateWorkoutPlan);
+router.put('/:id', validateUUID, validateWorkoutPlanUpdate, validate, workoutPlanController.updateWorkoutPlan);
 
 /**
  * @swagger

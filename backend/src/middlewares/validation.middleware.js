@@ -121,7 +121,7 @@ const validateUserProfile = [
 ];
 
 /**
- * Exercise validation rules
+ * Exercise validation rules (for creation)
  */
 const validateExercise = [
   body('name')
@@ -174,7 +174,66 @@ const validateExercise = [
 ];
 
 /**
- * Workout plan validation rules
+ * Exercise validation rules (for updates - all fields optional)
+ */
+const validateExerciseUpdate = [
+  body('name')
+    .optional()
+    .trim()
+    .isLength({ min: 1, max: 100 })
+    .withMessage('Exercise name must be between 1 and 100 characters'),
+
+  body('description')
+    .optional()
+    .trim()
+    .isLength({ max: 1000 })
+    .withMessage('Description must not exceed 1000 characters'),
+
+  body('category')
+    .optional()
+    .isIn(['cardio', 'strength', 'flexibility', 'balance', 'sports'])
+    .withMessage('Invalid exercise category'),
+
+  body('duration_minutes')
+    .optional()
+    .isInt({ min: 1, max: 300 })
+    .withMessage('Duration must be between 1 and 300 minutes'),
+
+  body('calories_per_minute')
+    .optional()
+    .isFloat({ min: 0.1, max: 50 })
+    .withMessage('Calories per minute must be between 0.1 and 50'),
+
+  body('difficulty')
+    .optional()
+    .isIn(['beginner', 'intermediate', 'advanced'])
+    .withMessage('Difficulty must be beginner, intermediate, or advanced'),
+
+  body('met_value')
+    .optional()
+    .isFloat({ min: 0.1, max: 20 })
+    .withMessage('MET value must be between 0.1 and 20'),
+
+  body('equipment_needed')
+    .optional()
+    .trim()
+    .isLength({ max: 255 })
+    .withMessage('Equipment description must not exceed 255 characters'),
+
+  body('muscle_groups')
+    .optional()
+    .isArray()
+    .withMessage('Muscle groups must be an array'),
+
+  body('instructions')
+    .optional()
+    .trim()
+    .isLength({ max: 2000 })
+    .withMessage('Instructions must not exceed 2000 characters')
+];
+
+/**
+ * Workout plan validation rules (for creation)
  */
 const validateWorkoutPlan = [
   body('name')
@@ -194,6 +253,43 @@ const validateWorkoutPlan = [
     .withMessage('Invalid workout plan category'),
 
   body('difficulty')
+    .isIn(['beginner', 'intermediate', 'advanced'])
+    .withMessage('Difficulty must be beginner, intermediate, or advanced'),
+
+  body('estimated_duration_minutes')
+    .optional()
+    .isInt({ min: 5, max: 300 })
+    .withMessage('Estimated duration must be between 5 and 300 minutes'),
+
+  body('target_calories')
+    .optional()
+    .isInt({ min: 10, max: 2000 })
+    .withMessage('Target calories must be between 10 and 2000')
+];
+
+/**
+ * Workout plan validation rules (for updates - all fields optional)
+ */
+const validateWorkoutPlanUpdate = [
+  body('name')
+    .optional()
+    .trim()
+    .isLength({ min: 1, max: 100 })
+    .withMessage('Workout plan name must be between 1 and 100 characters'),
+
+  body('description')
+    .optional()
+    .trim()
+    .isLength({ max: 1000 })
+    .withMessage('Description must not exceed 1000 characters'),
+
+  body('category')
+    .optional()
+    .isIn(['weight_loss', 'muscle_gain', 'endurance', 'strength', 'flexibility', 'general_fitness'])
+    .withMessage('Invalid workout plan category'),
+
+  body('difficulty')
+    .optional()
     .isIn(['beginner', 'intermediate', 'advanced'])
     .withMessage('Difficulty must be beginner, intermediate, or advanced'),
 
@@ -301,7 +397,9 @@ export {
   validateUserLogin,
   validateUserProfile,
   validateExercise,
+  validateExerciseUpdate,
   validateWorkoutPlan,
+  validateWorkoutPlanUpdate,
   validateWorkoutExercise,
   validateUUID,
   validatePagination,

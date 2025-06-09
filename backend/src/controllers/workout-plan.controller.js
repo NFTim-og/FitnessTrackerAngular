@@ -263,11 +263,11 @@ export const createWorkoutPlan = catchAsync(async (req, res, next) => {
   `, [
     workoutPlanId,
     name,
-    description,
+    description || null,
     category,
     difficulty,
-    estimated_duration_minutes,
-    target_calories,
+    estimated_duration_minutes || null,
+    target_calories || null,
     req.user.id,
     is_public
   ]);
@@ -367,23 +367,48 @@ export const updateWorkoutPlan = catchAsync(async (req, res, next) => {
     return next(new AppError('You can only update your own workout plans', 403));
   }
 
+  // Build dynamic update query to only update provided fields
+  const updateFields = [];
+  const updateValues = [];
+
+  if (name !== undefined) {
+    updateFields.push('name = ?');
+    updateValues.push(name);
+  }
+  if (description !== undefined) {
+    updateFields.push('description = ?');
+    updateValues.push(description);
+  }
+  if (category !== undefined) {
+    updateFields.push('category = ?');
+    updateValues.push(category);
+  }
+  if (difficulty !== undefined) {
+    updateFields.push('difficulty = ?');
+    updateValues.push(difficulty);
+  }
+  if (estimated_duration_minutes !== undefined) {
+    updateFields.push('estimated_duration_minutes = ?');
+    updateValues.push(estimated_duration_minutes);
+  }
+  if (target_calories !== undefined) {
+    updateFields.push('target_calories = ?');
+    updateValues.push(target_calories);
+  }
+  if (is_public !== undefined) {
+    updateFields.push('is_public = ?');
+    updateValues.push(is_public);
+  }
+
+  // Always update the timestamp
+  updateFields.push('updated_at = NOW()');
+  updateValues.push(id);
+
   // Update workout plan
   await query(`
-    UPDATE workout_plans SET
-      name = ?, description = ?, category = ?, difficulty = ?,
-      estimated_duration_minutes = ?, target_calories = ?, is_public = ?,
-      updated_at = NOW()
+    UPDATE workout_plans SET ${updateFields.join(', ')}
     WHERE id = ?
-  `, [
-    name,
-    description,
-    category,
-    difficulty,
-    estimated_duration_minutes,
-    target_calories,
-    is_public,
-    id
-  ]);
+  `, updateValues);
 
   // Update exercises if provided
   if (exercises) {

@@ -7,7 +7,7 @@
 import express from 'express';
 import * as exerciseController from '../controllers/exercise.controller.js';
 import { protect, restrictTo, optionalAuth } from '../middlewares/auth.middleware.js';
-import { validateExercise, validateUUID, validatePagination, validate } from '../middlewares/validation.middleware.js';
+import { validateExercise, validateExerciseUpdate, validateUUID, validatePagination, validate } from '../middlewares/validation.middleware.js';
 import { paginationMiddleware } from '../utils/pagination.utils.js';
 
 const router = express.Router();
@@ -299,7 +299,7 @@ router.post('/', validateExercise, validate, exerciseController.createExercise);
  *       403:
  *         description: Not authorized to update this exercise
  */
-router.put('/:id', validateUUID, validateExercise, validate, exerciseController.updateExercise);
+router.put('/:id', validateUUID, validateExerciseUpdate, validate, exerciseController.updateExercise);
 
 /**
  * @swagger

@@ -368,28 +368,64 @@ export const updateExercise = catchAsync(async (req, res, next) => {
     return next(new AppError('You can only update your own exercises', 403));
   }
 
+  // Build dynamic update query to only update provided fields
+  const updateFields = [];
+  const updateValues = [];
+
+  if (name !== undefined) {
+    updateFields.push('name = ?');
+    updateValues.push(name);
+  }
+  if (description !== undefined) {
+    updateFields.push('description = ?');
+    updateValues.push(description);
+  }
+  if (category !== undefined) {
+    updateFields.push('category = ?');
+    updateValues.push(category);
+  }
+  if (duration_minutes !== undefined) {
+    updateFields.push('duration_minutes = ?');
+    updateValues.push(duration_minutes);
+  }
+  if (calories_per_minute !== undefined) {
+    updateFields.push('calories_per_minute = ?');
+    updateValues.push(calories_per_minute);
+  }
+  if (difficulty !== undefined) {
+    updateFields.push('difficulty = ?');
+    updateValues.push(difficulty);
+  }
+  if (met_value !== undefined) {
+    updateFields.push('met_value = ?');
+    updateValues.push(met_value);
+  }
+  if (equipment_needed !== undefined) {
+    updateFields.push('equipment_needed = ?');
+    updateValues.push(equipment_needed);
+  }
+  if (muscle_groups !== undefined) {
+    updateFields.push('muscle_groups = ?');
+    updateValues.push(muscle_groups ? JSON.stringify(muscle_groups) : null);
+  }
+  if (instructions !== undefined) {
+    updateFields.push('instructions = ?');
+    updateValues.push(instructions);
+  }
+  if (is_public !== undefined) {
+    updateFields.push('is_public = ?');
+    updateValues.push(is_public);
+  }
+
+  // Always update the timestamp
+  updateFields.push('updated_at = NOW()');
+  updateValues.push(id);
+
   // Update exercise
   await query(`
-    UPDATE exercises SET
-      name = ?, description = ?, category = ?, duration_minutes = ?,
-      calories_per_minute = ?, difficulty = ?, met_value = ?,
-      equipment_needed = ?, muscle_groups = ?, instructions = ?,
-      is_public = ?, updated_at = NOW()
+    UPDATE exercises SET ${updateFields.join(', ')}
     WHERE id = ?
-  `, [
-    name,
-    description,
-    category,
-    duration_minutes,
-    calories_per_minute,
-    difficulty,
-    met_value,
-    equipment_needed,
-    muscle_groups ? JSON.stringify(muscle_groups) : null,
-    instructions,
-    is_public,
-    id
-  ]);
+  `, updateValues);
 
   // Get updated exercise with creator information
   const [updatedExercise] = await query(`

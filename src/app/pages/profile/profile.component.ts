@@ -303,9 +303,9 @@ export class ProfileComponent implements OnInit {
       const { weight, height } = this.profileForm.value;
 
       if (profile) {
-        await this.userProfileService.updateProfile(weight, height);
+        await firstValueFrom(this.userProfileService.updateProfile(weight, height));
       } else {
-        await this.userProfileService.createProfile(weight, height);
+        await firstValueFrom(this.userProfileService.createProfile(weight, height));
       }
       this.error = null;
       await this.loadWeightHistory();
